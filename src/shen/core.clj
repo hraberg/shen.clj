@@ -1,9 +1,9 @@
 (ns shen.core
-  (use [clojure.java.io :only (file reader)]
+  (:use [clojure.java.io :only (file reader)]
        [clojure.pprint :only (pprint)])
-  (require [clojure.string :as string])
-  (import [java.io StringReader PushbackReader]
-          [java.util.regex Pattern]))
+  (:require [clojure.string :as string])
+  (:import [java.io StringReader PushbackReader]
+           [java.util.regex Pattern]))
 
 
 (def cleanup-symbols-pattern
