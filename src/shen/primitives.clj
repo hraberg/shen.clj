@@ -16,13 +16,21 @@
 
 ;; (DEFUN set (X Y) (SET X Y))
 
-(defmacro set [X Y]
-  (clojure.core/intern *ns* X Y)
+(defn set [X Y]
+  (println X)
+  (clojure.core/intern (if-let [ns (namespace X)]
+                          (symbol ns) *ns*)
+                       (symbol (name X))
+                       Y)
   Y)
 
 ;; (DEFUN value (X) (SYMBOL-VALUE X))
 
-(defmacro value [X] X)
+(defn value [X]
+  (println X)
+  @(clojure.core/intern (if-let [ns (namespace X)]
+                          (symbol ns) *ns*)
+                        (symbol (name X))))
 
 ;; (DEFUN simple-error (String) (ERROR String))
 
