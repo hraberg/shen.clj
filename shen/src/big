@@ -1,0 +1,3373 @@
+(define kl-to-lisp
+   Params Param -> Param    where (element? Param Params)
+   Params [type X _] -> (kl-to-lisp Params X)
+   Params [lambda X Y] -> [FUNCTION [LAMBDA [X] (kl-to-lisp [X | Params] Y)]] 
+   Params [let X Y Z] -> [LET [[X (kl-to-lisp Params Y)]] 
+                                 (kl-to-lisp [X | Params] Z)]
+   _ [defun F Params Code] -> [DEFUN F Params (kl-to-lisp Params Code)]
+   Params [cond | Cond] -> [COND | (map (/. C (cond_code Params C)) (insert-default Cond))]  
+   Params [Param | X] -> (higher-order-code Param
+                                (map (/. Y (kl-to-lisp Params Y)) X))
+                                        where (element? Param Params)
+   Params [[X | Y] | Z] -> (higher-order-code (kl-to-lisp Params [X | Y])
+                                               (map (/. W (kl-to-lisp Params W)) Z))   
+   Params [F | X] -> (assemble-application F 
+                                     (map (/. Y (kl-to-lisp Params Y)) X))
+                                 where (symbol? F)
+   _ [] -> []                              
+   _ S -> [QUOTE S]  where (or (symbol? S) (boolean? S))
+   _ X -> X)
+
+(define insert-default
+  [] -> [[true [ERROR "error: cond failure~%"]]]
+  [[true X] | Y] -> [[true X] | Y] 
+  [Case | Cases] -> [Case | (insert-default Cases)])    
+   
+(define higher-order-code 
+   F X -> [let Args [LIST | X]
+            [let NewF [maplispsym F]
+               [trap-error [APPLY NewF Args] 
+                           [lambda E [COND [[arity-error? F Args] 
+                                            [funcall [EVAL [nest-lambda F NewF]] Args]]
+                                           [[EQ NewF [QUOTE or]]
+                                            [funcall [lambda X1 [lambda X2 [or X1 X2]]] Args]]
+                                           [[EQ NewF [QUOTE and]]
+                                            [funcall [lambda X1 [lambda X2 [and X1 X2]]] Args]]
+                                           [[EQ NewF [QUOTE trap-error]]
+                                            [funcall [lambda X1 [lambda X2 [trap-error X1 X2]]] Args]]
+                                           [[bad-lambda-call? NewF Args] 
+                                            [funcall NewF Args]]
+                                           [T [relay-error E]]]]]]])
+                                           
+(define bad-lambda-call?
+  F Args -> (AND (FUNCTIONP F) (NOT (= (LIST-LENGTH Args) 1))))
+                                         
+(define relay-error
+  E -> (ERROR (error-to-string E)))
+                                         
+(define funcall
+  Lambda [] -> Lambda
+  Lambda [X | Y] -> (funcall (FUNCALL Lambda X) Y))   
+  
+(define arity-error?
+   F Args -> (AND (SYMBOLP F)
+                  (> (trap-error (arity F) (/. E -1)) (LIST-LENGTH Args)))       
+   
+(define nest-lambda
+   F NewF -> (nest-lambda-help NewF (trap-error (arity F) (/. E -1))))
+   
+(define nest-lambda-help
+  F -1 -> F
+  F 0 -> F
+  F N -> (let X (GENSYM "Y")
+                 [lambda X (nest-lambda-help (add-p F X) (- N 1))]))
+  
+(define add-p
+  [F | X] Y -> (append [F | X] [Y])
+  F X -> [F X])           
+ 
+(define cond_code
+   Params [Test Result] -> [(lisp_test Params Test) 
+                             (kl-to-lisp Params Result)])
+                             
+(define lisp_test
+   _ true -> T
+   Params [and | Tests] -> [AND | (map (/. X (wrap (kl-to-lisp Params X))) Tests)]
+   Params Test -> (wrap (kl-to-lisp Params Test))) 
+   
+ (define wrap 
+    [cons? X] -> [CONSP X]
+    [string? X] -> [STRINGP X]
+    [number? X] -> [NUMBERP X]
+    [empty? X] -> [NULL X]
+    [and P Q] -> [AND (wrap P) (wrap Q)]
+    [or P Q] -> [OR (wrap P) (wrap Q)] 
+    [not P] -> [NOT (wrap P)] 
+    [equal? X []] -> [NULL X]
+    [equal? [] X] -> [NULL X]
+    [equal? X [Quote Y]] -> [EQ X [Quote Y]]    
+                              where (and (= (SYMBOLP Y) T) (= Quote QUOTE))
+    [equal? [Quote Y] X] -> [EQ [Quote Y] X]    
+                                where (and (= (SYMBOLP Y) T) (= Quote QUOTE)) 
+    [equal? [fail] X] -> [EQ [fail] X]
+    [equal? X [fail]] -> [EQ X [fail]]
+    [equal? S X] -> [EQUAL S X]  where (string? S)
+    [equal? X S] -> [EQUAL X S]  where (string? S)
+    [equal? X Y] -> [shen-ABSEQUAL X Y]
+    [shen-+string? [tlstr X]] -> [NOT [STRING-EQUAL [tlstr X] ""]]
+    [shen-pvar? X] -> [AND [ARRAYP X] [NOT [STRINGP X]] [EQ [AREF X 0] [QUOTE shen-pvar]]] 
+    [tuple? X] -> [AND [ARRAYP X] [NOT [STRINGP X]] [EQ [AREF X 0] [QUOTE shen-tuple]]]
+    [greater? X Y] -> [> X Y]
+    [greater-than-or-equal-to? X Y] -> [>= X Y]
+    [less? X Y] -> [< X Y]
+    [less-than-or-equal-to? X Y] -> [<= X Y]
+    X -> [wrapper X])
+
+ (define wrapper
+   true -> T
+   false -> []
+   X -> (error "boolean expected: not ~S~%" X)) 
+   
+ (define assemble-application
+   hd [X] -> [CAR X]
+   tl [X] -> [CDR X]
+   cons [X Y] -> [CONS X Y]
+   append [X Y] -> [APPEND X Y]
+   reverse [X] -> [REVERSE X]
+   if [P Q R] -> [IF (wrap P) Q R]
+  \ do [X Y] -> [PROG2 X Y]\
+   + [1 X] -> [1+ X]
+   + [X 1] -> [1+ X]
+   - [X 1] -> [1- X]
+   value [[Quote X]] -> X  where (= Quote QUOTE)
+   set [[Quote X] [1+ X]] -> [INCF X]  where (= Quote QUOTE)
+   set [[Quote X] [1- X]] -> [DECF X]  where (= Quote QUOTE)
+   F X -> (let NewF (maplispsym F)
+               Arity (trap-error (arity F) (/. E -1))
+               (if (or (= Arity (length X)) (= Arity -1))
+                   [NewF | X]
+                   [funcall (nest-lambda F NewF) [LIST | X]])))
+                   
+(define maplispsym  
+    = -> equal?
+    > -> greater?
+    < -> less?
+    >= -> greater-than-or-equal-to?
+    <= -> less-than-or-equal-to?
+    + -> add
+    - -> subtract
+    / -> divide
+    * -> multiply
+    F -> F)
+    
+ (define factorh
+  [Defun F Params [Cond | Code]] -> [Defun F Params [BLOCK [] (process-tree (tree (map returns Code)))]]
+                                       where (and (= Cond COND) (= Defun DEFUN))
+  Code -> Code)
+  
+(define returns
+  [Test Result] -> [Test [RETURN Result]]) 
+    
+(define process-tree
+   (@p P Q R no-tag) -> [IF P (optimise-selectors P (process-tree Q)) (process-tree R)]
+   (@p P Q R Tag) -> [TAGBODY [IF P (optimise-selectors P (process-tree Q))] Tag (process-tree R)]
+   Q -> Q    where (not (tuple? Q))) 
+   
+(define optimise-selectors 
+  Test Code -> (optimise-selectors-help (selectors-from Test) Code))                       
+
+(define selectors-from
+  [Consp X] -> [[CAR X] [CDR X]]    where (= Consp CONSP)
+  [tuple? X] -> [[fst X] [snd X]]  
+  _ -> [])    
+  
+(define optimise-selectors-help 
+   [] Code -> Code
+   [S1 S2] Code -> (let O1 (occurrences S1 Code)  
+                        O2 (occurrences S2 Code) 
+                        V1 (gensym V)
+                        V2 (gensym V)
+                        (if (and (> O1 1) (> O2 1))
+                            [LET [[V1 S1] [V2 S2]]  
+                                 (subst V1 S1 (subst V2 S2 Code))]
+                            (if (> O1 1)
+                                 [LET [[V1 S1]] (subst V1 S1 Code)] 
+                                 (if (> O2 1)
+                                      [LET [[V2 S2]] (subst V2 S2 Code)]
+                                      Code)))))        
+
+(define tree
+  [[[And P Q] R] | S] ->  (let Tag (gensym tag)
+                                Left (tree (append (branch-by P [[[And P Q] R] | S]) [[T [GO Tag]]]))
+                                Right (tree (branch-by-not P [[[And P Q] R] | S]))                                
+                                (@p P Left Right Tag))     where (= And AND)                 
+  [[True Q] | _] -> Q     where (= True T)                         
+  [[P Q] | R] -> (@p P Q (tree R) no-tag))
+  
+(define branch-by
+  P [[[And P Q] R] | S] -> [[Q R] | (branch-by P S)]   where (= And AND)
+  P [[P R] | S] -> [[T R]]
+  _ Code -> [])
+  
+(define branch-by-not
+  P [[[And P Q] R] | S] -> (branch-by-not P S)  where (= And AND)
+  P [[P R] | S] -> S
+  _ Code -> Code)   (define shen->kl 
+  F Def -> (compile (function <define>) [F | Def] (/. X (shen-syntax-error F X))))
+
+(define shen-syntax-error
+  F X -> (error "syntax error in ~A here:~%~% ~A~%" F (next-50 50 X)))
+
+(defcc <define>
+ <name> <signature> <rules> := (compile_to_machine_code <name> <rules>);
+ <name> <rules> := (compile_to_machine_code <name> <rules>);)
+
+(defcc <name>
+  -*- := (if (and (symbol? -*-) (not (sysfunc? -*-))) 
+             -*-
+             (error "~A is not a legitimate functor.~%" -*-)))
+
+(define sysfunc?
+  F -> (element? F (value *system*)))
+
+(defcc <signature>
+  { <signature-help> } := (normalise-type (curry-type <signature-help>));)
+
+(define curry-type
+  [A --> B --> | C] -> (curry-type [A --> [B --> | C]])
+  [cons A _] -> [list (curry-type A)]
+  [A * B * | C] -> (curry-type [A * [B * | C]])
+  [X | Y] -> (map (function curry-type) [X | Y])
+  X -> X) 
+
+(defcc <signature-help> 
+  -*- <signature-help> := (if (element? -*- [{ }]) 
+                              (fail)
+                              [-*- | <signature-help>]);
+ <e> := [];)
+
+(defcc <rules>
+  <rule> <rules> := [<rule> | <rules>];
+  <rule> := [<rule>];)
+  
+(defcc <rule>
+  <patterns> -> <action> where <guard> := [<patterns> [where <guard> <action>]];
+  <patterns> -> <action> := [<patterns> <action>];
+  <patterns> <- <action> where <guard> := [<patterns> [where <guard> [choicepoint! <action>]]];
+  <patterns> <- <action> := [<patterns> [choicepoint! <action>]];)   
+
+(define fail_if
+  F X -> (if (F X) (fail) X))
+
+(define succeeds?
+  X -> false  where (= X (fail))
+  _ -> true)
+
+(defcc <patterns>
+  <pattern> <patterns> := [<pattern> | <patterns>];
+  <e> := [];)
+
+(defcc <pattern>
+  [@p <pattern1> <pattern2>] := [@p <pattern1> <pattern2>];
+  [cons <pattern1> <pattern2>] := [cons <pattern1> <pattern2>];
+  [@v <pattern1> <pattern2>] := [@v <pattern1> <pattern2>];
+  [@s <pattern1> <pattern2>] := [@s <pattern1> <pattern2>];
+  [vector 0] := [vector 0];
+  -*- := (if (cons? -*-) 
+             (error "~A is not a legitimate constructor~%" -*-) 
+             (fail));
+  <simple_pattern> := <simple_pattern>;)
+
+(defcc <simple_pattern>
+  -*- := (if (= -*- _) (gensym X) (fail));
+  -*- := (if (element? -*- [-> <-]) (fail) -*-);)
+
+(defcc <pattern1>
+  <pattern> := <pattern>;)
+
+(defcc <pattern2>
+  <pattern> := <pattern>;)
+
+(defcc <action>
+  -*- := -*-;)
+
+(defcc <guard>
+  -*- := -*-;)
+
+(define compile_to_machine_code 
+  Name Rules -> (let Lambda+ (compile_to_lambda+ Name Rules)
+                     KL (compile_to_kl Name Lambda+)
+                     Record (record-source Name KL)
+                     KL))
+
+(define record-source
+   _ _ -> skip    where (value *installing-kl*)
+   Name ObjectCode -> (put Name source ObjectCode))
+
+(define compile_to_lambda+
+  Name Rules -> (let Arity (aritycheck Name Rules)
+                     Free (map (/. Rule (free_variable_check Name Rule)) Rules)
+                     Variables (parameters Arity)
+                     Linear (map linearise Rules)
+                     Abstractions (map (function abstract_rule) Linear)
+                     Applications 
+                       (map (/. X (application_build Variables X))
+                            Abstractions)
+                     [Variables Applications]))
+
+(define free_variable_check
+  Name [Patts Action] -> (let Bound (extract_vars Patts)
+                              Free (extract_free_vars Bound Action)
+                              (free_variable_warnings Name Free)))
+
+(define extract_vars
+  X -> [X]	where (variable? X)
+  [X | Y] -> (union (extract_vars X) (extract_vars Y))
+  X -> [])
+
+(define extract_free_vars
+  Bound X -> [X]	where (and (variable? X) (not (element? X Bound)))
+  Bound [lambda X Y] -> (extract_free_vars [X | Bound] Y)
+  Bound [let X Y Z] -> (union (extract_free_vars Bound Y) 
+                              (extract_free_vars [X | Bound] Z))
+  Bound [X | Y] -> (union (extract_free_vars Bound X) 
+                          (extract_free_vars Bound Y))
+  _ _ -> [])
+
+(define free_variable_warnings
+  _ [] -> _
+  Name Vs -> (let Warning (output "~%The following variables are free in ~A: " Name)
+                  (list_variables Vs)))
+
+(define list_variables
+  [V] -> (output "~A~%" V)
+  [V | Vs] -> (do (output "~A, " V) (list_variables Vs)))
+                        
+(define linearise
+  [Patts Action] -> (linearise_help (flatten Patts) Patts Action))
+
+(define flatten
+  [] -> []
+  [X | Y] -> (append (flatten X) (flatten Y))
+  X -> [X])
+
+(define linearise_help
+  [] Patts Action -> [Patts Action]
+  [X | Y] Patts Action -> (if (and (variable? X) (element? X Y))
+                                    (let Var (gensym X)
+                                         NewAction [where [= X Var] Action]
+                                         NewPatts (linearise_X X Var Patts)
+                                         (linearise_help Y NewPatts NewAction))
+                                    (linearise_help Y Patts Action)))
+
+(define linearise_X
+  X Var X -> Var
+  X Var [Y | Z] -> (let L (linearise_X X Var Y)
+                       (if (= L Y)
+                           [Y | (linearise_X X Var Z)]
+                           [L | Z]))
+  _ _ Y -> Y)  
+
+(define aritycheck
+  Name [[Patts Action]] -> (do (aritycheck-action Action) (aritycheck-name Name (arity Name) (length Patts)))
+  Name [[Patts1 Action1] [Patts2 Action2] | Rules] 
+  -> (if (= (length Patts1) (length Patts2))
+         (do (aritycheck-action Action) (aritycheck Name [[Patts2 Action2] | Rules]))
+         (error "arity error in ~A~%" Name)))
+
+(define aritycheck-name
+  _ -1 Arity -> Arity
+  _ Arity Arity -> Arity
+  Name _ Arity -> (do (output "~%warning: changing the arity of ~A can cause errors.~%" Name) Arity))
+
+(define aritycheck-action
+  [F | X] -> (do (aah F X) (map (function aritycheck-action) [F | X]))
+  _ -> skip)
+
+(define aah
+  F X -> (let Arity (arity F)
+              Len (length X)
+                  (if (and (> Arity -1) (> Len Arity))
+                      (output "warning: ~A might not like ~A argument~A.~%" F Len (if (> Len 1) "s" ""))
+                      skip)))
+                      
+(define abstract_rule
+  [Patterns Action] -> (abstraction_build Patterns Action))  
+
+(define abstraction_build
+  [] Action -> Action
+  [Patt | Patts] Action -> [/. Patt (abstraction_build Patts Action)])
+   
+(define parameters
+  0 -> []
+  N -> [(gensym V) | (parameters (- N 1))])
+
+(define application_build
+  [] Application -> Application
+  [V | Vs] Abstraction -> (application_build Vs [Abstraction V]))
+
+(define compile_to_kl
+  Name [Variables Applications] 
+   -> (let Arity (store-arity Name (length Variables))
+           Reduce (map (function reduce) Applications)
+           CondExpression (cond-expression Name Variables Reduce)
+           KL [defun Name Variables CondExpression]
+           KL))
+
+(define store-arity
+  _ _ -> skip    where (value *installing-kl*)
+  F Arity -> (put F arity Arity))
+
+(define reduce
+  Application -> (do (set *teststack* [])
+                     (let Result (reduce_help Application)
+                          [[:tests | (reverse (value *teststack*))] Result])))
+
+(define reduce_help
+   [[/. [cons X Y] Z] A] 
+   -> (do (add_test [cons? A]) 
+          (let Abstraction [/. X [/. Y (ebr A [cons X Y] Z)]]
+               Application [[Abstraction [hd A]] [tl A]]
+               (reduce_help Application)))
+   [[/. [@p X Y] Z] A] 
+   -> (do (add_test [tuple? A]) 
+          (let Abstraction [/. X [/. Y (ebr A [@p X Y] Z)]]
+               Application [[Abstraction [fst A]] [snd A]]
+               (reduce_help Application)))
+   [[/. [@v X Y] Z] A] 
+   -> (do (add_test [+vector? A]) 
+          (let Abstraction [/. X [/. Y (ebr A [@v X Y] Z)]]
+               Application [[Abstraction [hdv A]] [tlv A]]
+               (reduce_help Application)))
+   [[/. [@s X Y] Z] A] 
+   -> (do (add_test [+string? A]) 
+          (let Abstraction [/. X [/. Y (ebr A [@v X Y] Z)]]
+               Application [[Abstraction [pos A 0]] [tlstr A]]
+               (reduce_help Application)))
+   [[/. X Z] A] -> (do (add_test [= X A])
+                       (reduce_help Z))  where (not (variable? X))
+   [[/. X Z] A] -> (reduce_help (ebr A X Z))
+   [where P Q] -> (do (add_test P) (reduce_help Q))
+   [X Y] -> (let Z (reduce_help X) 
+                   (if (= X Z) [X Y] (reduce_help [Z Y])))
+   X -> X)
+
+(define +string?
+  "" -> false
+  X -> (string? X))
+
+(define +vector
+  X -> false where (= X (vector 0))
+  X -> (vector? X))
+
+(define ebr
+  A B B -> A
+  A B [/. C D] -> [/. C D]	where (> (occurrences B C) 0)
+  A B [let B C D] -> [let B (ebr A B C) D]	
+  A B [C | D] -> [(ebr A B C) | (ebr A B D)]
+  _ _ C -> C)  
+
+(define add_test
+   Test -> (set *teststack* [Test | (value *teststack*)]))   
+
+(define cond-expression
+  Name Variables Code -> (let Err (err-condition Name)
+                              Cases (case-form Code Err)
+                              EncodeChoices (encode-choices Cases Name)
+                              (cond-form EncodeChoices)))
+
+(define cond-form
+  [[true Result] | _] -> Result	
+  \[let X Y Z] -> [let X Y Z]\
+  Cases -> [cond | Cases])
+  
+(define encode-choices
+  [] _ -> []  
+  [[true [choicepoint! Action]]] Name -> [[true [let Result Action
+                                                  [if [= Result [fail]]
+                                                      (if (value *installing-kl*) [sys-error Name] [f_error Name])
+                                                      Result]]]]   
+  [[true [choicepoint! Action]] | Code] Name -> [[true [let Result Action
+                                                               [if [= Result [fail]]
+                                                                   (cond-form (encode-choices Code Name))
+                                                                   Result]]]]
+  [[Test [choicepoint! Action]] | Code] Name -> [[true [let Freeze [freeze (cond-form (encode-choices Code Name))]
+                                                             [if Test
+                                                                 [let Result Action
+                                                                      [if [= Result [fail]]
+                                                                          [thaw Freeze]
+                                                                          Result]]
+                                                                 [thaw Freeze]]]]]
+  [[Test Result] | Code] Name -> [[Test Result] | (encode-choices Code Name)])   
+
+(define case-form
+  [] Err -> [Err]
+  [[[:tests] [choicepoint! Result]] | Code] Err -> [[true [choicepoint! Result]] | (case-form Code Err)]
+  [[[:tests] Result] | _] _ -> [[true Result]]
+  [[[:tests | Tests] Result] | Code] Err 
+   -> [[(embed-and Tests) Result] | (case-form Code Err)])
+
+(define embed-and
+  [Test] -> Test
+  [Test | Tests] -> [and Test (embed-and Tests)])
+
+(define err-condition
+  Name -> [true [sys-error Name]]    where (value *installing-kl*)
+  Name -> [true [f_error Name]])
+
+(define sys-error
+  Name -> (error "system function ~A: unexpected argument~%" Name))(set *installing-kl* false)
+(set *history* [])
+(set *tc* false)
+(set *property-vector* (vector 20000))
+(set *process-counter* 0)
+(set *varcounter* (vector 1000))
+(set *prologvectors* (vector 1000))
+(set *reader-macros* [])
+(set *printer* [sys-print])
+(set *home-directory* [])
+(set *gensym* 0)
+(set *tracking* [])
+(set *home-directory* "")
+(set *alphabet* [A B C D E F G H I J K L M N O P Q R S T U V W X Y Z])
+(set *special* [@p @s @v cons lambda let type where input+ set open])  
+(set *extraspecial* [define process-datatype])
+(set *spy* false)
+(set *datatypes* [])
+(set *alldatatypes* [])
+(set *synonyms* [])
+(set *system* [])
+(set *signedfuncs* []) 
+(set *hush* "Shen unhushed") 
+(set *maxcomplexity* 128)
+(set *occurs* true)
+(set *maxinferences* 1000000)
+(set *maximum-print-sequence-size* 20)
+(set *catch* 0)
+
+(define initialise_arity_table
+  [] -> []
+  [F Arity | Table] -> (let DecArity (put F arity Arity)
+                            (initialise_arity_table Table)))
+
+(define arity 
+   F -> (trap-error (get F arity) (/. E -1)))
+                            
+ (initialise_arity_table 
+  [adjoin 2 and 2 append 2 apply 2 arity 1 assoc 2 boolean? 1 cd 1 compile 3 concat 2 cons 2 
+   cons? 1 cn 2 declare 2 destroy 1 difference 2 do 2 dump 2 element? 2 empty? 1 interror 2 eval 1 explode 1 
+   external 1 fail-if 2 fail 0 fix 2 findall 5 freeze 1 fst 1 gensym 1 get 3 address-> 3 <-address 2 <-vector 2 > 2 
+   >= 2 = 2 hd 1 hdv 1 hdstr 1 head 1 if 3 integer? 1 identical 4 inferences 1 intoutput 2 make-string 2
+   intersection 2 length 1 lineread 0 load 1 < 2 <= 2 vector 1 macroexpand 1 map 2 mapcan 2 intmake-string 2
+   maxinferences 1 not 1 nth 2 n->string 1 number? 1 output 2 occurs-check 1 occurrences 2 occurs-check 1 or 2 
+   package 3 print 1 profile 1 profile-results 1 ps 1 preclude 1 preclude-all-but 1 address-> 3 put 4 reassemble 2 read-file-as-string 1 read-file 1 read-byte 1 remove 2 reverse 1 set 2 simple-error 1 snd 1 specialise 1 
+   spy 1 step 1 string? 1 strong-warning 1 subst 3 symbol? 1 tail 1 tl 1 tc 1 tc? 1 thaw 1 
+   track 1 trap-error 2 tuple? 1 type 1 return 3 unprofile 1 unify 4 unify! 4 union 2 untrack 1 unspecialise 1 vector 1 
+   vector-> 3 value 1 variable? 1 version 1 warn 1 write-to-file 2 y-or-n? 1 + 2 * 2 / 2 - 2 == 2 
+   @p 2 @v 2 @s 2 preclude 1 include 1 preclude-all-but 1 include-all-but 1 where 2])
+
+(define systemf
+  F -> (set *system* (adjoin F (value *system*))))
+
+(define adjoin
+  X Y -> (if (element? X Y) Y [X | Y]))
+
+(map (function systemf) 
+     [! } { --> <-- && : ; :- := (intern "_") -s- -o- -*- *language* *implementation* *stinput*
+      *home-directory* *version* *maximum-print-sequence-size* *printer* *macros* @v @p @s <- -> <e> == = >= > /. =!
+      - / * + <= < >> <> y-or-n? write-to-file where when warn version verified variable? value 
+      vector-> <-vector vector vector? unspecialise untrack union unify unify! unprofile return type 
+      tuple? true trap-error track time thaw tc? tc tl tlstr tlv tail systemf synonyms symbol symbol? 
+      sum subst string? stream string stinput step spy specialise  
+      snd simple-error set save str reverse remove read read-file read-file-as-bytelist 
+      read-file-as-string read-byte quit put preclude preclude-all-but ps prolog? 
+      profile-results profile print pr pos package output out or open occurrences 
+      occurs-check n->string number? number null nth not nl mode macro macroexpand maxinferences mapcan map make-string 
+      load loaded list lineread limit length let lazy lambda is intersection inferences intern 
+      integer? input input+ include include-all-but in if identical head hd hdv hdstr hash get get-time gensym 
+      function fst freeze format fix file fail fail! fail-if fwhen findall false explode external exception
+      eval-without-macros eval error-to-string error empty? element? dump dumped do difference 
+      destroy defun define defmacro defcc defprolog declare datatype cut cn cons? cons cond concat compile cd cases 
+      call close bind bound? boolean? boolean bar! average assoc arity apply append and adjoin 
+      <-address address-> absvector? absvector abort intmake-string intoutput interror])
+
+(define specialise
+  F -> (do (set *special* [F | (value *special*)]) F))
+
+(define unspecialise
+  F -> (do (set *special* (remove F (value *special*))) F))(define load
+   FileName -> (let Load (time (load-help (value *tc*) (read-file FileName)))
+                    Infs (if (value *tc*)
+                             (output "~%typechecked in ~A inferences~%" (inferences _))
+                             skip)
+                    loaded))
+
+(define load-help
+  false File -> (map (/. X (output "~S~%" (eval-without-macros X))) File)
+  _ File -> (let RemoveSynonyms (mapcan (function remove-synonyms) File)
+                 Table (mapcan (function typetable) RemoveSynonyms)
+                 Assume (map (function assumetype) Table)
+                 (trap-error (map (function typecheck-and-load) RemoveSynonyms) 
+                             (/. E (unwind-types E Table)))))
+                             
+                             
+(define remove-synonyms
+  [synonyms-help | S] -> (do (eval [synonyms-help | S]) [])
+  Code -> [Code])
+
+(define typecheck-and-load
+  X -> (do (nl) (typecheck-and-evaluate X (gensym A))))
+                 
+(define typetable
+  [define F | X] -> (let Sig (compile (function <sig+rest>) X [])
+                        (if (= Sig fail!)
+                            (error "~A lacks a proper signature.~%" F)
+                            [[F | Sig]]))
+  _ -> [])
+
+(define assumetype
+  [F | Type] -> (declare F Type))
+
+(define unwind-types
+  E [] -> (simple-error (error-to-string E))
+  E [[F | _] | Table] -> (do (remtype F) (unwind-types E Table)))
+
+(define remtype
+  F -> (do (set *signedfuncs* (remove F (value *signedfuncs*))) F))       
+                
+(defcc <sig+rest>
+  <signature> <any> := <signature>;)  
+  
+(define dump
+   File Language -> (let Shen (read-file File)
+                         KL (map (function shen-out) Shen)
+                         ObjectFile (cn File (cn "." Language))
+                         Stream (open file ObjectFile out)
+                         Dump (dump-target Stream Language KL)
+                         Close (close Stream)
+                         ObjectFile))
+
+(define shen-out
+  [define F | Code] -> (shen->kl F Code)
+  Shen -> Shen)
+
+(define dump-target
+  Stream "kl" KL -> (write-object-code-to-file Stream KL)
+  Stream "cl" KL -> (write-object-code-to-file Stream (map (/. X (kl-to-lisp [] X)) KL))
+  _ Language _ -> (error "~A is not known as a platform~%" Language))
+
+(define write-object-code-to-file
+   Stream KL -> (map (/. X (let String (make-string "~R~%~%" X)
+                                (pr String Stream))) KL)) 
+
+                        
+(define write-to-file
+   File Text -> (let AbsPath (make-string "~A~A" (value *home-directory*) File)
+                     Stream (open file AbsPath out)
+                     String (make-string "~S~%~%" Text)
+                     Write (pr String Stream) 
+                     Close (close Stream)
+                     Text))(define macroexpand
+   X -> (compose (value *macros*) X))
+
+(define macroexpand
+  X -> (let Y (compose (value *macros*) X)
+            (if (= X Y)
+                X
+                (walk macroexpand Y))))
+
+(set *macros* [timer-macro cases-macro abs-macro put/get-macro compile-macro yacc-macro 
+               datatype-macro let-macro assoc-macro i/o-macro prolog-macro synonyms-macro
+               nl-macro vector-macro @s-macro defmacro-macro defprolog-macro function-macro])
+
+(define compose
+   [] X -> X
+   [F | Fs] X -> (compose Fs (F X)))
+   
+(define compile-macro
+  [compile F X] -> [compile F X []]
+  X -> X)   
+
+(define prolog-macro
+  [prolog? | X] -> [intprolog (prolog-form X)]
+  X -> X)
+
+(define defprolog-macro
+  [defprolog F | X] -> (compile (function <defprolog>) [F | X] (/. Y (prolog-error F Y)))
+  X -> X)
+
+(define prolog-form
+  X -> (cons_form (map (function cons_form) X)))
+  
+(define datatype-macro
+  [datatype F | Rules] 
+   -> [process-datatype F [compile [function <datatype-rules>] (rcons_form Rules) [function datatype-error]]]
+  X -> X)
+
+(define defmacro-macro
+  [defmacro F | Rules] -> (let Macro (compile <defmacro> [F | Rules])
+                               Declare [do [set *macros* [adjoin F [value *macros*]]] macro]
+                               Package [package null [] Declare Macro]
+                               Package)
+  X -> X)
+
+(define defmacro-macro
+  [defmacro F | Rules] -> (let Macro [define F | (append Rules [X -> X])]
+                               Declare [do [set *macros* [adjoin F [value *macros*]]] macro]
+                               Package [package null [] Declare Macro]
+                               Package)
+  X -> X)
+
+(defcc <defmacro>
+ <name> <macrorules> := [define <name> | <macrorules>];)
+
+(defcc <macrorules>
+  <macrorule> <macrorules>;
+  <macrorule> := (append <macrorule> [X -> X]);)
+
+(defcc <macrorule>
+  <patterns> -> <macroaction> where <guard>;
+  <patterns> -> <macroaction>;
+  <patterns> <- <macroaction> where <guard>;
+  <patterns> <- <macroaction>;)
+
+(defcc <macroaction>
+  <action> := [[walk [function macroexpand] <action>]];)
+
+(define @s-macro
+  [@s W X Y | Z] -> [@s W (@s-macro [@s X Y | Z])]
+  [@s X Y] -> (let E (explode X)
+                   (if (> (length E) 1)
+                       (@s-macro [@s | (append E [Y])])
+                       [@s X Y]))   where (string? X)
+  X -> X)
+
+(define synonyms-macro
+  [synonyms | X] -> [synonyms-help (rcons_form X)]
+  X -> X)
+
+(define nl-macro
+  [nl] -> [nl 1]
+  X -> X)
+
+(define vector-macro
+   <> -> [vector 0]
+   X -> X)
+
+(define yacc-macro
+  [defcc F | X] -> (yacc->shen F X)
+  X -> X)
+   
+(define assoc-macro   
+  [F W X Y | Z] -> [F W (assoc-macro [F X Y | Z])]
+                        where (element? F [@p @v append and or + * do])
+  X -> X) 
+  
+(define let-macro
+   [let V W X Y | Z] -> [let V W (let-macro [let X Y | Z])]
+   X -> X)  
+
+(define abs-macro
+   [/. V W X | Y] -> [lambda V (abs-macro [/. W X | Y])]   
+   [/. X Y] -> [lambda X Y]
+   X -> X)
+
+(define cases-macro
+  [cases true X | _] -> X
+  [cases X Y] -> [if X Y (i/o-macro [error "error: cases exhausted~%"])]
+  [cases X Y | Z] -> [if X Y (cases-macro [cases | Z])]
+  [cases X] -> (error "error: odd number of case elements~%")
+  X -> X)
+  
+(define timer-macro
+   [time Process] -> (let-macro
+                        [let Start [get-time run]
+                             Result Process
+                             Finish [get-time run]
+                             Time [- Finish Start]
+                             Message (i/o-macro [output "~%run time: ~A secs~%" Time]) 
+                             Result])
+    X -> X)                           
+  
+(define i/o-macro
+   [output String | Y] -> [intoutput String (tuple-up Y)]
+   [make-string String | Y] -> [intmake-string String (tuple-up Y)]
+   [error String | Y] -> [interror String (tuple-up Y)]
+   [pr String] -> [pr String [stinput 0]]
+   [read-byte] -> [read-byte [stinput 0]]
+   X -> X)
+   
+(define tuple-up
+  [X | Y] -> [@p X (tuple-up Y)]
+  X -> X)   
+      
+(define put/get-macro
+  [put X Pointer Y] -> [put X Pointer Y [value *property-vector*]] 
+  [get X Pointer] -> [get X Pointer [value *property-vector*]]
+  X -> X)
+
+(define function-macro
+  [function F] -> (function-abstraction F (arity F))
+  X -> X)
+  
+(define function-abstraction 
+  F 0 -> [freeze F]
+  F -1 -> F
+  F N -> (function-abstraction-help F N []))  
+  
+(define function-abstraction-help
+  F 0 Vars -> [F | Vars]
+  F N Vars -> (let X (gensym V) [/. X (function-abstraction-help F (- N 1) (append Vars [X]))]))
+  
+  
+"                                                   The License
+ 
+ The user is free to produce commercial applications with the software, to distribute these applications in source or binary  form, and to charge monies for them as he sees fit and in concordance with the laws of the land subject to the following  license.
+ 
+ 1. The license applies to all the software and all derived software and must appear on such.
+ 2. It is illegal to distribute the software without this license attached to it and use of the software implies agreement 
+    with the license as such. It is illegal for anyone who is not the copyright holder to tamper with or change the license.
+ 3. Neither the names of Lambda Associates or the copyright holder may be used to endorse or promote products built using
+     the software without specific prior written permission from the copyright holder.
+ 4. That possession of this license does not confer on the copyright holder any special contractual obligation towards the    user. That in no event shall the copyright holder be liable for any direct, indirect, incidental, special, exemplary or   consequential damages (including but not limited to procurement of substitute goods or services, loss of use, data, or    profits; or business interruption), however caused and on any theory of liability, whether in contract, strict liability   or tort (including negligence) arising in any way out of the use of the software, even if advised of the possibility of   such damage. 
+5. It is permitted for the user to change the software, for the purpose of improving performance, correcting an error, or    porting to a new platform, and distribute the modified version of Shen (hereafter the modified version) provided the     resulting program conforms in all respects to the Shen standard and is issued under that title. The user must it clear   with his distribution that he/she is the author of the changes and what these changes are and why. 
+6. Derived versions of this software in whatever form are subject to the same restrictions. In particular it is not          permitted to make derived copies of this software which do not conform to the Shen standard or appear under a different title.
+7. It is permitted to distribute versions of Shen which incorporate libraries, graphics or other facilities which are not    part of the Shen standard.
+
+For an explication of this license see http://www.lambdassociates.org/News/june11/license.htm which explains this license in full."
+
+(package shen- []
+
+(define sys-print
+  "" -> ""
+  (@s "_quote" Str) -> (@s "'" (sys-print Str))
+  (@s "_backquote" Str) -> (@s "`" (sys-print Str))
+  (@s "_hash" Str) -> (@s "#" (sys-print Str))
+  (@s "|:|" Str) -> (@s ":" (sys-print Str))
+  (@s "|;|" Str) -> (@s ";" (sys-print Str))
+  (@s "|,|" Str) -> (@s "," (sys-print Str))
+  (@s S Str) -> (@s S (sys-print Str)) 
+
+(define sys-print
+  X -> X))(defcc <defprolog>
+  <predicate*> <clauses*> := (hd (prolog->shen  (map (/. X (insert-predicate <predicate*> X)) <clauses*>)));)
+
+(define prolog-error
+  F X -> (error "prolog syntax error in ~A here:~%~% ~A~%" F (next-50 50 X)))
+
+(define next-50
+  _ [] -> ""
+  0 _ -> ""
+  N [X | Y] -> (cn (decons-string X) (next-50 (- N 1) Y)))
+
+(define decons-string
+  [cons X Y] -> (make-string "~S " (eval-cons [cons X Y]))
+  X -> (make-string "~R " X))
+   
+(define insert-predicate
+  Predicate [Terms Body] -> [[Predicate | Terms] :- Body])   
+  
+(defcc <predicate*>
+   -*- := -*-;)  
+  
+(defcc <clauses*> 
+  <clause*> <clauses*> := [<clause*> | <clauses*>];
+  <e>;)
+  
+(defcc <clause*>
+  <head*> <-- <body*> <end*> := [<head*> <body*>];)
+  
+(defcc <head*>
+  <term*> <head*> := [<term*> | <head*>];
+  <e>;)
+  
+(defcc <term*>
+  -*- := (if (and (not (= <-- -*-)) (legitimate-term? -*-)) (eval-cons -*-) (fail));)
+
+(define legitimate-term?
+  [cons X Y] -> (and (legitimate-term? X) (legitimate-term? Y))
+  [mode X +] -> (legitimate-term? X)
+  [mode X -] -> (legitimate-term? X)
+  [_ | _] -> false
+  X -> true)
+  
+(define eval-cons
+  [cons X Y] -> [(eval-cons X) | (eval-cons Y)]
+  [mode X Mode] -> [mode (eval-cons X) Mode]
+  X -> X)    
+  
+(defcc <body*>
+  <literal*> <body*> := [<literal*> | <body*>];
+  <e>;)
+  
+(defcc <literal*>
+  ! := [cut Throwcontrol];
+  -*- := (if (cons? -*-) -*- (fail));)  
+  
+(defcc <end*>
+  -*- := (if (= -*- ;) skip (fail));)  
+
+(define cut
+  Throw ProcessN Continuation -> (let Result (thaw Continuation) 
+                                      (if (= Result false)
+                                          Throw
+                                          Result)))  
+
+(define insert_modes
+   [mode X M] -> [mode X M]
+   [] -> []
+   [X | Y] -> [[mode X +] | [mode (insert_modes Y) -]]
+   X -> X)
+
+(define s-prolog
+  Clauses -> (map (function eval) (prolog->shen Clauses)))
+
+(define prolog->shen
+  Clauses -> (map (function compile_prolog_procedure) 
+                   (group_clauses 
+                     (map (function s-prolog_clause) 
+                        (mapcan (function head_abstraction) Clauses)))))
+
+(define s-prolog_clause
+  [H :- B] -> [H :- (map (function s-prolog_literal) B)])
+
+(define head_abstraction
+  [H :- B] -> [[H :- B]]  where (< (complexity_head H) (value *maxcomplexity*))
+  [[F | X] :- B] -> (let Terms (map (/. Y (gensym V)) X)
+                         XTerms (rcons_form (remove_modes X))
+                         Literal [unify (cons_form Terms) XTerms]
+                         Clause [[F | Terms] :- [Literal | B]]
+                         [Clause]))
+
+(define complexity_head
+  [_ | Terms] -> (product (map (function complexity) Terms)))
+
+(define complexity
+  [mode [mode X Mode] _] -> (complexity [mode X Mode])
+  [mode [X | Y] +] -> (* 2 (complexity [mode X +]) (complexity [mode Y +]))
+  [mode [X | Y] -] -> (* (complexity [mode X -]) (complexity [mode Y -]))
+  [mode X _] -> 1	      where (variable? X)
+  [mode _ +] -> 2
+  [mode _ -] -> 1
+  X -> (complexity [mode X +]))   
+
+(define product
+  [] -> 1
+  [X | Y] -> (* X (product Y)))
+
+(define s-prolog_literal
+  [is X Y] -> [bind X (insert_deref Y)]
+  [when X] -> [fwhen (insert_deref X)]
+  [bind X Y] -> [bind X (insert_lazyderef Y)]
+  [fwhen X] -> [fwhen (insert_lazyderef X)]
+  [F | X] -> [(m_prolog_to_s-prolog_predicate F) | X])
+  
+(define insert_deref
+  V -> [deref V ProcessN]	 where (variable? V)
+  [X | Y] -> [(insert_deref X) | (insert_deref Y)]
+  X -> X)
+  
+(define insert_lazyderef
+  V -> [lazyderef V ProcessN]	 where (variable? V)
+  [X | Y] -> [(insert_lazyderef X) | (insert_lazyderef Y)]
+  X -> X)      
+
+(define m_prolog_to_s-prolog_predicate
+  = -> unify
+  =! -> unify!
+  == -> identical
+  F -> F)
+
+(define group_clauses
+  [] -> []
+  [Clause | Clauses] -> (let Group (collect (/. X (same_predicate? Clause X)) 
+                                            [Clause | Clauses])
+                             Rest (difference [Clause | Clauses] Group)
+                             [Group | (group_clauses Rest)]))
+
+(define collect
+   _ [] -> []
+   F [X | Y] -> (if (F X) [X | (collect F Y)] (collect F Y)))
+
+(define same_predicate?
+  [[F | _] | _] [[G | _] | _] -> (= F G))
+
+(define compile_prolog_procedure
+  Clauses -> (let F (procedure_name Clauses)
+                  Shen (clauses-to-shen F Clauses)
+                  Shen))
+
+(define procedure_name
+  [[[F | _] | _] | _] -> F)
+  
+(define clauses-to-shen
+  F Clauses -> (let Linear (map (function linearise-clause) Clauses)
+                    Arity (prolog-aritycheck F (map (function head) Clauses))
+                    Parameters (parameters Arity) 
+                    AUM_instructions (map (/. X (aum X Parameters)) Linear)
+                    Code (catch-cut (nest-disjunct (map (function aum_to_shen) AUM_instructions)))
+                    ShenDef [define F | (append Parameters [ProcessN Continuation] [-> Code])]
+                    ShenDef))
+                                        
+(define catch-cut
+  Code -> Code     where (not (occurs? cut Code))
+  Code -> [let Throwcontrol [catchpoint]
+              [cutpoint Throwcontrol Code]])
+              
+(define catchpoint 
+  -> (set *catch* (+ 1 (value *catch*))))                   
+              
+(define cutpoint
+  Catch Catch -> false
+  _ X -> X)                                
+            
+(define nest-disjunct
+  [Case] -> Case
+  [Case | Cases] -> (lisp-or Case (nest-disjunct Cases)))  
+  
+(define lisp-or
+  P Q -> [let Case P
+              [if [= Case false]
+                  Q
+                  Case]])
+  
+(define prolog-aritycheck
+  _ [H] -> (- (length H) 1)
+  F [H1 H2 | Hs] -> (if (= (length H1) (length H2))
+                        (prolog-aritycheck F [H2 | Hs])
+                        (error "arity error in prolog procedure ~A~%" [F])))     
+
+(define linearise-clause 
+  [H :- Tl] -> (let Linear (linearise [H Tl])
+                    (clause_form Linear)))
+
+(define clause_form
+   [H Tl] -> [(explicit_modes H) :- (cf_help Tl)])
+
+(define explicit_modes
+  [Pred | Terms] -> [Pred | (map (function em_help) Terms)])
+
+(define em_help
+  [mode X M] -> [mode X M]
+  X -> [mode X +])
+
+(define cf_help
+  [where [= X Y] Tl] -> [[(if (value *occurs*) unify! unify) X Y] | (cf_help Tl)]
+  Tl -> Tl)
+
+(define occurs-check
+  + -> (set *occurs* true)
+  - -> (set *occurs* false)
+  _ -> (error "occurs-check expects + or -~%"))
+
+(define aum
+  [[F | Terms] :- Body] Fparams 
+  -> (let MuApplication (make_mu_application [mu Terms (continuation_call Terms Body)] Fparams)
+          (mu_reduction MuApplication +)))
+
+(define continuation_call
+  Terms Body -> (let VTerms [ProcessN | (extract_vars Terms)]
+                     VBody (extract_vars Body)
+                     Free (remove Throwcontrol (difference VBody VTerms))
+                     (cc_help Free Body)))                
+                 
+(define remove
+  _ [] -> []
+  X [X | Y] -> (remove X Y)
+  X [Y | Z] -> [Y | (remove X Z)])
+
+(define cc_help
+   [] [] -> [pop the stack]  
+   Vs [] -> [rename the variables in Vs and then [pop the stack]]
+   [] Body -> [call the continuation Body]
+   Vs Body -> [rename the variables in Vs and then [call the continuation Body]])
+
+(define make_mu_application 
+   [mu [] Body] [] -> Body
+   [mu [Term | Terms] Body] [FP | FPs] 
+   -> [[mu Term (make_mu_application [mu Terms Body] FPs)] FP])
+
+(define mu_reduction
+   [[mu [mode X Mode] Body] FP] _ -> (mu_reduction [[mu X Body] FP] Mode)
+   [[mu U Body] FP] Mode -> (mu_reduction Body Mode)		   	where (= _ U)
+   [[mu V Body] FP] Mode 
+    -> (subst FP V (mu_reduction Body Mode))     where (ephemeral_variable? V FP)
+   [[mu V Body] FP] Mode -> [let V be FP in (mu_reduction Body Mode)] where (variable? V)
+   [[mu C Body] FP] - -> (let Z (gensym V) 
+                                [let Z be [the result of dereferencing FP]
+                                   in [if [Z is identical to C] 
+                                       then (mu_reduction Body -) 
+                                       else  
+			                           fail!]])	where (prolog_constant? C)    
+   [[mu C Body] FP] + -> (let Z (gensym V) 
+                                [let Z be [the result of dereferencing FP]
+                                   in [if [Z is identical to C] 
+                                       then (mu_reduction Body +) 
+                                       else  
+									   [if [Z is a variable]
+										then
+                                        [bind Z to C in (mu_reduction Body +)]
+                                        else 
+                                        fail!]]])		where (prolog_constant? C)
+   [[mu [X | Y] Body] FP] -
+    -> (let Z (gensym V)
+		    [let Z be [the result of dereferencing FP]
+     			   in [if [Z is a non-empty list]
+                       then 
+         			   (mu_reduction [[mu X [[mu Y Body] [the tail of Z]]] [the head of Z]] -)
+                       else 
+                       fail!]])
+   [[mu [X | Y] Body] FP] +
+    -> (let Z (gensym V)
+			[let Z be [the result of dereferencing FP]
+     		       in [if [Z is a non-empty list]
+                       then 
+         			   (mu_reduction [[mu X [[mu Y Body] [the tail of Z]]] [the head of Z]] +)
+                       else  
+                       [if [Z is a variable]
+					     then 
+                         [rename the variables in (extract_vars [X | Y]) 
+                          and then [bind Z to (rcons_form (remove_modes [X | Y])) 
+						  in (mu_reduction Body +)]]
+                          else 
+                          fail!]]])
+  X _ -> X)
+
+(define rcons_form
+  [X | Y] -> [cons (rcons_form X) (rcons_form Y)]
+  X -> X)
+
+(define remove_modes
+   [mode X +] -> (remove_modes X)
+   [mode X -] -> (remove_modes X)
+   [X | Y] -> [(remove_modes X) | (remove_modes Y)]
+   X -> X)
+
+(define ephemeral_variable?
+  V FP -> (and (variable? V) (variable? FP)))
+
+(define prolog_constant?
+  [_ | _] -> false
+  _ -> true)
+
+(define aum_to_shen
+   [let Z* be AUM1 in AUM2]
+    -> [let Z* (aum_to_shen AUM1) (aum_to_shen AUM2)]
+   [the result of dereferencing Z] -> [lazyderef (aum_to_shen Z) ProcessN]
+   [if AUM1 then AUM2 else AUM3]
+    -> [if (aum_to_shen AUM1) (aum_to_shen AUM2) (aum_to_shen AUM3)]
+   [Z is a variable] -> [pvar? Z]
+   [Z is a non-empty list] -> [cons? Z]
+   [rename the variables in [] and then AUM] -> (aum_to_shen AUM)
+   [rename the variables in [X | Y] and then AUM] 
+   -> [let X [newpv ProcessN] (aum_to_shen [rename the variables in Y and then AUM])]
+   [bind Z to X in AUM] -> [do [bindv Z (chwild X) ProcessN]
+                               [let Result (aum_to_shen AUM)
+                                    [do [unbindv Z ProcessN]
+                                        Result]]]
+   [Z is identical to X] -> [= X Z]   
+   fail! -> false   
+   [the head of X] -> [hd X]
+   [the tail of X] -> [tl X]
+   [pop the stack] -> [do [incinfs] [thaw Continuation]]
+   [call the continuation Body] 
+   -> [do [incinfs] (call_the_continuation (chwild Body) ProcessN Continuation)]
+   X -> X)  
+ 
+(define chwild
+   X -> [newpv ProcessN]   where (= X _)
+   [X | Y] -> (map (function chwild) [X | Y])
+   X -> X)     
+   
+(define newpv 
+  N -> (let Count+1 (+ (<-address (value *varcounter*) N) 1)
+            IncVar (address-> (value *varcounter*) N Count+1)
+            Vector (<-address (value *prologvectors*) N)
+            ResizeVectorIfNeeded (if (= Count+1 (limit Vector)) 
+                                     (resizeprocessvector N Count+1)
+                                     skip)
+            (mk-pvar Count+1)))
+            
+(define resizeprocessvector
+   N Limit -> (let Vector (<-address (value *prologvectors*) N)
+                   BigVector (resize-vector Vector (+ Limit Limit) -null-)
+                   (address-> (value *prologvectors*) N BigVector)))
+
+(define resize-vector
+  Vector Resize Fill -> (let BigVector (address-> (absvector (+ 1 Resize)) 0 Resize)
+                             (copy-vector Vector BigVector (limit Vector) Resize Fill)))
+                        
+(define copy-vector
+  Vector BigVector VectorLimit BigVectorLimit Fill
+    -> (copy-vector-stage-2 (+ 1 VectorLimit) (+ BigVectorLimit 1) Fill 
+        (copy-vector-stage-1 1 Vector BigVector (+ 1 VectorLimit))))
+        
+(define copy-vector-stage-1 
+  Max _ BigVector Max -> BigVector
+  Count Vector BigVector Max 
+  -> (copy-vector-stage-1 (+ 1 Count)
+                           Vector
+                           (address-> BigVector Count (<-address Vector Count))
+                           Max))
+                           
+(define copy-vector-stage-2 
+  Max Max _ BigVector -> BigVector
+  Count Max Fill BigVector 
+   -> (copy-vector-stage-2 (+ Count 1) Max Fill (address-> BigVector Count Fill))) 
+    
+(define mk-pvar 
+  N -> (address-> (address-> (absvector 2) 0 pvar) 1 N))  
+
+(define pvar?
+  X -> (and (absvector? X) (= (<-address X 0) pvar)))
+
+(define bindv
+  Var Val N -> (let Vector (<-address (value *prologvectors*) N)
+                    (address-> Vector (<-address Var 1) Val)))
+                    
+(define unbindv 
+  Var N -> (let Vector (<-address (value *prologvectors*) N)
+                (address-> Vector (<-address Var 1) -null-)))
+             
+(define incinfs
+  -> (set *infs* (+ 1 (value *infs*))))
+
+(define call_the_continuation
+  [[F | X]] ProcessN Continuation -> [F | (append X [ProcessN Continuation])]
+  [[F | X] | Calls] ProcessN Continuation 
+   -> (let NewContinuation (newcontinuation Calls ProcessN Continuation)
+           [F | (append X [ProcessN NewContinuation])]))
+
+(define newcontinuation
+  [] ProcessN Continuation -> Continuation
+  [[F | X] | Calls] ProcessN Continuation 
+  -> [freeze [F | (append X [ProcessN (newcontinuation Calls ProcessN Continuation)])]]) 
+  
+(define return
+  X ProcessN _ -> (deref X ProcessN)) 
+  
+(define measure&return
+  X ProcessN _ -> (do (output "~A inferences~%" (value *infs*)) (deref X ProcessN)))   
+ 
+(define unify 
+  X Y ProcessN Continuation 
+  -> (lzy= (lazyderef X ProcessN) (lazyderef Y ProcessN) ProcessN Continuation))
+
+(define lzy= 
+   X X ProcessN Continuation -> (thaw Continuation)
+   X Y ProcessN Continuation -> (bind X Y ProcessN Continuation)    where (pvar? X)
+   X Y ProcessN Continuation -> (bind Y X ProcessN Continuation)    where (pvar? Y)
+   [X | Y] [W | Z] ProcessN Continuation -> (lzy= (lazyderef X ProcessN) 
+                                                   (lazyderef W ProcessN) 
+                                                    ProcessN
+                                                    (freeze (lzy= (lazyderef Y ProcessN)
+                                                                   (lazyderef Z ProcessN)
+                                                                   ProcessN Continuation)))
+   _ _ _ _ -> false)
+
+(define deref 
+  [X | Y] ProcessN -> [(deref X ProcessN) | (deref Y ProcessN)]
+  X ProcessN -> (if (pvar? X) 
+                   (let Value (valvector X ProcessN)
+                      (if (= Value -null-)
+                         X
+                         (deref Value ProcessN)))
+                      X))
+           
+(define lazyderef 
+  X ProcessN -> (if (pvar? X) 
+                  (let Value (valvector X ProcessN)
+                     (if (= Value -null-)
+                         X
+                         (lazyderef Value ProcessN)))
+                  X))
+
+(define valvector
+  Var ProcessN -> (<-address (<-address (value *prologvectors*) ProcessN) (<-address Var 1))) 
+
+(define unify! 
+   X Y ProcessN Continuation 
+   -> (lzy=! (lazyderef X ProcessN) (lazyderef Y ProcessN) ProcessN Continuation))
+
+(define lzy=!   
+   X X ProcessN Continuation -> (thaw Continuation)
+   X Y ProcessN Continuation -> (bind X Y ProcessN Continuation) 
+                                 where (and (pvar? X) (not (occurs? X (deref Y ProcessN))))
+   X Y ProcessN Continuation -> (bind Y X ProcessN Continuation)    
+                                 where (and (pvar? Y) (not (occurs? Y (deref X ProcessN))))
+   [X | Y] [W | Z] ProcessN Continuation -> (lzy=! (lazyderef X ProcessN) 
+                                                    (lazyderef W ProcessN) 
+                                                    ProcessN
+                                                    (freeze (lzy=! (lazyderef Y ProcessN)
+                                                                    (lazyderef Z ProcessN)
+                                                                    ProcessN Continuation)))
+   _ _ _ _ -> false)
+
+(define occurs?
+  X X -> true
+  X [Y | Z] -> (or (occurs? X Y) (occurs? X Z))
+  _ _ -> false)
+
+(define identical 
+  X Y P Continuation -> (lzy== (lazyderef X P) (lazyderef Y P) P Continuation))
+
+(define lzy== 
+  X X ProcessN Continuation -> (thaw Continuation)
+  [X | Y] [W | Z] ProcessN Continuation 
+    -> (lzy== (lazyderef X ProcessN) 
+              (lazyderef W ProcessN) 
+              ProcessN
+              (freeze (lzy== Y Z ProcessN Continuation)))
+  _ _ _ _ -> false)
+
+(define pvar 
+  X -> (make-string "Var~A" (<-address X 1)))
+
+(define bind 
+  X Y ProcessN Continuation -> (do (bindv X Y ProcessN) 
+                                   (let Result (thaw Continuation)
+                                       (do (unbindv X ProcessN)
+                                           Result))))
+                                           
+(define fwhen 
+   true _ Continuation -> (thaw Continuation)
+   false _ _ -> false
+   X _ _ -> (error "fwhen expects a boolean: not ~S%" X))
+
+(define call 
+  [F | X] ProcessN Continuation 
+   -> (call-help (m_prolog_to_s-prolog_predicate (lazyderef F ProcessN)) X ProcessN Continuation)
+   _ _ _ -> false)
+  
+(define call-help
+  F [] ProcessN Continuation -> (F ProcessN Continuation)  
+  F [X | Y] ProcessN Continuation -> (call-help (F X) Y ProcessN Continuation))   
+
+(define intprolog
+  [[F | X] | Y] -> (let ProcessN (start-new-prolog-process)
+                        (intprolog-help F (insert-prolog-variables [X Y] ProcessN) ProcessN)))
+
+(define intprolog-help
+  F [X Y] ProcessN -> (intprolog-help-help F X Y ProcessN))
+
+(define intprolog-help-help
+  F [] Rest ProcessN -> (F ProcessN (freeze (call-rest Rest ProcessN)))
+  F [X | Y] Rest ProcessN -> (intprolog-help-help (F X) Y Rest ProcessN)) 
+
+(define call-rest
+  [] _ -> true
+  [[F X | Y] | Z] ProcessN -> (call-rest [[(F X) | Y] | Z] ProcessN)
+  [[F] | Z] ProcessN -> (F ProcessN (freeze (call-rest Z ProcessN))))
+
+(define start-new-prolog-process
+  -> (let IncrementProcessCounter (set *process-counter* (+ 1 (value *process-counter*))) 
+          (initialise-prolog IncrementProcessCounter)))
+
+(define insert-prolog-variables
+  X ProcessN -> (insert-prolog-variables-help X (flatten X) ProcessN)) 
+
+(define insert-prolog-variables-help 
+  X [] ProcessN -> X
+  X [Y | Z] ProcessN -> (let V (newpv ProcessN)
+                             XV/Y (subst V Y X)
+                             Z-Y (remove Y Z) 
+                             (insert-prolog-variables-help XV/Y Z-Y ProcessN))   where (variable? Y)
+  X [_ | Z] ProcessN -> (insert-prolog-variables-help X Z ProcessN))                     
+               
+(define initialise-prolog
+  N -> (let Vector (address-> (value *prologvectors*) 
+                               N
+                               (fillvector (vector 10) 1 11 -null-))
+            Counter (address-> (value *varcounter*) N 1)
+            N))(set *symbolcodes* (vector 128))   
+                  
+(address-> (value *symbolcodes*)  126 "~")
+(address-> (value *symbolcodes*)  122  "z")
+(address-> (value *symbolcodes*)  121  "y")
+(address-> (value *symbolcodes*)  120  "x")
+(address-> (value *symbolcodes*)  119  "w")
+(address-> (value *symbolcodes*)  118  "v")
+(address-> (value *symbolcodes*)  117  "u")
+(address-> (value *symbolcodes*)  116  "t")
+(address-> (value *symbolcodes*)  115  "s")
+(address-> (value *symbolcodes*)  114  "r")
+(address-> (value *symbolcodes*)  113  "q")
+(address-> (value *symbolcodes*)  112  "p")
+(address-> (value *symbolcodes*)  111  "o")
+(address-> (value *symbolcodes*)  110  "n")
+(address-> (value *symbolcodes*)  109  "m")
+(address-> (value *symbolcodes*)  108  "l")
+(address-> (value *symbolcodes*)  107  "k")
+(address-> (value *symbolcodes*)  106  "j")
+(address-> (value *symbolcodes*)  105  "i")
+(address-> (value *symbolcodes*)  104  "h")
+(address-> (value *symbolcodes*)  103  "g")
+(address-> (value *symbolcodes*)  102  "f")
+(address-> (value *symbolcodes*)  101  "e")
+(address-> (value *symbolcodes*)  100  "d")
+(address-> (value *symbolcodes*)  99  "c")
+(address-> (value *symbolcodes*)  98  "b")
+(address-> (value *symbolcodes*)  97  "a")
+(address-> (value *symbolcodes*)  96  (if (= (value *language*) "Common Lisp") 
+                                            "_backquote"
+                                            "`"))
+(address-> (value *symbolcodes*)  95  "_")
+(address-> (value *symbolcodes*)  90  "Z")
+(address-> (value *symbolcodes*)  89  "Y")
+(address-> (value *symbolcodes*)  88  "X")
+(address-> (value *symbolcodes*)  87  "W")
+(address-> (value *symbolcodes*)  86  "V")
+(address-> (value *symbolcodes*)  85  "U")
+(address-> (value *symbolcodes*)  84  "T")
+(address-> (value *symbolcodes*)  83  "S")
+(address-> (value *symbolcodes*)  82  "R")
+(address-> (value *symbolcodes*)  81  "Q")
+(address-> (value *symbolcodes*)  80  "P")
+(address-> (value *symbolcodes*)  79  "O")
+(address-> (value *symbolcodes*)  78  "N")
+(address-> (value *symbolcodes*)  77  "M")
+(address-> (value *symbolcodes*)  76  "L")
+(address-> (value *symbolcodes*)  75  "K")
+(address-> (value *symbolcodes*)  74  "J")
+(address-> (value *symbolcodes*)  73  "I")
+(address-> (value *symbolcodes*)  72  "H")
+(address-> (value *symbolcodes*)  71  "G")
+(address-> (value *symbolcodes*)  70  "F")
+(address-> (value *symbolcodes*)  69  "E")
+(address-> (value *symbolcodes*)  68  "D")
+(address-> (value *symbolcodes*)  67  "C")
+(address-> (value *symbolcodes*)  66  "B")
+(address-> (value *symbolcodes*)  65  "A")
+(address-> (value *symbolcodes*)  64  "@")
+(address-> (value *symbolcodes*)  63  "?")
+(address-> (value *symbolcodes*)  62  ">")
+(address-> (value *symbolcodes*)  61  "=")
+(address-> (value *symbolcodes*)  60  "<")
+(address-> (value *symbolcodes*)  57  "9")
+(address-> (value *symbolcodes*)  56  "8")
+(address-> (value *symbolcodes*)  55  "7")
+(address-> (value *symbolcodes*)  54  "6")
+(address-> (value *symbolcodes*)  53  "5")
+(address-> (value *symbolcodes*)  52  "4")
+(address-> (value *symbolcodes*)  51  "3")
+(address-> (value *symbolcodes*)  50  "2")
+(address-> (value *symbolcodes*)  49  "1")
+(address-> (value *symbolcodes*)  48  "0")
+(address-> (value *symbolcodes*)  47  "/")
+(address-> (value *symbolcodes*)  46  ".")
+(address-> (value *symbolcodes*)  45  "-")
+(address-> (value *symbolcodes*)  43  "+")
+(address-> (value *symbolcodes*)  42  "*")
+(address-> (value *symbolcodes*)  39  (if (= (value *language*) "Common Lisp") 
+                                            "_quote"
+                                            "'"))
+(address-> (value *symbolcodes*)  38  "&")
+(address-> (value *symbolcodes*)  37  "%")
+(address-> (value *symbolcodes*)  36  "$")
+(address-> (value *symbolcodes*)  35  (if (= (value *language*) "Common Lisp") 
+                                           "_hash"
+                                           "#"))
+(address-> (value *symbolcodes*)  33  "!")     
+
+(define lineread
+  -> (lineread-loop (read-byte) []))
+
+(define lineread-loop
+  Byte _ -> (error "line read aborted")  where (= Byte (hat))
+  Byte Bytes -> (let Line (compile (function <st_input>) Bytes [])
+                      (if (or (= Line (fail)) (empty? Line))
+                          (lineread-loop (read-byte) (append Bytes [Byte]))
+                          Line))	where (element? Byte [(newline) (carriage-return)])
+  Byte Bytes -> (lineread-loop (read-byte) (append Bytes [Byte])))
+
+(define read-file
+  File -> (let Bytelist (read-file-as-bytelist File)
+               (compile (function <st_input>) Bytelist (function read-error))))
+
+(define read-error
+  Bytes -> (error "read error here:~%~% ~A~%" (compress-50 50 Bytes)))
+
+(define compress-50
+  _ [] -> ""
+  0 _ -> ""
+  N [Byte | Bytes] -> (cn (n->string Byte) (compress-50 (- N 1) Bytes)))
+
+(defcc <st_input>
+  <lsb> <st_input1> <rsb> <st_input2> 
+    := [(macroexpand (cons_form <st_input1>)) | <st_input2>];
+  <lrb>  <st_input1> <rrb> <st_input2> 
+   := (package-macro (macroexpand <st_input1>) <st_input2>);
+  <lcurly> <st_input> := [{ | <st_input>];
+  <rcurly> <st_input> := [} | <st_input>];    
+  <bar> <st_input> := [bar! | <st_input>];  
+  <semicolon> <st_input> := [; | <st_input>];
+  <colon> <equal> <st_input> := [:= | <st_input>];
+  <colon> <minus> <st_input> := [:- | <st_input>];
+  <colon> <st_input> := [: | <st_input>];
+  <comma> <st_input> := [, | <st_input>];
+  <comment> <st_input> := <st_input>;
+  <atom> <st_input> := [(macroexpand <atom>) | <st_input>];
+  <whitespaces> <st_input> := <st_input>;
+  <e> := [];)
+  
+(defcc <lsb>
+   -*- := (if (= -*- 91) skip (fail));)  
+   
+(defcc <rsb>
+   -*- := (if (= -*- 93) skip (fail));)     
+  
+(defcc <lcurly>
+  -*- := (if (= -*- 123) skip (fail));)
+  
+(defcc <rcurly>
+  -*- := (if (= -*- 125) skip (fail));)
+  
+(defcc <bar>
+  -*- := (if (= -*- 124) skip (fail));)  
+  
+(defcc <semicolon>
+  -*- := (if (= -*- 59) skip (fail));) 
+  
+(defcc <colon>
+  -*- := (if (= -*- 58) skip (fail));)     
+      
+(defcc <comma>
+  -*- := (if (= -*- 44) skip (fail));)  
+  
+(defcc <equal>
+   -*- := (if (= -*- 61) skip (fail));)     
+   
+(defcc <minus>
+   -*- := (if (= -*- 45) skip (fail));)      
+  
+(defcc <lrb>
+  -*- := (if (= -*- 40) skip (fail));)
+  
+(defcc <rrb>
+  -*- := (if (= -*- 41) skip (fail));)   
+  
+(defcc <atom>
+  <str> := (control-chars <str>); 
+  <number>; 
+  <sym>;)
+
+(define control-chars
+  [] -> ""
+  ["c" "#" | Ss]
+   -> (let CodePoint (code-point Ss)
+           AfterCodePoint (after-codepoint Ss)
+           (@s (n->string (decimalise CodePoint)) (control-chars AfterCodePoint)))  
+  [S | Ss] -> (@s S (control-chars Ss)))
+                          
+(define code-point
+  [";" | _] -> ""
+  [S | Ss] -> [S | (code-point Ss)]  
+                     where (element? S ["0" "1" "2" "3" "4" "5" "6" "7" "8" "9" "0"])
+  S -> (error "code point parse error ~A~%" S))                          
+                          
+(define after-codepoint
+   [] -> []
+   [";" | Ss] -> Ss
+   [_ | Ss] -> (after-codepoint Ss))                          
+                          
+(define decimalise
+  S -> (pre (reverse (digits->integers S)) 0))
+
+(define digits->integers
+  ["0" | S] -> [0 | (digits->integers S)]
+  ["1" | S] -> [1 | (digits->integers S)]
+  ["2" | S] -> [2 | (digits->integers S)]
+  ["3" | S] -> [3 | (digits->integers S)]
+  ["4" | S] -> [4 | (digits->integers S)]
+  ["5" | S] -> [5 | (digits->integers S)]
+  ["6" | S] -> [6 | (digits->integers S)]
+  ["7" | S] -> [7 | (digits->integers S)]
+  ["8" | S] -> [8 | (digits->integers S)]
+  ["9" | S] -> [9 | (digits->integers S)]
+   _ -> [])
+
+(defcc <sym>
+  <alpha> <symchars> := (intern (cn <alpha> <symchars>));
+  <alpha> := (intern <alpha>);)
+  
+(defcc <symchars>
+   <symchar> <symchars> := (cn <symchar> <symchars>);
+   <symchar> := <symchar>;)  
+   
+(defcc <symchar>
+    <alpha>;
+    <digit->string>;)
+
+(defcc <digit->string>   
+  -*- := (if (digit-byte? -*-) 
+             (n->string -*-) 
+             (fail));)   
+
+(define digit-byte?
+  48 -> true
+  49 -> true
+  50 -> true
+  51 -> true 
+  52 -> true
+  53 -> true 
+  54 -> true 
+  55 -> true
+  56 -> true 
+  57 -> true
+  _ -> false)
+   
+(defcc <alpha>
+  -*- := (let S (symbol-byte->string -*-)
+             (if (= S (fail))  
+                 (fail)
+                 S));)
+                 
+(define symbol-byte->string
+  Byte -> (<-address (value *symbolcodes*) Byte))              
+  
+(defcc <str>
+  <dbq> <strcontents> <dbq> := <strcontents>;)
+  
+(defcc <dbq>
+  -*- := (if (= -*- 34) skip (fail));)    
+  
+(defcc <strcontents>
+  <backslash> <byte> <strcontents> := [<byte> | <strcontents>];
+  <strc> <strcontents> := [<strc> | <strcontents>];
+  <e> := [];)
+  
+(defcc <byte>
+  -*- := (n->string -*-);)  
+  
+(defcc <strc>
+  -*- := (if (= -*- 34) (fail) (n->string -*-));)
+  
+(defcc <backslash>
+  -*- := (if (= -*- 92) skip (fail));)
+  
+(defcc <number>
+   <minus> <number> := (- 0 <number>);
+   <plus> <number> := <number>;
+   <predigits> <stop> <postdigits> <E> <log10> 
+   := (* (expt 10 <log10>) (+ (pre (reverse <predigits>) 0) (post <postdigits> 1)));
+   <digits> <E> <log10> := (* (expt 10 <log10>) (pre (reverse <digits>) 0));
+   <predigits> <stop> <postdigits> 
+   := (+ (pre (reverse <predigits>) 0) (post <postdigits> 1));
+   <digits> := (pre (reverse <digits>) 0);)
+
+(defcc <E>
+   101;)
+
+(defcc <log10>
+  <minus> <digits> := (- 0 (pre (reverse <digits>) 0));
+  <digits> := (pre (reverse <digits>) 0);)
+   
+(defcc <plus>
+  -*- := (if (= -*-  43) skip (fail));)
+  
+(defcc <stop>
+  -*- := (if (= -*- 46) skip (fail));)      
+   
+(defcc <predigits>
+    <digits>;
+    <e> := [];)
+    
+(defcc <postdigits>
+    <digits>;)
+
+(defcc <digits>
+   <digit> <digits> := [<digit> | <digits>];
+   <digit> := [<digit>];)
+ 
+(defcc <digit>
+  -*- := (if (digit-byte? -*-) (byte->digit -*-) (fail));)
+  
+(define byte->digit  
+  48 -> 0   
+  49 -> 1  
+  50 -> 2  
+  51 -> 3  
+  52 -> 4  
+  53 -> 5  
+  54 -> 6
+  55 -> 7   
+  56 -> 8   
+  57 -> 9)
+  
+(define pre
+  [] _ -> 0
+  [N | Ns] Expt -> (+ (* (expt 10 Expt) N) (pre Ns (+ Expt 1))))
+  
+(define post
+  [] _ -> 0
+  [N | Ns] Expt -> (+ (* (expt 10 (- 0 Expt)) N) (post Ns (+ Expt 1)))) 
+    
+(define expt
+  _ 0 -> 1
+  Base Expt -> (* Base (expt Base (- Expt 1)))  where (> Expt 0)
+  Base Expt -> (* 1.0 (/ (expt Base (+ Expt 1)) Base)))  
+  
+(defcc <st_input1>
+  <st_input> := <st_input>;)
+
+(defcc <st_input2>
+  <st_input> := <st_input>;)
+
+(defcc <comment>
+  <backslash> <times> <any> <times> <backslash> := skip;)  
+ 
+(defcc <times>
+  -*- := (if (= -*- 42) skip (fail));)       
+
+(defcc <any>
+  <comment> <any> := skip;
+  <blah> <any> := skip;
+  <e> := skip;)
+
+(defcc <blah>
+  -*- := (if (end-of-comment? -s-) (fail) skip);)
+
+(define end-of-comment?
+  [42 92 | _] -> true   
+  _ -> false)  
+
+(defcc <whitespaces>
+  <whitespace> <whitespaces> := skip;
+  <whitespace> := skip;)
+
+(defcc <whitespace>
+  -*- := (let Case -*-
+              (cases (= Case 32) skip 
+                     (= Case 13) skip
+                     (= Case 10) skip
+                     (= Case 9) skip
+                     true (fail)));)                      
+
+(define cons_form
+  [] -> []
+  [X bar! Y] -> [cons X Y]	
+  [X | Y] -> [cons X (cons_form Y)])  
+ 
+(define package-macro
+    [package null _ | Code] Stream -> (append Code Stream)
+    [package PackageName Exceptions | Code] Stream
+     -> (let ListofExceptions (eval-without-macros Exceptions)
+             Record (record-exceptions ListofExceptions PackageName)
+             (append (packageh PackageName ListofExceptions Code) Stream))
+    X Stream -> [X | Stream])  
+
+(define record-exceptions 
+  ListofExceptions PackageName 
+   -> (let CurrExceptions (trap-error (get PackageName external-symbols) (/. E []))
+           AllExceptions (union ListofExceptions CurrExceptions)
+           (put PackageName external-symbols AllExceptions)))   
+       
+(define packageh
+    PackageName Exceptions [X | Y] 
+      -> [(packageh PackageName Exceptions X) | (packageh PackageName Exceptions Y)]
+    PackageName Exceptions X -> X  
+                 where (or (sysfunc? X) (variable? X) (element? X Exceptions)
+                           (doubleunderline? X) (singleunderline? X))
+    PackageName Exceptions X -> (concat PackageName X)   
+             where (and (symbol? X) (not (prefix? ["s" "h" "e" "n" "-"] (explode X))))
+    _ _ X -> X) (define datatype-error 
+  D -> (error "datatype syntax error here:~%~% ~A~%" (next-50 50 D)))
+
+(defcc <datatype-rules>
+  <datatype-rule> <datatype-rules> := [<datatype-rule> | <datatype-rules>];
+  <e> := [];)
+
+(defcc <datatype-rule>
+  <side-conditions> <premises> <singleunderline> <conclusion>
+  := (@p single [<side-conditions> <premises> <conclusion>]);
+  <side-conditions> <premises> <doubleunderline> <conclusion>
+  := (@p double [<side-conditions> <premises> <conclusion>]);)
+
+(defcc <side-conditions>
+  <side-condition> <side-conditions> := [<side-condition> | <side-conditions>];
+  <e> := [];)
+
+(defcc <side-condition>
+  if <expr> := [if <expr>];
+  let <variable?> <expr> := [let <variable?> <expr>];)
+
+(defcc <variable?>
+  -*- := (if (not (variable? -*-))
+             (fail)
+             -*-);)
+
+(defcc <expr>
+  -*- := (if (or (element? -*- [>> ;]) 
+                 (or (singleunderline? -*-) (doubleunderline? -*-)))
+             (fail)
+              (remove-bar -*-));)
+
+(define remove-bar
+  [X B Y] -> [X | Y] where (= B bar!)
+  [X | Y] -> [(remove-bar X) | (remove-bar Y)]
+  X -> X)
+
+(defcc <premises>
+  <premise> <semicolon-symbol> <premises> := [<premise> | <premises>];
+  <e> := [];)
+
+(defcc <semicolon-symbol>
+  -*- := (if (= -*- ;) skip (fail));)
+
+(defcc <premise>
+  ! := !; 
+  <formulae> >> <formula> := (@p <formulae> <formula>);
+  <formula> := (@p [] <formula>);)
+
+(defcc <conclusion>
+  <formulae> >> <formula> <semicolon-symbol> := (@p <formulae> <formula>);
+  <formula> <semicolon-symbol> := (@p [] <formula>);)
+
+(defcc <formulae>
+   <formula> , <formulae> := [<formula> | <formulae>];
+   <formula> := [<formula>];
+   <e> := [];)
+
+(defcc <formula>
+   <expr> : <type> := [(curry <expr>) : (normalise-type <type>)];
+   <expr> := <expr>;)
+
+(defcc <colonsymbol>
+  -*- := (if (= -*- ;) -*- (fail));)
+
+(defcc <type>
+   <expr> := (curry-type <expr>);)
+
+(defcc <doubleunderline>
+  -*- := (if (doubleunderline? -*-)
+             -*-
+             (fail));)
+
+(defcc <singleunderline> 
+  -*- := (if (singleunderline? -*-)
+             -*-
+             (fail));)
+
+(define singleunderline?
+  S -> (and (symbol? S) (sh? (str S))))
+
+(define sh?
+  "_" -> true
+  S -> (and (= (pos S 0) "_") (sh? (tlstr S))))
+            
+(define doubleunderline?
+  S -> (and (symbol? S) (dh? (str S))))
+
+(define dh?
+  "=" -> true
+  S -> (and (= (pos S 0) "=") (dh? (tlstr S))))
+
+(define process-datatype 
+  D Rules -> (remember-datatype (s-prolog (rules->horn-clauses D Rules))))
+
+(define remember-datatype 
+  [D | _] -> (do (set *datatypes* (adjoin D (value *datatypes*)))
+                  (set *alldatatypes* (adjoin D (value *alldatatypes*))) 
+                      D))
+
+(define rules->horn-clauses
+   _ [] -> []
+   D [(@p single Rule) | Rules] 
+    -> [(rule->horn-clause D Rule) | (rules->horn-clauses D Rules)]
+   D [(@p double Rule) | Rules] 
+   -> (rules->horn-clauses D (append (double->singles Rule) Rules)))
+
+(define double->singles
+  Rule -> [(right-rule Rule) (left-rule Rule)])
+
+(define right-rule
+  Rule -> (@p single Rule))
+
+(define left-rule
+  [S P (@p [] C)] -> (let Q (gensym Qv)
+                          NewConclusion (@p [C] Q)
+                          NewPremises [(@p (map (function right->left) P) Q)]
+                          (@p single [S NewPremises NewConclusion])))
+
+(define right->left
+  (@p [] C) -> C
+  _ -> (error "syntax error with ==========~%")) 
+
+\(define rule->horn-clause
+  D [S P (@p A C)] 
+  -> (let Body (rule->horn-clause-body S P A)
+          Clause [(rule->horn-clause-head D C) :- Body]
+          Name (name-in S)
+          NewClause [(rule->horn-clause-head Name C) :- Body]
+          Prog (if (empty? Name) Name (s-prolog NewClause))
+          Clause))\
+
+(define rule->horn-clause
+  D [S P (@p A C)] -> [(rule->horn-clause-head D C) :- (rule->horn-clause-body S P A)])
+
+(define rule->horn-clause-head
+  D C -> [D (mode-ify C) Context])
+
+(define mode-ify
+  [X : A] -> [mode [X : [mode A +]] -]  
+  X -> X)
+
+(define rule->horn-clause-body
+  S P A -> (let Variables (map (function extract_vars) A)
+                Predicates (map (/. X (gensym cl)) A)
+                SearchLiterals (construct-search-literals 
+                                       Predicates Variables Context Context1)
+                SearchClauses (construct-search-clauses Predicates A Variables)
+                SideLiterals (construct-side-literals S)
+                PremissLiterals (map (/. X (construct-premiss-literal X (empty? A))) P)
+                (append SearchLiterals SideLiterals PremissLiterals)))
+
+(define construct-search-literals
+  [] [] _ _ -> []
+  Predicates Variables Context Context1 
+  -> (csl-help Predicates Variables Context Context1))
+ 
+(define csl-help
+  [] [] In _ -> [[bind ContextOut In]]
+  [P | Ps] [V | Vs] In Out -> [[P In Out | V] | (csl-help Ps Vs Out (gensym Context))])
+
+(define construct-search-clauses
+  [] [] [] -> skip
+  [Pred | Preds] [A | As] [V | Vs] -> (do (construct-search-clause Pred A V)
+                                          (construct-search-clauses Preds As Vs)))
+
+(define construct-search-clause 
+  Pred A V -> (s-prolog [(construct-base-search-clause Pred A V)
+                         (construct-recursive-search-clause Pred A V)]))
+
+(define construct-base-search-clause
+  Pred A V -> [[Pred [(mode-ify A) | In] In | V] :- []])
+
+(define construct-recursive-search-clause
+  Pred A V -> [[Pred [Assumption | Assumptions] [Assumption | Out] | V] 
+                 :- [[Pred Assumptions Out | V]]])
+
+(define construct-side-literals
+  [] -> []
+  [[if P] | Sides] -> [[when P] | (construct-side-literals Sides)]
+  [[let X Y] | Sides] -> [[is X Y] | (construct-side-literals Sides)]
+  [_ | Sides] -> (construct-side-literals Sides))
+
+(define construct-premiss-literal
+  (@p A C) Flag -> [t* (recursive_cons_form C) (construct-context Flag A)]
+  ! _ -> [!])
+
+(define construct-context
+  true [] -> Context
+  false [] -> ContextOut
+  Flag [X | Y] -> [cons (recursive_cons_form X) (construct-context Flag Y)])
+
+(define recursive_cons_form
+  [X | Y] -> [cons (recursive_cons_form X) (recursive_cons_form Y)]
+  X -> X) 
+
+(define preclude
+   Types -> (let FilterDatatypes (set *datatypes* (difference (value *datatypes*) Types))
+                 (value *datatypes*)))
+             
+(define include
+   Types -> (let ValidTypes (intersection Types (value *alldatatypes*))
+                 NewDatatypes (set *datatypes* (union ValidTypes (value *datatypes*)))
+                 (value *datatypes*)))
+
+(define preclude-all-but
+  Types -> (preclude (difference (value *alldatatypes*) Types)))
+
+(define include-all-but
+  Types -> (include (difference (value *alldatatypes*) Types)))
+
+(define synonyms-help
+  [] -> synonyms
+  [S1 S2 | S] -> (do (pushnew [S1 | S2] *synonyms*)
+                     (synonyms-help S))
+  _ -> (error "odd number of synonyms~%" []))
+  
+(define pushnew
+   X Global -> (if (element? X (value Global))
+                    (value Global)
+                    (set Global [X | (value Global)])))                      (define eval
+  X -> (let Macroexpand (walk (function macroexpand) X)
+            (if (packaged? Macroexpand)
+                (map (function eval-without-macros) (package-contents Macroexpand))
+                (eval-without-macros Macroexpand))))
+                
+(define packaged?
+  [package P E | _] -> true
+  _ -> false)
+
+(define external
+  Package -> (trap-error (get Package external-symbols) (/. E (error "package ~A has not been used.~"))))
+  
+(define package-contents
+  [package null _ | Contents] -> Contents
+  [package P E | Contents] -> (packageh P E Code))
+              
+(define walk
+  F [X | Y] -> (F (map (/. Z (walk F Z)) [X | Y]))
+  F X -> (F X))              
+
+(define compile
+   F X Err -> (let O (F (@p X []))
+                   (if (or (= (fail) O) (not (empty? (fst O))))
+                       (compile-error O Err)
+                       (snd O))))
+
+(define compile-error
+  _ [] -> (fail)
+  (@p [X | Y] _) Err -> (Err [X | Y])
+  _ _ -> (error "syntax error~%")) 
+
+(define <e>
+  (@p X _) -> (@p X []))
+
+(define fail-if
+  F X -> (if (F X) (fail) X))  
+
+(define @s
+  X Y -> (cn X Y))
+
+(define tc?
+  _ -> (value *tc*))
+ 
+(define ps
+  Name -> (trap-error (get Name source) (/. E (error "~A not found.~%" Name))))
+
+(define explode 
+  X -> (if (string? X) 
+           (explode-string X)
+           (explode (make-string "~A" X))))
+
+(define explode-string 
+  "" -> []
+  String -> (let S (pos String 0)
+                 Ss (tlstr String)
+                 (if (= Ss eos)
+                     []
+                     [S | (explode-string Ss)])))  
+
+(define stinput 
+  _ -> (value *stinput*))
+
+(define +vector? 
+ X -> (and (absvector? X) (> (<-address X 0) 0)))
+
+ (define vector
+   N -> (let Vector (absvector (+ N 1))
+            (address-> Vector 0 N)))
+                            
+(define fillvector 
+  Vector N N _ -> Vector
+  Vector Counter N X -> (fillvector (address-> Vector Counter X) (+ 1 Counter) N X))
+
+(define vector? 
+  X -> (and (absvector? X) (trap-error (>= (<-address X 0) 0) (/. E false))))
+
+(define vector-> 
+  Vector N X -> (if (= N 0) 
+                    (error "cannot access 0th element of a vector~%")
+                    (address-> Vector N X)))
+
+(define <-vector 
+  Vector N -> (if (= N 0) 
+                  (error "cannot access 0th element of a vector~%")
+                  (let VectorElement (<-address Vector N)
+                      (if (= VectorElement (fail))
+                          (error "vector element not found~%")
+                          VectorElement))))
+
+(define posint? 
+  X -> (and (integer? X) (>= X 0)))
+
+(define limit 
+  Vector -> (<-address Vector 0))
+
+(define symbol?
+  X -> false where (or (boolean? X) (number? X))
+  X -> (trap-error (let String (str X)
+                        Unit (pos String 0)
+                        (element? Unit ["A" "B" "C" "D" "E" "F" "G" "H" "I" "J" "K" "L" "M"
+                                         "N" "O" "P" "Q" "R" "S" "T" "U" "V" "W" "X" "Y" "Z"
+                                         "a" "b" "c" "d" "e" "f" "g" "h" "i" "j" "k" "l" "m" 
+                                         "n" "o" "p" "q" "r" "s" "t" "u" "v" "w" "x" "y" "z"
+                                          "=" "*" "/" "+" "-" "_" "?" "$" "!" "@" "~" ">" "<" 
+                                          "&" "%" "{" "}" ":" ";"])) (/. E false)))
+                          
+(define variable?
+  X -> (trap-error (let String (str X)
+                        Unit (pos String 0)
+                        (element? Unit ["A" "B" "C" "D" "E" "F" "G" "H" "I" "J" "K" "L" "M"
+                                        "N" "O" "P" "Q" "R" "S" "T" "U" "V" "W" "X" "Y" "Z"])) 
+                                         (/. E false)))     
+                      
+(define gensym
+  Sym -> (concat Sym (set *gensym* (+ 1 (value *gensym*)))))
+  
+(define concat
+  S1 S2 -> (intern (cn (str S1) (str S2))))  
+
+(define @p 
+  X Y -> (let Vector (absvector 3)
+              Tag (address-> Vector 0 tuple)
+              Fst (address-> Vector 1 X)
+              Snd (address-> Vector 2 Y)
+              Vector))
+
+(define fst 
+  X -> (<-address X 1))
+           
+(define snd 
+  X -> (<-address X 2))
+
+(define tuple? 
+  X -> (trap-error (and (absarray? X) (= tuple (<-address X 0))) (/. E false)))
+
+(define append
+  [] X -> X
+  [X | Y] Z -> [X | (append Y Z)])
+
+(define @v
+  X Vector -> (let Limit (limit Vector)
+                   NewVector (vector (+ Limit 1))
+                   X+NewVector (vector-> NewVector 1 X)
+                   (if (= Limit 0) 
+                       X+NewVector
+                       (@v-help Vector 1 Limit X+NewVector))))
+
+(define @v-help
+  OldVector N N NewVector -> (copyfromvector OldVector NewVector N (+ N 1))
+  OldVector N Limit NewVector -> (@v-help OldVector (+ N 1) Limit 
+                                     (copyfromvector OldVector NewVector N (+ N 1))))
+
+(define copyfromvector
+  OldVector NewVector From To -> (vector-> NewVector To (<-vector OldVector From))) 
+
+(define hdv
+  Vector -> (trap-error (<-vector Vector 1) (/. E (error "hdv needs a non-empty vector as an argument; not ~S~%" Vector))))
+
+(define tlv
+  Vector -> (let Limit (limit Vector)
+                 (cases (= Limit 0) (error "cannot take the tail of the empty vector~%")
+                        (= Limit 1) (vector 0)
+                        true (let NewVector (vector (- Limit 1))
+                                  (tlv-help Vector 2 Limit (vector (- Limit 1)))))))
+
+(define tlv-help
+  OldVector N N NewVector -> (copyfromvector OldVector NewVector N (- N 1))
+  OldVector N Limit NewVector -> (tlv-help OldVector (+ N 1) Limit 
+                                     (copyfromvector OldVector NewVector N (- N 1))))
+
+(define assoc
+  _ [] -> []
+  X [[X | Y] | _] -> [X | Y]
+  X [_ | Y] -> (assoc X Y))
+
+(define boolean?
+  true -> true
+  false -> true
+  _ -> false)
+
+(define nl
+  0 -> 0
+  N -> (do (output "~%") (nl (- N 1))))
+
+(define difference
+  [] _ -> []
+  [X | Y] Z -> (if (element? X Z) (difference Y Z) [X | (difference Y Z)]))
+
+(define do
+  X Y -> Y)
+
+(define element?
+  _ [] -> false
+  X [X | _] -> true
+  X [_ | Z] -> (element? X Z))
+
+(define empty?
+  [] -> true
+  _ -> false)
+
+(define fix
+  F X -> (fix-help F X (F X)))
+
+(define fix-help
+  _ X X -> X
+  F _ X -> (fix-help F X (F X)))
+
+(define put
+  X Pointer Y Vector -> (let N (hash X (limit Vector))
+                             Entry (trap-error (<-vector Vector N) (/. E []))
+                             Change (vector-> Vector N (change-pointer-value X Pointer Y Entry))
+                             Y))
+
+(define change-pointer-value 
+  X Pointer Y [] -> [[[X Pointer] | Y]]
+  X Pointer Y [[[X Pointer] | _] | Entry] -> [[[X Pointer] | Y] | Entry]
+  X Pointer Y [Z | Entry] -> [Z | (change-pointer-value X Pointer Y Entry)])
+
+(define get
+  X Pointer Vector -> (let N (hash X (limit Vector))
+                           Entry (trap-error (<-vector Vector N) 
+                                      (/. E (error "pointer not found~%")))
+                           Result (assoc [X Pointer] Entry)
+                           (if (empty? Result) (error "value not found~%") (tl Result)))) 
+
+(define hash
+  S Limit -> (let Hash (mod (sum (map (function unit-string->byte) (explode S))) Limit)
+                  (if (= 0 Hash)
+                      1
+                      Hash)))
+                      
+(define unit-string->byte 
+   "e" -> 101	"E" -> 69
+   "t" -> 116	"T" -> 84
+   "a" -> 97	"A" -> 65
+   "o" -> 111	"O" -> 79
+   "n" -> 110	"N" -> 78
+   "i" -> 105	"I" -> 73
+   "r" -> 114	"R" -> 82
+   "s" -> 115	"S" -> 83
+   "h" -> 104	"H" -> 72
+   "d" -> 100	"D" -> 68
+   "+" -> 43	"-" -> 45
+   "0" -> 48	"1" -> 49
+   "2" -> 50	"3" -> 51
+   "4" -> 52	"5" -> 53
+   "6" -> 54	"7" -> 55
+   "8" -> 56	"9" -> 57
+   "l" -> 108	"L" -> 76
+   "f" -> 102	"F" -> 70
+   "m" -> 109	"M" -> 77
+   "c" -> 99	"C" -> 67
+   "(" -> 40	")" -> 41
+   "u" -> 117	"U" -> 85
+   "g" -> 103	"G" -> 71
+   "y" -> 121	"Y" -> 89
+   "p" -> 112   "P" -> 80
+   "w" -> 119	"W" -> 87
+   "b" -> 98	"B" -> 66
+   "v" -> 118	"V" -> 86	
+   "k" -> 107	"K" -> 75
+   "x" -> 120	"X" -> 88
+   "j" -> 106	"J" -> 74
+   "q" -> 113	"Q" -> 81
+   "z" -> 122	"Z" -> 90  
+   "[" -> 91	"]" -> 93
+   "{" -> 123	"}" -> 125
+   "=" -> 61	"_" -> 95
+   "!" -> 33	"?" -> 63
+   "#" -> 35     
+    X -> 13	where (= X (newline-string))
+   "$" -> 36	"&" -> 38   
+   "*" -> 42	"/" -> 47
+   "," -> 44	"." -> 46
+   ":" -> 58	";" -> 59
+   "<" -> 60	">" -> 62
+   "@" -> 64	"%" -> 37
+   "'" -> 39	"`" -> 96
+   "|" -> 124	"~" -> 126
+   "\" -> 92	" " -> 32
+   _ -> (error "Cannot map unit string to byte~%"))          
+
+(define mod
+  N Div -> (modh N (multiples N [Div])))
+  
+(define multiples
+  N [M | Ms] ->  Ms   where (> M N)
+  N [M | Ms] -> (multiples N [(* 2 M) M | Ms]))
+  
+(define modh
+   0 _ -> 0
+   N [] -> N
+   N [M | Ms] -> (if (empty? Ms)
+                           N
+                           (modh N Ms))   where (> M N)
+   N [M | Ms] -> (modh (- N M) [M | Ms]))
+
+(define sum
+  [] -> 0
+  [N | Ns] -> (+ N (sum Ns)))
+
+(define head
+  [X | _] -> X
+  _ -> (error "head expects a non-empty list"))
+
+(define tail
+  [_ | Y] -> Y
+  _ -> (error "tail expects a non-empty list"))
+
+(define hdstr
+  S -> (pos S 0))
+
+(define intersection
+  [] _ -> []
+  [X | Y] Z -> (if (element? X Z) [X | (intersection Y Z)] (intersection Y Z)))
+
+(define reverse
+  X -> (reverse_help X []))
+
+(define reverse_help
+  [] R -> R
+  [X | Y] R -> (reverse_help Y [X | R]))
+  
+(define union
+  [] X -> X
+  [X | Y] Z -> (if (element? X Z) (union Y Z) [X | (union Y Z)]))
+
+(define y-or-n?
+  String -> (let Message (output "~A (y/n) " String)
+                 Input (make-string "~A" (input))
+                 (cases (= "y" Input) true 
+                        (= "n" Input) false 
+                        true (do (output "please answer y or n~%")
+                                 (y-or-n? String)))))
+
+(define not
+  X -> (if X false true))
+
+(define subst
+  X Y Y -> X
+  X Y [W | Z] -> [(subst X Y W) | (subst X Y Z)]
+  _ _ Z -> Z)
+
+(define cd 
+  Path -> (set *home-directory* (if (= Path "") "" (make-string "~A/" Path))))
+
+(define map
+  _ [] -> []
+  F [X | Y] -> [(F X) | (map F Y)])
+
+(define length
+  X -> (length-h X 0))
+
+(define length-h
+  [] N -> N
+  X N -> (length-h (tl X) (+ N 1)))
+
+(define occurrences
+  X X -> 1
+  X [Y | Z] -> (+ (occurrences X Y) (occurrences X Z))
+  _ _ -> 0)
+
+(define nth 
+  1 [X | _] -> X
+  N [_ | Y] -> (nth (- N 1) Y))
+  
+(define integer? 
+  N -> (and (number? N) (let Abs (abs N) (integer-test? Abs (magless Abs 1)))))
+
+(define abs
+  N -> (if (> N 0) N (- 0 N)))
+
+(define magless
+  Abs N -> (let Nx2 (* N 2)
+                (if (> Nx2 Abs)
+                    N
+                    (magless Abs Nx2))))
+
+(define integer-test?
+  0 _ -> true
+  Abs _ -> false    where (> 1 Abs)  
+  Abs N -> (let Abs-N (- Abs N)
+                (if (> 0 Abs-N)
+                    (integer? Abs)
+                    (integer-test? Abs-N N))))  
+
+(define mapcan
+  _ [] -> []
+  F [X | Y] -> (append (F X) (mapcan F Y)))
+
+(define read-file-as-bytelist
+ File -> (let Stream (open file File in)
+               Byte (read-byte Stream)
+               Bytes (read-file-as-bytelist-help Stream Byte [])
+               Close (close Stream)
+               (reverse Bytes)))  
+
+(define read-file-as-bytelist-help
+  Stream -1 Bytes -> Bytes
+  Stream Byte Bytes -> (read-file-as-bytelist-help Stream (read-byte Stream) [Byte | Bytes]))
+
+(define read-file-as-string
+   File -> (let Stream (open file File in) 
+               (rfas-h Stream (read-byte Stream) "")))
+               
+(define rfas-h
+  Stream -1 String -> (do (close Stream) String)
+  Stream N String -> (rfas-h Stream (read-byte Stream) (cn String (n->string N))))  
+
+(define ==
+  X X -> true
+  _ _ -> false)
+
+(define abort
+  -> (simple-error ""))
+
+(define read
+  -> (hd (lineread)))
+
+(define input
+  -> (eval (read)))
+
+(define input+ 
+  _ Type -> (let Input (read)
+                 Check (typecheck Input Type)
+                 (if (= false Check)
+                     (do (output "input is not of type ~S: please re-enter " Type)
+                         (input+ : Type))
+                     (eval Input))))
+
+(define bound? 
+  Sym -> (and (symbol? Sym) 
+              (let Val (trap-error (value Sym) (/. E this-symbol-is-unbound))
+                          (if (= Val this-symbol-is-unbound)
+                              false
+                              true))))
+                              
+(define string->bytes
+  "" -> []
+  S -> [(unit-string->byte (pos S 0)) | (string->bytes (tlstr S))])
+
+(define maxinferences
+  N -> (set *maxinferences* N))
+
+(define inferences 
+  _ -> (value *infs*))
+
+(define hush
+  + -> (set *hush* hushed)
+  - -> (set *hush* unhushed)
+  _ -> (error "'hush' expects a + or a -~%"))(package shen- []
+
+\* Typechecker; passes the problem to Prolog. *\  
+(define typecheck
+  X A -> (let Curry (curry X) 
+              ProcessN (start-new-prolog-process)
+              Type (insert-prolog-variables (normalise-type (curry-type A)) ProcessN)
+              Continuation (freeze (return Type ProcessN void))
+              (th* Curry Type [] ProcessN Continuation)))
+            
+\* Curry the expression. *\             
+(define curry
+  [F | X] -> [F | (map (function curry) X)]   where (special? F)
+  [Def F | X] -> [Def F | X] where (extraspecial? Def)
+  [F X Y | Z] -> (curry [[F X] Y | Z])
+  [F X] -> [(curry F) (curry X)]
+  X -> X)  
+
+(define special?
+  F -> (element? F (value *special*)))
+
+(define extraspecial?
+  F -> (element? F (value *extraspecial*)))
+  
+\* Normalise the type by using synonyms by applying help function to generate a fixpoint. *\
+(define normalise-type
+  X -> (fix (function normalise-type-help) X))
+  
+(define normalise-type-help
+  [X | Y] -> (normalise-X (map (function normalise-type-help) [X | Y]))
+  X -> (normalise-X X))
+                 
+(define normalise-X
+  X -> (let Val (assoc X (value *synonyms*))
+           (if (empty? Val)
+               X
+               (tl Val))))
+                 
+\* Main loop of the type checker. *\ 
+
+(defprolog t* 
+          _ _ <-- (fwhen (maxinfexceeded?)) (bind Error (errormaxinfs));
+          (mode [X : A] -) Hyp <-- ! (th* X A Hyp);
+          P Hyp <-- (show P Hyps) (bind Datatypes (value *datatypes*)) (udefs* P Hyp Datatypes);)                         
+
+(define maxinfexceeded?
+  -> (> (inferences skip) (value *maxinferences*)))
+
+(define errormaxinfs
+  -> (simple-error "maximum inferences exceeded~%"))
+  
+(defprolog udefs*
+   P Hyp (mode [D | _] -) <-- (call [D P Hyp]);
+   P Hyp (mode [_ | Ds] -) <-- (udefs* P Hyp Ds);)   
+                                                     
+(defprolog th*
+  X A Hyps <-- (show [X : A] Hyps) (when false);
+  X A _ <-- (fwhen (typedf? X)) (bind F (sigf X)) (call [F A]);
+  X A _ <-- (base X A);
+  X A Hyp <-- (by_hypothesis X A Hyp);
+  (mode [F X] -) A Hyp <-- (th* F [B --> A] Hyp) (th* X B Hyp);
+  (mode [cons X Y] -) [list A] Hyp <-- (th* X A Hyp) (th* Y [list A] Hyp);
+  (mode [@p X Y] -) [A * B] Hyp <-- (th* X A Hyp) (th* Y B Hyp);
+  (mode [@v X Y] -) [vector A] Hyp <-- (th* X A Hyp) (th* Y [vector A] Hyp);
+  (mode [@s X Y] -) string Hyp <-- (th* X string Hyp) (th* Y string Hyp);
+  (mode [lambda X Y] -) [A --> B] Hyp <-- ! 
+                                           (bind X&& (placeholder)) 
+                                           (bind Z (ebr X&& X Y))
+                                           (th* Z B [[X&& : A] | Hyp]); 
+  (mode [let X Y Z] -) A Hyp <-- ! (th* Y B Hyp) 
+                                    (bind X&& (placeholder))
+                                    (bind W (ebr X&& X Z))
+                                    (th* W A [[X&& : B] | Hyp]);                                        
+  (mode [open file FileName Direction] -) [stream Direction] Hyp <-- ! (th* FileName string Hyp);
+  (mode [type X A] -) B Hyp <-- ! (unify A B) (th* X A Hyp);
+  (mode [input+ : A] -) B Hyp <-- ! (bind C (normalise-type A)) (unify B C);
+  (mode [where P X] -) A Hyp <-- ! (th* P boolean Hyp) ! (th* X A [[P : verified] | Hyp]);
+  (mode [set Var Val] -) A Hyp <-- ! (th* [value Var] A Hyp) (th* Val A Hyp);
+  (mode [fail] -) symbol _ <--;
+   X A Hyp <-- (t*-hyps Hyp NewHyp) (th* X A NewHyp);
+  (mode [define F | X] -) A Hyp <-- ! (t*-def [define F | X] A Hyp);
+  (mode [process-datatype | _] -) symbol _ <--;
+  (mode [synonyms-help | _] -) symbol _ <--;
+  X A Hyp <-- (bind Datatypes (value *datatypes*))  (udefs* [X : A] Hyp Datatypes);)                               
+           
+\* Splits assumptions about lists, vectors, strings and tuples. *\            
+ 
+(defprolog t*-hyps
+    (mode [[[cons X Y] : (mode [list A] +)] | Hyp] -) Out <-- (bind Out [[X : A] [Y : [list A]] | Hyp]);
+    (mode [[[@p X Y] : (mode [A * B] +)] | Hyp] -) Out <-- (bind Out [[X : A] [Y : B] | Hyp]);
+    (mode [[[@v X Y] : (mode [vector A] +)] | Hyp] -) Out <-- (bind Out [[X : A] [Y : [vector A]] | Hyp]); 
+    (mode [[[@s X Y] : (mode string +)] | Hyp] -) Out <-- (bind Out [[X : string] [Y : string] | Hyp]);
+    (mode [X | Hyp] -) Out <-- (bind Out [X | NewHyps]) (t*-hyps Hyp NewHyps);) 
+             
+\* Allows the user to trace the type checker. *\
+(define show
+  P Hyps ProcessN Continuation 
+   -> (do (line)
+          (show-p (deref P ProcessN))
+          (nl)
+          (nl)
+          (show-assumptions (deref Hyps ProcessN) 1)
+          (output "~%> ") 
+          (pause-for-user (value *language*))
+          (thaw Continuation))   where (value *spy*)
+   _ _ _ Continuation -> (thaw Continuation))
+
+\* Print a demarcation. *\          
+(define line
+  -> (let Infs (inferences _)
+       (output "____________________________________________________________ ~A inference~A ~%?- " 
+                Infs (if (= 1 Infs) "" "s"))))
+                             
+\* Print a formula. *\                  
+(define show-p 
+  [X : A] -> (output "~R : ~R" X A)
+  P -> (output "~R" P))
+ 
+\* Enumerate assumptions. *\
+(define show-assumptions
+  [] _ -> skip
+  [X | Y] N -> (do (output "~A. " N) (show-p X) (nl) (show-assumptions Y (+ N 1))))
+  
+\* Have to parameterise to language because CL does not behave well with read-byte. :< *\
+(define pause-for-user
+  "Common Lisp" 
+   -> (let I (FORMAT [] "~C" (READ-CHAR)) (if (= I "a") (error "input aborted~%") (nl)))
+   _ -> (let I (read-char) (if (= I "a") (error "input aborted~%") (nl)))) 
+
+\* Why does this not work? *\
+(define read-char
+  -> (read-char-h (read-byte) 0))
+  
+(define read-char-h
+  \* State 0; read until the stinput is empty - emptying any buffered bytes. *\
+  -1 0 -> (read-char-h (read-byte) 1)
+  _ 0 -> (read-char-h (read-byte) 0)
+  -1 1 -> (read-char-h (read-byte) 1)
+  \* State 1; read until the stinput is not empty - returning the byte as a string. *\
+  N 1 -> (n->string N))   
+
+\* Does the function have a type? *\
+(define typedf?
+   F -> (element? F (value *signedfuncs*)))
+
+\* The name of the Horn clause containing the signature of F. *\
+(define sigf 
+  F -> (concat type-signature-of- F))  
+                                                     
+\* Generate a placeholder - a symbol which stands for an arbitrary object.  *\    
+(define placeholder
+  -> (gensym &&))                                                          
+
+\* base types *\              
+
+(defprolog base
+  X number <-- (fwhen (number? X));
+  X boolean <-- (fwhen (boolean? X));
+  X string <-- (fwhen (string? X));
+  X symbol <-- (fwhen (symbol? X)) (fwhen (not (placeholder? X)));
+  (mode [] -) [list A] <--;)   
+            
+\* Recognisor for placeholders - symbols which stand for arbitrary objects. *\
+(define placeholder?
+   S -> (and (symbol? S) (placeholder-help? (str S))))
+   
+(define placeholder-help?
+   (@s "&&" _) -> true   
+   _ -> false)
+
+\* Prove a conclusion from the hypothesis list. *\    
+           
+(defprolog by_hypothesis
+ X A (mode [[Y : B] | _] -) <-- (identical X Y) (unify! A B);
+ X A (mode [_ | Hyp] -) <-- (by_hypothesis X A Hyp);)                 
+
+\* Establish the type of a function. *\
+      
+(defprolog t*-def
+  (mode [define F | X] -) A Hyp <-- (bind Sig+Rules (compile (function <sig+rules>) X []))
+                                     (bind Error (if (= Sig+Rules (fail))
+                                                     (errordef F)
+                                                     skip))
+                                     (bind Sig (hd Sig+Rules))
+                                     (bind Rules (tl Sig+Rules))
+                                     (bind Vars (extract_vars Sig))
+                                     (bind Sig&& (placeholders Sig Vars))
+                                     !
+                                     (t*-rules Rules Sig&& 1 F [[F : Sig&&] | Hyp])
+                                     (bind Declare (declare F Sig))
+                                     (unify! A Sig);)  
+
+\* Parse the def into its parts - a signature and the body of the definition. *\          
+(defcc <sig+rules>
+  <signature> <trules> := [<signature> | <trules>];) 
+  
+\* Replace the variables by place holders. *\
+(define placeholders
+  [X | Y] Vs -> (map (/. Z (placeholders Z Vs)) [X | Y])
+  X Vs -> (concat && X)        where (element? X Vs)
+  X _ -> X)    
+
+(defcc <trules>
+  <trule> <trules> := [<trule> | <trules>];
+  <trule> := [<trule>];)
+  
+(defcc <trule>
+  <patterns> <arrow> <action> <guard?> 
+     := (let Vars (extract_vars <patterns>)
+             Patterns (placeholders <patterns> Vars) 
+             Action (placeholders (curry <action>) Vars)
+             Guard (placeholders (curry <guard?>) Vars)
+             (form-rule Patterns <arrow> Action Guard));)
+
+(define form-rule
+  Patterns forward Action Guard -> [Patterns (if (= Guard skip)
+                                                 Action
+                                                 [where Guard Action])]
+  Patterns backward [[fail-if F] X] Guard -> [Patterns (if (= Guard skip)
+                                                         [where [not [F X]] X]
+                                                         [where [[and Guard] [not [F X]]] X])]
+  Patterns backward Action Guard -> [Patterns (if (= Guard skip)
+                                                  [where [not [[== Action] [fail]]] Action]
+                                                  [where [[and Guard] [not [[== Action] [fail]]]] Action])])
+                                                  
+(defcc <guard?>
+  where <guard> := <guard>;
+  <e> := skip;)
+   
+(defcc <arrow>
+  -> := forward; 
+  <- := backward;)                                                       
+                         
+\* Error message if def does not parse. *\                                
+(define errordef
+  F -> (error "syntax error in ~A~%" F))
+
+\* Establish the type of the rules of a function *\
+
+(defprolog t*-rules
+  (mode [] -) _ _ _ _ <--;
+  (mode [Rule | Rules] -) A N F Hyp <-- (t*-rule Rule A N F Hyp) ! (bind M (+ N 1))  (t*-rules Rules A M F Hyp);) 
+                                                            
+\* Establish the type of a rule of a function *\
+            
+(defprolog t*-rule
+   Rule A N F Hyp <-- (t*-ruleh Rule A Hyp);
+   _ _ N F _ <-- (bind Error (type-insecure-rule-error-message N F));)
+                                
+(defprolog t*-ruleh
+  (mode [Patterns Result] -) A Hyp <-- (t*-patterns Patterns A NewHyp B)
+                                         !
+                                        (conc NewHyp Hyp AllHyp)
+                                        !
+                                        (th* Result B AllHyp);)                     
+
+(define type-insecure-rule-error-message
+  N F -> (error "type error in rule ~A of ~A~%" N F))  
+
+\* Establish that each pattern meets type constraints *\                    
+                         
+(defprolog t*-patterns
+  (mode [] -) B [] B <--;
+  (mode [Pattern | Patterns] -) (mode [A --> B] -) [[Pattern : A] | Hyp] C
+                      <-- (t*-assume Pattern Assume) !
+                           (th* Pattern A Assume) !
+                           (t*-patterns Patterns B Hyp C);) 
+                             
+\* Generate the assumptions for each pattern. *\                         
+
+(defprolog t*-assume
+   (mode [X | Y] -) Assume <-- ! (t*-assume X A1) (t*-assume Y A2) (bind Assume (append A1 A2));
+   X Out <-- (fwhen (placeholder? X)) (bind Out [[X : A]]);
+   _ [] <--;)
+   
+(defprolog conc
+ (mode [] -) X Out <-- (bind Out X);
+ (mode [X | Y] -) W Out <-- (bind Out [X | Z]) (conc Y W Z);)   
+  
+(defprolog findallhelp
+  Pattern Literal X A <-- (call Literal) (remember A Pattern) (when false);
+  _ _ X A <-- (bind X (value A));)
+
+(defprolog remember
+  A Pattern <-- (is B (set A [Pattern | (value A)]));) )
+  
+(defprolog findall
+  Pattern Literal X <-- (bind A (gensym a)) (bind B (set A [])) (shen-findallhelp Pattern Literal X A);)                               (define shen 
+  -> (do (credits) (loop)))
+
+(define loop
+   -> (do (initialise_environment)
+          (prompt) 
+          (trap-error (read-evaluate-print) (/. E (pr (error-to-string E) (value *stinput*)))) 
+          (loop)))
+
+\The current version.\
+
+(define version
+  S -> (set *version* S))
+
+(version "version 3.0")
+
+\Prints credits.\
+(define credits
+ -> (do (output "~%Shen 2010, copyright (C) 2010 Mark Tarver~%")
+        (output "www.lambdassociates.org, ~A~%" (value *version*)) 
+        (output "running under ~A, implementation: ~A" (value *language*) (value *implementation*))
+        (output "~%port ~A ported by ~A~%" (value *port*) (value *porters*))))
+
+\Initialise environment - set calls to 0 for trace package; set logical inferences to 0 \
+(define initialise_environment 
+  -> (multiple-set [*call* 0 *infs* 0 *dumped* [] *process-counter* 0 *catch* 0]))  
+
+(define multiple-set
+  [] -> []
+  [S V | M] -> (do (set S V) (multiple-set M)))
+                 
+(define destroy
+  F -> (declare F []))
+
+(set *history* [])
+
+(define read-evaluate-print 
+  -> (let Lineread (toplineread)  
+          History (value *history*)
+          NewLineread (retrieve-from-history-if-needed Lineread History)
+          NewHistory (update_history NewLineread History)
+          Parsed (fst NewLineread)         
+          (toplevel Parsed)))
+
+(define retrieve-from-history-if-needed
+   (@p _ [C1 C2]) [H | _] -> (let PastPrint (prbytes (snd H))
+                                    H)  where (and (= C1 (exclamation)) (= C2 (exclamation)))
+   (@p _ [C | Key]) H -> (let Key? (make-key Key H)
+                                Find (head (find-past-inputs Key? H)) 
+                                PastPrint (prbytes (snd Find))
+                                Find)   where (= C (exclamation))
+   (@p _ [C]) H -> (do (print-past-inputs (/. X true) (reverse H) 0)
+                         (abort))       where (= C (percent))
+   (@p _ [C | Key]) H -> (let Key? (make-key Key H)
+                                Pastprint (print-past-inputs Key? (reverse H) 0)
+                                (abort))  where (= C (percent))
+   Lineread _ -> Lineread)
+
+(define percent
+  -> 37)
+
+(define exclamation
+  ->  33) 
+
+(define prbytes
+  Bytes -> (do (map (/. Byte (pr (n->string Byte))) Bytes) 
+               (nl)))
+
+(define update_history 
+  Lineread History -> (set *history* [Lineread  | History]))   
+
+(define toplineread
+  -> (toplineread_loop (read-byte) []))
+
+(define toplineread_loop
+  Byte _ -> (error "line read aborted")  where (= Byte (hat))
+  Byte Bytes -> (let Line (compile (function <st_input>) Bytes)
+                    (if (or (= Line fail!) (empty? Line))
+                        (toplineread_loop (read-byte) (append Bytes [Byte]))
+                        (@p Line Bytes)))
+                            	where (element? Byte [(newline) (carriage-return)])
+  Byte Bytes -> (toplineread_loop (read-byte) (append Bytes [Byte])))
+
+(define hat
+  -> 94)
+
+(define newline
+   -> 10)
+     
+(define carriage-return
+    -> 13)    
+  
+(define tc
+  + -> (set *tc* true)
+  - -> (set *tc* false)
+  _ -> (error "tc expects a + or -"))
+
+(define prompt
+  -> (if (value *tc*)
+         (output  "~%~%(~A+) " (length (value *history*)))
+         (output  "~%~%(~A-) " (length (value *history*)))))
+
+(define toplevel
+  Parsed -> (toplevel_evaluate Parsed (value *tc*)))
+
+(define find-past-inputs
+  Key? H -> (let F (find Key? H) 
+              (if (empty? F) 
+                  (error "input not found~%")
+                  F)))
+
+(define make-key
+  Key H -> (let Atom (hd (compile (function <st_input>) Key))
+              (if (integer? Atom)
+                  (/. X (= X (nth (+ Atom 1) (reverse H))))
+                  (/. X (prefix? Key (trim-gubbins (snd X)))))))
+
+(define trim-gubbins
+  [C | X] -> (trim-gubbins X)  where (= C (space))
+  [C | X] -> (trim-gubbins X)  where (= C (newline))
+  [C | X] -> (trim-gubbins X)  where (= C (carriage-return))
+  [C | X] -> (trim-gubbins X)  where (= C (tab))
+  [C | X] -> (trim-gubbins X)  where (= C (left-round))
+  X -> X)
+  
+(define space
+   -> 32)  
+ 
+(define tab
+   -> 9)
+
+(define left-round
+  -> 40)
+
+(define find
+  _ [] -> []
+  F [X | Y] -> [X | (find F Y)]	where (F X)
+  F [_ | Y] -> (find F Y))
+
+(define prefix?
+  [] _ -> true
+  [X | Y] [X | Z] -> (prefix? Y Z)
+  _ _ -> false)
+
+(define print-past-inputs
+  _ [] _ -> _
+  Key? [H | Hs] N -> (print-past-inputs Key? Hs (+ N 1)) 	where (not (Key? H))
+  Key? [(@p _ Cs) | Hs] N -> (do (output "~A. " N) 
+                                 (do (prbytes Cs) 
+                                     (print-past-inputs Key? Hs (+ N 1)))))
+                                 
+(define toplevel_evaluate
+  [X : A] true -> (typecheck-and-evaluate X A)  
+  [X Y | Z] Boolean -> (do (toplevel_evaluate [X] Boolean)
+                            (if (= (value *hush*) hushed) skip (nl))
+                            (toplevel_evaluate [Y | Z] Boolean))
+  [X] true -> (typecheck-and-evaluate X (gensym A))
+  [X] false -> (let Eval (eval-without-macros X)
+                   (if (or (= (value *hush*) hushed) (= Eval unhushed))
+                       skip
+                       (print Eval))))
+
+(define typecheck-and-evaluate
+  X A -> (let Typecheck (typecheck X A)
+              (if (= Typecheck false)
+                  (error "type error~%")
+                  (let Eval (eval-without-macros X)
+                       Type (pretty-type Typecheck)
+                       (if (or (= (value *hush*) hushed) (= X unhushed))
+                           skip
+                           (output "~S : ~R" Eval Type))))))
+
+(define pretty-type
+  Type -> (mult_subst (value *alphabet*) (extract-pvars Type) Type))
+
+(define extract-pvars
+  X -> [X]  where (pvar? X)
+  [X | Y] -> (union (extract-pvars X) (extract-pvars Y))
+  _ -> [])
+
+(define mult_subst
+  [] _ X -> X
+  _ [] X -> X
+  [X | Y] [W | Z] A -> (mult_subst Y Z (subst X W A)))(define f_error 
+  F -> (do (output "partial function ~A;~%" F)
+           (if (and (not (tracked? F))
+                    (y-or-n? (make-string "track ~A? " F)))
+               (track-function (ps F))
+               ok)
+           (simple-error "aborted")))
+
+(define tracked?
+  F -> (element? F (value *tracking*)))
+
+(define track
+  F -> (let Source (ps F)
+            (track-function Source)))
+
+(define track-function
+  [defun F Params Body]
+   -> (let KL [defun F Params (insert-tracking-code F Params Body)]
+           Ob (eval KL)
+           Tr (set *tracking* [Ob | (value *tracking*)])
+           Ob))
+
+\Increment the call counter, print the inputs, evaluate the body, store the result,
+ print the result and decrement the call counter.\
+(define insert-tracking-code
+  F Params Body -> [do [set *call* [+ [value *call*] 1]]
+                       [do [input-track [value *call*] F (cons_form Params)]
+                           [do [terpri-or-read-char]
+                        [let Result Body
+                             [do [output-track [value *call*] F Result]
+                                 [do [set *call* [- [value *call*] 1]]
+                                     [do [terpri-or-read-char]
+                                         Result]]]]]]])
+
+(set *step* false)
+
+\Sets the trace stepper.\
+(define step 
+  + -> (set *step* true)
+  - -> (set *step* false)
+  _ -> (error "step expects a + or a -.~%"))
+
+\Sets the spy stepper.\
+(define spy 
+  + -> (set *spy* true)
+  - -> (set *spy* false)
+  _ -> (error "spy expects a + or a -.~%"))
+
+\Forks the printing to a new line or waits for the user if stepping is needed.\
+(define terpri-or-read-char
+  -> (if (value *step*) 
+         (check-byte (read-byte (value *stinput*))) 
+         (nl)))
+
+\Abort on request.\
+(define check-byte
+  C -> (error "aborted")   where (= C (hat))
+  _ -> true)
+
+\Prints inputs to function.\
+(define input-track
+  N F Args
+  -> (do (output "~%~A<~A> Inputs to ~A ~%~A" (spaces N) N F (spaces N) Args)
+         (recursively-print Args)))
+
+(define recursively-print
+  [] -> (output " ==>")
+  [X | Y] -> (do (print X) (do (output ", ") (recursively-print Y))))
+
+\Makes the right number of spaces.\
+(define spaces
+ 0 -> ""
+ N -> (cn " " (spaces (- N 1))))
+
+\Prints the output of the function.\
+(define output-track
+  N F Result -> (output "~%~A<~A> Output from ~A ~%~A==> ~S" (spaces N) N F (spaces N) Result))
+
+\Grab the old source code and compile back in again.\
+(define untrack
+  F -> (eval (ps F)))
+
+\Profile code.\
+(define profile
+  Func -> (profile-help (ps Func)))
+
+\Grab the source code, and place in profiling code
+ Create a copy of the original function that actually
+ does the processing.  Then compile the lot to byte code.\ 
+
+(define profile-help
+  [defun F Params Code]
+   -> (let G (gensym f)
+           Profile [defun F Params (profile-func F Params [G | Params])]
+           Def [defun G Params (subst G F Code)]
+           CompileProfile (eval-without-macros Profile)
+           CompileG (eval-without-macros Def)
+           F)
+  _ -> (error "Cannot profile.~%"))
+
+\Reinstate the original code.\
+(define unprofile
+   Func -> (untrack Func))
+
+\Insert profiling code.\
+(define profile-func 
+  F Params Code -> [let Start [get-time run]
+                     [let Result Code
+                       [let Finish [- [get-time run] Start]
+                         [let Record 
+                              [put-profile F [+ [get-profile F] Finish]]
+                              Result]]]])
+
+\Print the profile results.\
+(define profile-results 
+   F -> (let Results (get-profile F) 
+             Initialise (put-profile F 0)
+             (@p F Results)))
+             
+(define get-profile
+  F -> (trap-error (get F profile) (/. E 0)))
+  
+(define put-profile
+  F Time -> (put F profile Time))\(define declare
+  F A -> (do (set *signedfuncs* (adjoin F (value *signedfuncs*)))       
+             (s-prolog [[[(concat type-signature-of- F) A] :- []]]) 
+              F))
+
+(define declare
+  F A -> (let Record (set *signedfuncs* (adjoin F (value *signedfuncs*))) 
+              Type (rcons_form A)
+              F* (concat type-signature-of- F)      
+              Clause [[F* X] :- [[unify! X Type]]]
+              Compile (compile_prolog_procedure [Clause])
+              F))\
+
+(define declare
+  F A -> (let Record (set *signedfuncs* (adjoin F (value *signedfuncs*)))
+              Variancy (trap-error (variancy-test F A) (/. E skip))
+              Type (rcons_form A)
+              F* (concat type-signature-of- F)
+              Parameters (parameters 1)       
+              Clause [[F* X] :- [[unify! X Type]]]
+              AUM_instruction (aum Clause Parameters)
+              Code (aum_to_shen AUM_instruction) 
+              ShenDef [define F* | (append Parameters [ProcessN Continuation] [-> Code])]
+              Eval (eval-without-macros ShenDef)
+              F)) 
+  
+(define variancy-test 
+  F A -> (let TypeF (typecheck F B) 
+              Check (cases (= symbol TypeF) skip
+                           (variant? TypeF A) skip
+                           true (output "warning: changing the type of ~A may create errors~%" F))
+              skip))
+              
+(define variant?
+  X X -> true
+  [X | Y] [X | Z] -> (variant? Y Z)
+  [X | Y] [W | Z] -> (variant? (subst a X Y) (subst a W Z))  where (and (pvar? X) (variable? W))
+  [[X | Y] | Z] [[X* | Y*] | Z*] -> (variant? (append [X | Y] Z) (append [X* | Y*] Z*))
+  _ _ -> false)
+
+(declare absvector? [A --> boolean])
+(declare and [boolean --> [boolean --> boolean]])
+(declare append [[list A] --> [[list A] --> [list A]]])
+(declare apply [[A --> B] --> [A --> B]])
+(declare arity [A --> number])
+(declare assoc [A --> [[list [list A]] --> [list A]]])
+(declare boolean? [A --> boolean])    
+(declare bound? [symbol --> boolean])
+(declare cd [string --> string]) 
+(declare close [[stream A] --> [list B]])
+(declare cn [string --> [string --> string]])
+(declare concat [symbol --> [symbol --> symbol]])
+(declare cons? [A --> boolean])
+(declare destroy [[A --> B] --> [A --> B]])
+(declare difference [[list A] --> [[list A] --> [list A]]]) 
+(declare do [A --> [B --> B]])
+(declare dump [string --> [string --> string]])
+(declare element? [A --> [[list A] --> boolean]]) 
+(declare empty? [A --> boolean]) 
+(declare interror [string --> [A --> B]])
+(declare error-to-string [exception --> string])
+(declare explode [A --> [list string]])
+(declare fail-if [[symbol --> boolean] --> [symbol --> symbol]])  
+(declare fix [[A --> A] --> [A --> A]])  
+(declare format [[stream out] --> [string --> [A --> string]]])
+(declare freeze [A --> [lazy A]])
+(declare fst [[A * B] --> A]) 
+(declare gensym [symbol --> symbol])
+(declare <-vector [[vector A] --> [number --> A]]) 
+(declare vector-> [[vector A] --> [number --> [A --> [vector A]]]]) 
+(declare vector [number --> [vector A]]) 
+(declare get-time [symbol --> number])
+(declare hash [A --> [number --> number]])
+(declare head [[list A] --> A]) 
+(declare hdv [[vector A] --> A])
+(declare hdstr [string --> string])
+(declare if [boolean --> [A --> [A --> A]]]) 
+(declare include [[list symbol] --> [list symbol]])
+(declare include-all-but [[list symbol] --> [list symbol]])    
+(declare inferences [A --> number]) 
+(declare integer? [A --> boolean])
+(declare intersection [[list A] --> [[list A] --> [list A]]])
+(declare length [[list A] --> number])
+(declare limit [[vector A] --> number])
+(declare load [string --> symbol])
+(declare intmake-string [string --> [A --> string]])
+(declare intern [string --> symbol])
+(declare map [[A --> B] --> [[list A] --> [list B]]]) 
+(declare mapcan [[A --> [list B]] --> [[list A] --> [list B]]])
+(declare maxinferences [number --> number]) 
+(declare n->string [number --> string])
+(declare nl [number --> number])
+(declare not [boolean --> boolean]) 
+(declare nth [number --> [[list A] --> A]])
+(declare number? [A --> boolean])
+(declare occurrences [A --> [B --> number]])
+(declare occurs-check [symbol --> boolean])
+(declare or [boolean --> [boolean --> boolean]]) 
+(declare intoutput [string --> [A --> string]])
+(declare pos [string --> [number --> string]])
+(declare pr [string --> [[stream out] --> string]])
+(declare print [A --> A])
+(declare profile [[A --> B] --> [A --> B]]) 
+(declare preclude [[list symbol] --> [list symbol]])
+(declare profile-results [A --> symbol]) 
+(declare preclude-all-but [[list symbol] --> [list symbol]])
+(declare read-byte [[stream in] --> number])
+(declare read-file-as-bytelist [string --> [list number]])
+(declare read-file-as-string [string --> string])
+(declare remove [A --> [[list A] --> [list A]]]) 
+(declare reverse [[list A] --> [list A]]) 
+(declare simple-error [string --> A])
+(declare snd [[A * B] --> B])
+(declare specialise [symbol --> symbol])
+(declare spy [symbol --> boolean])
+(declare step [symbol --> boolean])
+(declare stinput [A --> [stream B]])
+(declare string? [A --> boolean])
+(declare sum [[list number] --> number])
+(declare str [A --> string])
+(declare symbol? [A --> boolean])
+(declare systemf [symbol --> [list symbol]])   
+(declare tail [[list A] --> [list A]]) 
+(declare tlstr [string --> string])
+(declare tlv [[vector A] --> [vector A]])
+(declare tc [symbol --> boolean]) 
+(declare tc? [A --> boolean])
+(declare thaw [[lazy A] --> A])
+(declare track [symbol --> symbol]) 
+(declare trap-error [A --> [[exception --> A] --> A]])
+(declare tuple? [A --> boolean]) 
+(declare union [[list A] --> [[list A] --> [list A]]])
+(declare unprofile [[A --> B] --> [A --> B]]) 
+(declare untrack [symbol --> symbol])  
+(declare unspecialise [symbol --> symbol])
+(declare variable? [A --> boolean])
+(declare vector? [A --> boolean])
+(declare version [string --> string])
+(declare write-to-file [string --> [A --> A]])
+(declare y-or-n? [string --> boolean])
+(declare > [number --> [number --> boolean]])
+(declare < [number --> [number --> boolean]])
+(declare >= [number --> [number --> boolean]])
+(declare <= [number --> [number --> boolean]])
+(declare = [A --> [A --> boolean]])
+(declare + [number --> [number --> number]])
+(declare / [number --> [number --> number]])
+(declare - [number --> [number --> number]])
+(declare * [number --> [number --> number]])
+(declare == [A --> [B --> boolean]]) 
+
+
+
+(define print 
+  X -> (do (pr (ms-h ["~" "S"] (@p X skip)) (stinput 0)) X))
+
+(define format
+  true String Args -> (output String Args)
+  false String Args -> (make-string String Args)
+  Stream String Args -> (pr (ms-h (explode String) Args) Stream))
+  
+(define intoutput
+  _ _ -> "Shen hushed"   where (= (value *hush*) "Shen hushed")
+  "Shen unhushed" _ -> "Shen unhushed"
+  String Args -> (pr (ms-h (explode-string String) Args) (stinput 0)))
+
+(define interror
+  String Args -> (simple-error (ms-h (explode-string String) Args))) 
+
+(define intmake-string
+  String Args -> (ms-h (explode-string String) Args)) 
+
+(define ms-h
+  [] _ -> ""
+  ["~" "%" | Cs] Args -> (cn (n->string 10) (ms-h Cs Args))                       
+  ["~" C | Cs] (@p Arg Args) -> (cn (ob->str C Arg) (ms-h Cs Args))
+                                       where (element? C ["A" "S" "R"])
+  [C | Cs] Args -> (cn C (ms-h Cs Args)))
+
+
+(define ob->str
+  C [] -> (if (= C "R") "()" "[]")
+  C V ->  "<>"	where (= V (vector 0))
+  C [X | Y] -> (cn-all (append (if (= C "R") ["("] ["["]) 
+                                 [(ob->str C X)]  
+                                 (xmapcan (value *maximum-print-sequence-size*)  (/. Z [" " (ob->str C Z)]) Y) 
+                                 (if (= C "R") [")"] ["]"]) ))
+  C X -> (let L (vector->list X 1)
+              E (tlstr (cn-all (xmapcan (- (value *maximum-print-sequence-size*) 1)
+                                        (/. Z [" " (ob->str C Z)]) L)))
+              V (cn "<" (cn E ">"))
+              V)   				where (vector? X)
+  C X -> (trap-error (ob->str "A" ((<-address X 0) X))
+                     (/. Ignore (let L (vector->list X 0)
+                                     E (tlstr (cn-all (xmapcan (- (value *maximum-print-sequence-size*) 1) 
+                                                               (/. Z [" " (ob->str C Z)]) L)))
+                                     V (cn "<" (cn E ">"))
+                                     V)))       where (and (not (string? X)) (absvector? X))             
+  C X -> (if (and (= C "A") (string? X))
+              X
+              (str X)))
+              
+(define tuple
+  X -> (make-string "(@p ~S ~S)" (fst X) (snd X)))              
+              
+(define cn-all
+  [] -> ""
+  [X | Y] -> (cn X (cn-all Y)))
+
+(define xmapcan
+  _ _ [] -> []
+  0 _ _ -> ["... etc"]
+  Max F [X | Y] -> (append (F X) (xmapcan (- Max 1) F Y))
+  _ F X -> [" |" | (F X)])
+
+(define vector->list
+  X N -> (let Y (trap-error (<-address X N) (/. E out-of-range))
+              (if (= Y out-of-range)
+                  []
+                  [Y | (vector->list X (+ N 1))])))(define yacc 
+  [defcc S | CC_Stuff] -> (yacc->shen S CC_Stuff))
+   
+(define yacc->shen
+  S CC_Stuff -> [define S | (yacc_cases (map (function cc_body) (split_cc_rules CC_Stuff [])))])
+
+(define yacc_cases
+  Cases -> (append (mapcan (/. Case [Stream <- Case]) Cases) [_ -> [fail]]))
+ 
+(define first_n
+  0 _ -> []
+  _ [] -> []
+  N [X | Y] -> [X | (first_n (- N 1) Y)])
+
+(define split_cc_rules
+  [] [] -> []
+  [] RevRule -> [(split_cc_rule (reverse RevRule) [])]
+  [; | CC_Stuff] RevRule 
+   -> [(split_cc_rule (reverse RevRule) []) | (split_cc_rules CC_Stuff [])]
+  [X | CC_Stuff] RevRule -> (split_cc_rules CC_Stuff [X | RevRule]))
+
+(define split_cc_rule 
+   [:= Semantics] RevSyntax -> [(reverse RevSyntax) Semantics]
+   [:= | Semantics] RevSyntax -> [(reverse RevSyntax) (cons_form Semantics)]
+   [] RevSyntax 
+   -> (do (output "warning: ")
+          (map (/. X (output "~A " X)) (reverse RevSyntax))
+          (output "has no semantics.~%")
+          (split_cc_rule [:= (default_semantics (reverse RevSyntax))] RevSyntax))
+   [Syntax | Rule] RevSyntax -> (split_cc_rule Rule [Syntax | RevSyntax]))
+
+(define default_semantics 
+  [] -> []
+  [S | Syntax] -> (let PS [snd (concat Parse_ S)]
+                   (if (empty? Syntax) 
+                       PS 
+                       [append PS 
+                              (default_semantics Syntax)]))	
+                                   where (grammar_symbol? S)
+  [S | Syntax] -> [cons S (default_semantics Syntax)])
+
+(define cc_body 
+  [Syntax Semantics] -> (syntax Syntax Stream Semantics))
+
+(define syntax 
+  [] Stream Semantics -> [reassemble [fst Stream] (semantics Semantics)]
+  [S | Syntax] Stream Semantics 
+    -> (if (grammar_symbol? S) 
+           (recursive_descent [S | Syntax] Stream Semantics)
+           (if (terminal? S)       
+               (check_stream [S | Syntax] Stream Semantics)
+               (if (jump_stream? S)    
+                   (jump_stream [S | Syntax] Stream Semantics)
+                   (if (list_stream? S)    
+                       (list_stream (decons S) Syntax Stream Semantics)
+	               (error "~A is not legal syntax~%" S))))))
+	       
+
+(define list_stream?
+  [_ | _] -> true
+  _ -> false)
+
+(define decons
+  [cons X Y] -> [X | (decons Y)]
+  X -> X)
+
+(define list_stream
+  S Syntax Stream Semantics 
+   -> (let Test [and [cons? [fst Stream]] [cons? [hd [fst Stream]]]]
+           Action [snd-or-fail (syntax S 
+                          [reassemble [hd [fst Stream]] [snd Stream]]
+                          [leave! (syntax Syntax 
+                              [reassemble [tl [fst Stream]]
+                                          [snd Stream]]
+                              Semantics)])] 
+          Else [fail]
+          [if Test Action Else])) 
+          
+(define snd-or-fail
+  (@p _ Y) -> Y
+  _ -> (fail))          
+   
+(define grammar_symbol?
+  S -> (and (symbol? S) 
+            (let Cs (explode S) 
+                (and (= (hd Cs) "<") (= (hd (reverse Cs)) ">")))))				
+  
+(define recursive_descent 
+  [S | Syntax] Stream Semantics -> (let Test [S Stream]
+                                        Action (syntax Syntax 
+                                                       (concat Parse_ S) Semantics)
+                                        Else [fail]
+                                        [let (concat Parse_ S) Test
+                                             [if [not [= [fail] (concat Parse_ S)]]
+                                                 Action
+                                                 Else]])) 
+        
+(define terminal? 
+  [_ | _] -> false
+  -*- -> false
+  _ -> true)
+
+(define jump_stream?
+   -*- -> true
+   _ -> false)
+  
+(define check_stream 
+  [S | Syntax] Stream Semantics 
+  -> (let Test [and [cons? [fst Stream]] [= S [hd [fst Stream]]]]
+          Action (syntax Syntax [reassemble [tl [fst Stream]] 
+                                            [snd Stream]] Semantics)
+          Else [fail]
+          [if Test Action Else])) 
+
+(define reassemble
+  _ X -> X  where (= X (fail))
+  I O -> (@p I O))
+
+(define jump_stream 
+  [S | Syntax] Stream Semantics 
+  -> (let Test [cons? [fst Stream]]
+          Action (syntax Syntax [reassemble [tl [fst Stream]] 
+                                            [snd Stream]] Semantics)
+          Else [fail]
+          [if Test Action Else]))
+  
+(define semantics 
+  [leave! S] -> S
+  [] -> []
+  S -> [snd (concat Parse_ S)] 	where (grammar_symbol? S) 
+  -o- -> [snd Stream] 
+  -*- -> [hd [fst Stream]]     
+  -s- -> [fst Stream]
+  [X | Y] -> (map (function semantics) [X | Y])
+  X -> X)       
+
+(define fail
+  -> fail!)  
