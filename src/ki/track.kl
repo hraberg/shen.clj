@@ -1,0 +1,208 @@
+
+"                                                   The License
+ 
+ The user is free to produce commercial applications with the software, to distribute these applications in source or binary  form, and to charge monies for them as he sees fit and in concordance with the laws of the land subject to the following  license.
+ 
+ 1. The license applies to all the software and all derived software and must appear on such.
+ 2. It is illegal to distribute the software without this license attached to it and use of the software implies agreement 
+    with the license as such. It is illegal for anyone who is not the copyright holder to tamper with or change the license.
+ 3. Neither the names of Lambda Associates or the copyright holder may be used to endorse or promote products built using
+     the software without specific prior written permission from the copyright holder.
+ 4. That possession of this license does not confer on the copyright holder any special contractual obligation towards the    user. That in no event shall the copyright holder be liable for any direct, indirect, incidental, special, exemplary or   consequential damages (including but not limited to procurement of substitute goods or services, loss of use, data, or    profits; or business interruption), however caused and on any theory of liability, whether in contract, strict liability   or tort (including negligence) arising in any way out of the use of the software, even if advised of the possibility of   such damage. 
+5. It is permitted for the user to change the software, for the purpose of improving performance, correcting an error, or    porting to a new platform, and distribute the modified version of Shen (hereafter the modified version) provided the     resulting program conforms in all respects to the Shen standard and is issued under that title. The user must make it clear   with his distribution that he/she is the author of the changes and what these changes are and why. 
+6. Derived versions of this software in whatever form are subject to the same restrictions. In particular it is not          permitted to make derived copies of this software which do not conform to the Shen standard or appear under a different title.
+7. It is permitted to distribute versions of Shen which incorporate libraries, graphics or other facilities which are not    part of the Shen standard.
+
+For an explication of this license see http://www.lambdassociates.org/News/june11/license.htm which explains this license in full."
+
+(defun shen-f_error (V1084)
+ (do (intoutput "partial function ~A;~%" (@p V1084 ()))
+  (do
+   (if
+    (and (not (shen-tracked? V1084))
+     (y-or-n? (intmake-string "track ~A? " (@p V1084 ()))))
+    (shen-track-function (ps V1084)) shen-ok)
+   (simple-error "aborted"))))
+
+(defun shen-tracked? (V1085) (element? V1085 (value shen-*tracking*)))
+
+(defun track (V1086) (let Source (ps V1086) (shen-track-function Source)))
+
+(defun shen-track-function (V1087)
+ (cond
+  ((and (cons? V1087)
+    (and (= defun (hd V1087))
+     (and (cons? (tl V1087))
+      (and (cons? (tl (tl V1087)))
+       (and (cons? (tl (tl (tl V1087))))
+        (= () (tl (tl (tl (tl V1087))))))))))
+   (let KL
+    (cons defun
+     (cons (hd (tl V1087))
+      (cons (hd (tl (tl V1087)))
+       (cons
+        (shen-insert-tracking-code (hd (tl V1087)) (hd (tl (tl V1087)))
+         (hd (tl (tl (tl V1087)))))
+        ()))))
+    (let Ob (eval KL)
+     (let Tr (set shen-*tracking* (cons Ob (value shen-*tracking*))) Ob))))
+  (true (shen-sys-error shen-track-function))))
+
+(defun shen-insert-tracking-code (V1088 V1089 V1090)
+ (cons do
+  (cons
+   (cons set
+    (cons shen-*call*
+     (cons (cons + (cons (cons value (cons shen-*call* ())) (cons 1 ())))
+      ())))
+   (cons
+    (cons do
+     (cons
+      (cons shen-input-track
+       (cons (cons value (cons shen-*call* ()))
+        (cons V1088 (cons (shen-cons_form V1089) ()))))
+      (cons
+       (cons do
+        (cons (cons shen-terpri-or-read-char ())
+         (cons
+          (cons let
+           (cons Result
+            (cons V1090
+             (cons
+              (cons do
+               (cons
+                (cons shen-output-track
+                 (cons (cons value (cons shen-*call* ()))
+                  (cons V1088 (cons Result ()))))
+                (cons
+                 (cons do
+                  (cons
+                   (cons set
+                    (cons shen-*call*
+                     (cons
+                      (cons -
+                       (cons (cons value (cons shen-*call* ())) (cons 1 ())))
+                      ())))
+                   (cons
+                    (cons do
+                     (cons (cons shen-terpri-or-read-char ())
+                      (cons Result ())))
+                    ())))
+                 ())))
+              ()))))
+          ())))
+       ())))
+    ()))))
+
+(set shen-*step* false)
+
+(defun step (V1095)
+ (cond ((= + V1095) (set shen-*step* true))
+  ((= - V1095) (set shen-*step* false))
+  (true (interror "step expects a + or a -.~%" ()))))
+
+(defun spy (V1100)
+ (cond ((= + V1100) (set shen-*spy* true))
+  ((= - V1100) (set shen-*spy* false))
+  (true (interror "spy expects a + or a -.~%" ()))))
+
+(defun shen-terpri-or-read-char ()
+ (if (value shen-*step*) (shen-check-byte (read-byte (value *stinput*)))
+  (nl 1)))
+
+(defun shen-check-byte (V1105)
+ (cond ((= V1105 (shen-hat)) (interror "aborted" ())) (true true)))
+
+(defun shen-input-track (V1106 V1107 V1108)
+ (do
+  (intoutput "~%~A<~A> Inputs to ~A ~%~A"
+   (@p (shen-spaces V1106)
+    (@p V1106 (@p V1107 (@p (shen-spaces V1106) (@p V1108 ()))))))
+  (shen-recursively-print V1108)))
+
+(defun shen-recursively-print (V1109)
+ (cond ((= () V1109) (intoutput " ==>" ()))
+  ((cons? V1109)
+   (do (print (hd V1109))
+    (do (intoutput ", " ()) (shen-recursively-print (tl V1109)))))
+  (true (shen-sys-error shen-recursively-print))))
+
+(defun shen-spaces (V1110)
+ (cond ((= 0 V1110) "") (true (cn " " (shen-spaces (- V1110 1))))))
+
+(defun shen-output-track (V1111 V1112 V1113)
+ (intoutput "~%~A<~A> Output from ~A ~%~A==> ~S"
+  (@p (shen-spaces V1111)
+   (@p V1111 (@p V1112 (@p (shen-spaces V1111) (@p V1113 ())))))))
+
+(defun untrack (V1114) (eval (ps V1114)))
+
+(defun profile (V1115) (shen-profile-help (ps V1115)))
+
+(defun shen-profile-help (V1120)
+ (cond
+  ((and (cons? V1120)
+    (and (= defun (hd V1120))
+     (and (cons? (tl V1120))
+      (and (cons? (tl (tl V1120)))
+       (and (cons? (tl (tl (tl V1120))))
+        (= () (tl (tl (tl (tl V1120))))))))))
+   (let G (gensym shen-f)
+    (let Profile
+     (cons defun
+      (cons (hd (tl V1120))
+       (cons (hd (tl (tl V1120)))
+        (cons
+         (shen-profile-func (hd (tl V1120)) (hd (tl (tl V1120)))
+          (cons G (hd (tl (tl V1120)))))
+         ()))))
+     (let Def
+      (cons defun
+       (cons G
+        (cons (hd (tl (tl V1120)))
+         (cons (subst G (hd (tl V1120)) (hd (tl (tl (tl V1120))))) ()))))
+      (let CompileProfile (eval-without-macros Profile)
+       (let CompileG (eval-without-macros Def) (hd (tl V1120))))))))
+  (true (interror "Cannot profile.~%" ()))))
+
+(defun unprofile (V1121) (untrack V1121))
+
+(defun shen-profile-func (V1122 V1123 V1124)
+ (cons let
+  (cons Start
+   (cons (cons get-time (cons run ()))
+    (cons
+     (cons let
+      (cons Result
+       (cons V1124
+        (cons
+         (cons let
+          (cons Finish
+           (cons
+            (cons - (cons (cons get-time (cons run ())) (cons Start ())))
+            (cons
+             (cons let
+              (cons Record
+               (cons
+                (cons shen-put-profile
+                 (cons V1122
+                  (cons
+                   (cons +
+                    (cons (cons shen-get-profile (cons V1122 ()))
+                     (cons Finish ())))
+                   ())))
+                (cons Result ()))))
+             ()))))
+         ()))))
+     ())))))
+
+(defun profile-results (V1125)
+ (let Results (shen-get-profile V1125)
+  (let Initialise (shen-put-profile V1125 0) (@p V1125 Results))))
+
+(defun shen-get-profile (V1126)
+ (trap-error (get V1126 profile (value shen-*property-vector*)) (lambda E 0)))
+
+(defun shen-put-profile (V1127 V1128)
+ (put V1127 profile V1128 (value shen-*property-vector*)))
+

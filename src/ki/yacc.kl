@@ -1,0 +1,217 @@
+
+"                                                   The License
+ 
+ The user is free to produce commercial applications with the software, to distribute these applications in source or binary  form, and to charge monies for them as he sees fit and in concordance with the laws of the land subject to the following  license.
+ 
+ 1. The license applies to all the software and all derived software and must appear on such.
+ 2. It is illegal to distribute the software without this license attached to it and use of the software implies agreement 
+    with the license as such. It is illegal for anyone who is not the copyright holder to tamper with or change the license.
+ 3. Neither the names of Lambda Associates or the copyright holder may be used to endorse or promote products built using
+     the software without specific prior written permission from the copyright holder.
+ 4. That possession of this license does not confer on the copyright holder any special contractual obligation towards the    user. That in no event shall the copyright holder be liable for any direct, indirect, incidental, special, exemplary or   consequential damages (including but not limited to procurement of substitute goods or services, loss of use, data, or    profits; or business interruption), however caused and on any theory of liability, whether in contract, strict liability   or tort (including negligence) arising in any way out of the use of the software, even if advised of the possibility of   such damage. 
+5. It is permitted for the user to change the software, for the purpose of improving performance, correcting an error, or    porting to a new platform, and distribute the modified version of Shen (hereafter the modified version) provided the     resulting program conforms in all respects to the Shen standard and is issued under that title. The user must make it clear   with his distribution that he/she is the author of the changes and what these changes are and why. 
+6. Derived versions of this software in whatever form are subject to the same restrictions. In particular it is not          permitted to make derived copies of this software which do not conform to the Shen standard or appear under a different title.
+7. It is permitted to distribute versions of Shen which incorporate libraries, graphics or other facilities which are not    part of the Shen standard.
+
+For an explication of this license see http://www.lambdassociates.org/News/june11/license.htm which explains this license in full."
+
+(defun shen-yacc (V293)
+ (cond
+  ((and (cons? V293) (and (= defcc (hd V293)) (cons? (tl V293))))
+   (shen-yacc->shen (hd (tl V293)) (tl (tl V293))))
+  (true (shen-sys-error shen-yacc))))
+
+(defun shen-yacc->shen (V294 V295)
+ (cons define
+  (cons V294
+   (shen-yacc_cases
+    (map (lambda V296 (shen-cc_body V296)) (shen-split_cc_rules V295 ()))))))
+
+(defun shen-yacc_cases (V297)
+ (append (mapcan (lambda Case (cons Stream (cons <- (cons Case ())))) V297)
+  (cons _ (cons -> (cons (cons fail ()) ())))))
+
+(defun shen-first_n (V302 V303)
+ (cond ((= 0 V302) ()) ((= () V303) ())
+  ((cons? V303) (cons (hd V303) (shen-first_n (- V302 1) (tl V303))))
+  (true (shen-sys-error shen-first_n))))
+
+(defun shen-split_cc_rules (V304 V305)
+ (cond ((and (= () V304) (= () V305)) ())
+  ((= () V304) (cons (shen-split_cc_rule (reverse V305) ()) ()))
+  ((and (cons? V304) (= ; (hd V304)))
+   (cons (shen-split_cc_rule (reverse V305) ())
+    (shen-split_cc_rules (tl V304) ())))
+  ((cons? V304) (shen-split_cc_rules (tl V304) (cons (hd V304) V305)))
+  (true (shen-sys-error shen-split_cc_rules))))
+
+(defun shen-split_cc_rule (V306 V307)
+ (cond
+  ((and (cons? V306)
+    (and (= := (hd V306))
+     (and (cons? (tl V306)) (= () (tl (tl V306))))))
+   (cons (reverse V307) (tl V306)))
+  ((and (cons? V306) (= := (hd V306)))
+   (cons (reverse V307) (cons (shen-cons_form (tl V306)) ())))
+  ((= () V306)
+   (do (intoutput "warning: " ())
+    (do (map (lambda X (intoutput "~A " (@p X ()))) (reverse V307))
+     (do (intoutput "has no semantics.~%" ())
+      (shen-split_cc_rule
+       (cons := (cons (shen-default_semantics (reverse V307)) ())) V307)))))
+  ((cons? V306) (shen-split_cc_rule (tl V306) (cons (hd V306) V307)))
+  (true (shen-sys-error shen-split_cc_rule))))
+
+(defun shen-default_semantics (V308)
+ (cond ((= () V308) ())
+  ((and (cons? V308) (shen-grammar_symbol? (hd V308)))
+   (let PS (cons snd (cons (concat Parse_ (hd V308)) ()))
+    (if (empty? (tl V308)) PS
+     (cons append (cons PS (cons (shen-default_semantics (tl V308)) ()))))))
+  ((cons? V308)
+   (cons cons (cons (hd V308) (cons (shen-default_semantics (tl V308)) ()))))
+  (true (shen-sys-error shen-default_semantics))))
+
+(defun shen-cc_body (V309)
+ (cond
+  ((and (cons? V309) (and (cons? (tl V309)) (= () (tl (tl V309)))))
+   (shen-syntax (hd V309) Stream (hd (tl V309))))
+  (true (shen-sys-error shen-cc_body))))
+
+(defun shen-syntax (V310 V311 V312)
+ (cond
+  ((= () V310)
+   (cons shen-reassemble
+    (cons (cons fst (cons V311 ())) (cons (shen-semantics V312) ()))))
+  ((cons? V310)
+   (if (shen-grammar_symbol? (hd V310)) (shen-recursive_descent V310 V311 V312)
+    (if (shen-terminal? (hd V310)) (shen-check_stream V310 V311 V312)
+     (if (shen-jump_stream? (hd V310)) (shen-jump_stream V310 V311 V312)
+      (if (shen-list_stream? (hd V310))
+       (shen-list_stream (shen-decons (hd V310)) (tl V310) V311 V312)
+       (interror "~A is not legal syntax~%" (@p (hd V310) ())))))))
+  (true (shen-sys-error shen-syntax))))
+
+(defun shen-list_stream? (V321) (cond ((cons? V321) true) (true false)))
+
+(defun shen-decons (V322)
+ (cond
+  ((and (cons? V322)
+    (and (= cons (hd V322))
+     (and (cons? (tl V322))
+      (and (cons? (tl (tl V322))) (= () (tl (tl (tl V322))))))))
+   (cons (hd (tl V322)) (shen-decons (hd (tl (tl V322))))))
+  (true V322)))
+
+(defun shen-list_stream (V323 V324 V325 V326)
+ (let Test
+  (cons and
+   (cons (cons cons? (cons (cons fst (cons V325 ())) ()))
+    (cons
+     (cons cons? (cons (cons hd (cons (cons fst (cons V325 ())) ())) ()))
+     ())))
+  (let Action
+   (cons shen-snd-or-fail
+    (cons
+     (shen-syntax V323
+      (cons shen-reassemble
+       (cons (cons hd (cons (cons fst (cons V325 ())) ()))
+        (cons (cons snd (cons V325 ())) ())))
+      (cons shen-leave!
+       (cons
+        (shen-syntax V324
+         (cons shen-reassemble
+          (cons (cons tl (cons (cons fst (cons V325 ())) ()))
+           (cons (cons snd (cons V325 ())) ())))
+         V326)
+        ())))
+     ()))
+   (let Else (cons fail ())
+    (cons if (cons Test (cons Action (cons Else ()))))))))
+
+(defun shen-snd-or-fail (V333) (cond ((tuple? V333) (snd V333)) (true (fail))))
+
+(defun shen-grammar_symbol? (V334)
+ (and (symbol? V334)
+  (let Cs (explode V334)
+   (and (= (hd Cs) "<") (= (hd (reverse Cs)) ">")))))
+
+(defun shen-recursive_descent (V335 V336 V337)
+ (cond
+  ((cons? V335)
+   (let Test (cons (hd V335) (cons V336 ()))
+    (let Action (shen-syntax (tl V335) (concat Parse_ (hd V335)) V337)
+     (let Else (cons fail ())
+      (cons let
+       (cons (concat Parse_ (hd V335))
+        (cons Test
+         (cons
+          (cons if
+           (cons
+            (cons not
+             (cons
+              (cons =
+               (cons (cons fail ()) (cons (concat Parse_ (hd V335)) ())))
+              ()))
+            (cons Action (cons Else ()))))
+          ()))))))))
+  (true (shen-sys-error shen-recursive_descent))))
+
+(defun shen-terminal? (V346)
+ (cond ((cons? V346) false) ((= -*- V346) false) (true true)))
+
+(defun shen-jump_stream? (V351) (cond ((= -*- V351) true) (true false)))
+
+(defun shen-check_stream (V352 V353 V354)
+ (cond
+  ((cons? V352)
+   (let Test
+    (cons and
+     (cons (cons cons? (cons (cons fst (cons V353 ())) ()))
+      (cons
+       (cons =
+        (cons (hd V352)
+         (cons (cons hd (cons (cons fst (cons V353 ())) ())) ())))
+       ())))
+    (let Action
+     (shen-syntax (tl V352)
+      (cons shen-reassemble
+       (cons (cons tl (cons (cons fst (cons V353 ())) ()))
+        (cons (cons snd (cons V353 ())) ())))
+      V354)
+     (let Else (cons fail ())
+      (cons if (cons Test (cons Action (cons Else ()))))))))
+  (true (shen-sys-error shen-check_stream))))
+
+(defun shen-reassemble (V356 V357)
+ (cond ((= V357 (fail)) V357) (true (@p V356 V357))))
+
+(defun shen-jump_stream (V358 V359 V360)
+ (cond
+  ((cons? V358)
+   (let Test (cons cons? (cons (cons fst (cons V359 ())) ()))
+    (let Action
+     (shen-syntax (tl V358)
+      (cons shen-reassemble
+       (cons (cons tl (cons (cons fst (cons V359 ())) ()))
+        (cons (cons snd (cons V359 ())) ())))
+      V360)
+     (let Else (cons fail ())
+      (cons if (cons Test (cons Action (cons Else ()))))))))
+  (true (shen-sys-error shen-jump_stream))))
+
+(defun shen-semantics (V361)
+ (cond
+  ((and (cons? V361)
+    (and (= shen-leave! (hd V361))
+     (and (cons? (tl V361)) (= () (tl (tl V361))))))
+   (hd (tl V361)))
+  ((= () V361) ())
+  ((shen-grammar_symbol? V361) (cons snd (cons (concat Parse_ V361) ())))
+  ((= -o- V361) (cons snd (cons Stream ())))
+  ((= -*- V361) (cons hd (cons (cons fst (cons Stream ())) ())))
+  ((= -s- V361) (cons fst (cons Stream ())))
+  ((cons? V361) (map (lambda V362 (shen-semantics V362)) V361)) (true V361)))
+
+(defun fail () fail!)
+

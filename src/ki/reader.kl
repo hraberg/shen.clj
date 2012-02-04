@@ -1,0 +1,1070 @@
+
+"                                                   The License
+ 
+ The user is free to produce commercial applications with the software, to distribute these applications in source or binary  form, and to charge monies for them as he sees fit and in concordance with the laws of the land subject to the following  license.
+ 
+ 1. The license applies to all the software and all derived software and must appear on such.
+ 2. It is illegal to distribute the software without this license attached to it and use of the software implies agreement 
+    with the license as such. It is illegal for anyone who is not the copyright holder to tamper with or change the license.
+ 3. Neither the names of Lambda Associates or the copyright holder may be used to endorse or promote products built using
+     the software without specific prior written permission from the copyright holder.
+ 4. That possession of this license does not confer on the copyright holder any special contractual obligation towards the    user. That in no event shall the copyright holder be liable for any direct, indirect, incidental, special, exemplary or   consequential damages (including but not limited to procurement of substitute goods or services, loss of use, data, or    profits; or business interruption), however caused and on any theory of liability, whether in contract, strict liability   or tort (including negligence) arising in any way out of the use of the software, even if advised of the possibility of   such damage. 
+5. It is permitted for the user to change the software, for the purpose of improving performance, correcting an error, or    porting to a new platform, and distribute the modified version of Shen (hereafter the modified version) provided the     resulting program conforms in all respects to the Shen standard and is issued under that title. The user must make it clear   with his distribution that he/she is the author of the changes and what these changes are and why. 
+6. Derived versions of this software in whatever form are subject to the same restrictions. In particular it is not          permitted to make derived copies of this software which do not conform to the Shen standard or appear under a different title.
+7. It is permitted to distribute versions of Shen which incorporate libraries, graphics or other facilities which are not    part of the Shen standard.
+
+For an explication of this license see http://www.lambdassociates.org/News/june11/license.htm which explains this license in full."
+
+(set shen-*symbolcodes* (vector 128))
+
+(address-> (value shen-*symbolcodes*) 126 "~")
+
+(address-> (value shen-*symbolcodes*) 122 "z")
+
+(address-> (value shen-*symbolcodes*) 121 "y")
+
+(address-> (value shen-*symbolcodes*) 120 "x")
+
+(address-> (value shen-*symbolcodes*) 119 "w")
+
+(address-> (value shen-*symbolcodes*) 118 "v")
+
+(address-> (value shen-*symbolcodes*) 117 "u")
+
+(address-> (value shen-*symbolcodes*) 116 "t")
+
+(address-> (value shen-*symbolcodes*) 115 "s")
+
+(address-> (value shen-*symbolcodes*) 114 "r")
+
+(address-> (value shen-*symbolcodes*) 113 "q")
+
+(address-> (value shen-*symbolcodes*) 112 "p")
+
+(address-> (value shen-*symbolcodes*) 111 "o")
+
+(address-> (value shen-*symbolcodes*) 110 "n")
+
+(address-> (value shen-*symbolcodes*) 109 "m")
+
+(address-> (value shen-*symbolcodes*) 108 "l")
+
+(address-> (value shen-*symbolcodes*) 107 "k")
+
+(address-> (value shen-*symbolcodes*) 106 "j")
+
+(address-> (value shen-*symbolcodes*) 105 "i")
+
+(address-> (value shen-*symbolcodes*) 104 "h")
+
+(address-> (value shen-*symbolcodes*) 103 "g")
+
+(address-> (value shen-*symbolcodes*) 102 "f")
+
+(address-> (value shen-*symbolcodes*) 101 "e")
+
+(address-> (value shen-*symbolcodes*) 100 "d")
+
+(address-> (value shen-*symbolcodes*) 99 "c")
+
+(address-> (value shen-*symbolcodes*) 98 "b")
+
+(address-> (value shen-*symbolcodes*) 97 "a")
+
+(address-> (value shen-*symbolcodes*) 96
+ (if (= (value *language*) "Common Lisp") "_backquote" "`"))
+
+(address-> (value shen-*symbolcodes*) 95 "_")
+
+(address-> (value shen-*symbolcodes*) 90 "Z")
+
+(address-> (value shen-*symbolcodes*) 89 "Y")
+
+(address-> (value shen-*symbolcodes*) 88 "X")
+
+(address-> (value shen-*symbolcodes*) 87 "W")
+
+(address-> (value shen-*symbolcodes*) 86 "V")
+
+(address-> (value shen-*symbolcodes*) 85 "U")
+
+(address-> (value shen-*symbolcodes*) 84 "T")
+
+(address-> (value shen-*symbolcodes*) 83 "S")
+
+(address-> (value shen-*symbolcodes*) 82 "R")
+
+(address-> (value shen-*symbolcodes*) 81 "Q")
+
+(address-> (value shen-*symbolcodes*) 80 "P")
+
+(address-> (value shen-*symbolcodes*) 79 "O")
+
+(address-> (value shen-*symbolcodes*) 78 "N")
+
+(address-> (value shen-*symbolcodes*) 77 "M")
+
+(address-> (value shen-*symbolcodes*) 76 "L")
+
+(address-> (value shen-*symbolcodes*) 75 "K")
+
+(address-> (value shen-*symbolcodes*) 74 "J")
+
+(address-> (value shen-*symbolcodes*) 73 "I")
+
+(address-> (value shen-*symbolcodes*) 72 "H")
+
+(address-> (value shen-*symbolcodes*) 71 "G")
+
+(address-> (value shen-*symbolcodes*) 70 "F")
+
+(address-> (value shen-*symbolcodes*) 69 "E")
+
+(address-> (value shen-*symbolcodes*) 68 "D")
+
+(address-> (value shen-*symbolcodes*) 67 "C")
+
+(address-> (value shen-*symbolcodes*) 66 "B")
+
+(address-> (value shen-*symbolcodes*) 65 "A")
+
+(address-> (value shen-*symbolcodes*) 64 "@")
+
+(address-> (value shen-*symbolcodes*) 63 "?")
+
+(address-> (value shen-*symbolcodes*) 62 ">")
+
+(address-> (value shen-*symbolcodes*) 61 "=")
+
+(address-> (value shen-*symbolcodes*) 60 "<")
+
+(address-> (value shen-*symbolcodes*) 57 "9")
+
+(address-> (value shen-*symbolcodes*) 56 "8")
+
+(address-> (value shen-*symbolcodes*) 55 "7")
+
+(address-> (value shen-*symbolcodes*) 54 "6")
+
+(address-> (value shen-*symbolcodes*) 53 "5")
+
+(address-> (value shen-*symbolcodes*) 52 "4")
+
+(address-> (value shen-*symbolcodes*) 51 "3")
+
+(address-> (value shen-*symbolcodes*) 50 "2")
+
+(address-> (value shen-*symbolcodes*) 49 "1")
+
+(address-> (value shen-*symbolcodes*) 48 "0")
+
+(address-> (value shen-*symbolcodes*) 47 "/")
+
+(address-> (value shen-*symbolcodes*) 46 ".")
+
+(address-> (value shen-*symbolcodes*) 45 "-")
+
+(address-> (value shen-*symbolcodes*) 43 "+")
+
+(address-> (value shen-*symbolcodes*) 42 "*")
+
+(address-> (value shen-*symbolcodes*) 39
+ (if (= (value *language*) "Common Lisp") "_quote" "'"))
+
+(address-> (value shen-*symbolcodes*) 38 "&")
+
+(address-> (value shen-*symbolcodes*) 37 "%")
+
+(address-> (value shen-*symbolcodes*) 36 "$")
+
+(address-> (value shen-*symbolcodes*) 35
+ (if (= (value *language*) "Common Lisp") "_hash" "#"))
+
+(address-> (value shen-*symbolcodes*) 33 "!")
+
+(defun lineread () (shen-lineread-loop (read-byte (stinput 0)) ()))
+
+(defun shen-lineread-loop (V931 V932)
+ (cond ((= V931 (shen-hat)) (interror "line read aborted" ()))
+  ((element? V931 (cons (shen-newline) (cons (shen-carriage-return) ())))
+   (let Line (compile (lambda V933 (shen-<st_input> V933)) V932 ())
+    (if (or (= Line (fail)) (empty? Line))
+     (shen-lineread-loop (read-byte (stinput 0)) (append V932 (cons V931 ())))
+     Line)))
+  (true
+   (shen-lineread-loop (read-byte (stinput 0))
+    (append V932 (cons V931 ()))))))
+
+(defun read-file (V934)
+ (let Bytelist (read-file-as-bytelist V934)
+  (compile (lambda V935 (shen-<st_input> V935)) Bytelist
+   (lambda V936 (shen-read-error V936)))))
+
+(defun shen-read-error (V937)
+ (interror "read error here:~%~% ~A~%" (@p (shen-compress-50 50 V937) ())))
+
+(defun shen-compress-50 (V942 V943)
+ (cond ((= () V943) "") ((= 0 V942) "")
+  ((cons? V943)
+   (cn (n->string (hd V943)) (shen-compress-50 (- V942 1) (tl V943))))
+  (true (shen-sys-error shen-compress-50))))
+
+(defun shen-<st_input> (V944)
+ (let Result
+  (let Parse_<lsb> (shen-<lsb> V944)
+   (if (not (= (fail) Parse_<lsb>))
+    (let Parse_<st_input1> (shen-<st_input1> Parse_<lsb>)
+     (if (not (= (fail) Parse_<st_input1>))
+      (let Parse_<rsb> (shen-<rsb> Parse_<st_input1>)
+       (if (not (= (fail) Parse_<rsb>))
+        (let Parse_<st_input2> (shen-<st_input2> Parse_<rsb>)
+         (if (not (= (fail) Parse_<st_input2>))
+          (shen-reassemble (fst Parse_<st_input2>)
+           (cons (macroexpand (shen-cons_form (snd Parse_<st_input1>)))
+            (snd Parse_<st_input2>)))
+          (fail)))
+        (fail)))
+      (fail)))
+    (fail)))
+  (if (= Result (fail))
+   (let Result
+    (let Parse_<lrb> (shen-<lrb> V944)
+     (if (not (= (fail) Parse_<lrb>))
+      (let Parse_<st_input1> (shen-<st_input1> Parse_<lrb>)
+       (if (not (= (fail) Parse_<st_input1>))
+        (let Parse_<rrb> (shen-<rrb> Parse_<st_input1>)
+         (if (not (= (fail) Parse_<rrb>))
+          (let Parse_<st_input2> (shen-<st_input2> Parse_<rrb>)
+           (if (not (= (fail) Parse_<st_input2>))
+            (shen-reassemble (fst Parse_<st_input2>)
+             (shen-package-macro (macroexpand (snd Parse_<st_input1>))
+              (snd Parse_<st_input2>)))
+            (fail)))
+          (fail)))
+        (fail)))
+      (fail)))
+    (if (= Result (fail))
+     (let Result
+      (let Parse_<lcurly> (shen-<lcurly> V944)
+       (if (not (= (fail) Parse_<lcurly>))
+        (let Parse_<st_input> (shen-<st_input> Parse_<lcurly>)
+         (if (not (= (fail) Parse_<st_input>))
+          (shen-reassemble (fst Parse_<st_input>)
+           (cons { (snd Parse_<st_input>)))
+          (fail)))
+        (fail)))
+      (if (= Result (fail))
+       (let Result
+        (let Parse_<rcurly> (shen-<rcurly> V944)
+         (if (not (= (fail) Parse_<rcurly>))
+          (let Parse_<st_input> (shen-<st_input> Parse_<rcurly>)
+           (if (not (= (fail) Parse_<st_input>))
+            (shen-reassemble (fst Parse_<st_input>)
+             (cons } (snd Parse_<st_input>)))
+            (fail)))
+          (fail)))
+        (if (= Result (fail))
+         (let Result
+          (let Parse_<bar> (shen-<bar> V944)
+           (if (not (= (fail) Parse_<bar>))
+            (let Parse_<st_input> (shen-<st_input> Parse_<bar>)
+             (if (not (= (fail) Parse_<st_input>))
+              (shen-reassemble (fst Parse_<st_input>)
+               (cons bar! (snd Parse_<st_input>)))
+              (fail)))
+            (fail)))
+          (if (= Result (fail))
+           (let Result
+            (let Parse_<semicolon> (shen-<semicolon> V944)
+             (if (not (= (fail) Parse_<semicolon>))
+              (let Parse_<st_input> (shen-<st_input> Parse_<semicolon>)
+               (if (not (= (fail) Parse_<st_input>))
+                (shen-reassemble (fst Parse_<st_input>)
+                 (cons ; (snd Parse_<st_input>)))
+                (fail)))
+              (fail)))
+            (if (= Result (fail))
+             (let Result
+              (let Parse_<colon> (shen-<colon> V944)
+               (if (not (= (fail) Parse_<colon>))
+                (let Parse_<equal> (shen-<equal> Parse_<colon>)
+                 (if (not (= (fail) Parse_<equal>))
+                  (let Parse_<st_input> (shen-<st_input> Parse_<equal>)
+                   (if (not (= (fail) Parse_<st_input>))
+                    (shen-reassemble (fst Parse_<st_input>)
+                     (cons := (snd Parse_<st_input>)))
+                    (fail)))
+                  (fail)))
+                (fail)))
+              (if (= Result (fail))
+               (let Result
+                (let Parse_<colon> (shen-<colon> V944)
+                 (if (not (= (fail) Parse_<colon>))
+                  (let Parse_<minus> (shen-<minus> Parse_<colon>)
+                   (if (not (= (fail) Parse_<minus>))
+                    (let Parse_<st_input> (shen-<st_input> Parse_<minus>)
+                     (if (not (= (fail) Parse_<st_input>))
+                      (shen-reassemble (fst Parse_<st_input>)
+                       (cons :- (snd Parse_<st_input>)))
+                      (fail)))
+                    (fail)))
+                  (fail)))
+                (if (= Result (fail))
+                 (let Result
+                  (let Parse_<colon> (shen-<colon> V944)
+                   (if (not (= (fail) Parse_<colon>))
+                    (let Parse_<st_input> (shen-<st_input> Parse_<colon>)
+                     (if (not (= (fail) Parse_<st_input>))
+                      (shen-reassemble (fst Parse_<st_input>)
+                       (cons : (snd Parse_<st_input>)))
+                      (fail)))
+                    (fail)))
+                  (if (= Result (fail))
+                   (let Result
+                    (let Parse_<comma> (shen-<comma> V944)
+                     (if (not (= (fail) Parse_<comma>))
+                      (let Parse_<st_input> (shen-<st_input> Parse_<comma>)
+                       (if (not (= (fail) Parse_<st_input>))
+                        (shen-reassemble (fst Parse_<st_input>)
+                         (cons shen- (snd Parse_<st_input>)))
+                        (fail)))
+                      (fail)))
+                    (if (= Result (fail))
+                     (let Result
+                      (let Parse_<comment> (shen-<comment> V944)
+                       (if (not (= (fail) Parse_<comment>))
+                        (let Parse_<st_input> (shen-<st_input> Parse_<comment>)
+                         (if (not (= (fail) Parse_<st_input>))
+                          (shen-reassemble (fst Parse_<st_input>)
+                           (snd Parse_<st_input>))
+                          (fail)))
+                        (fail)))
+                      (if (= Result (fail))
+                       (let Result
+                        (let Parse_<atom> (shen-<atom> V944)
+                         (if (not (= (fail) Parse_<atom>))
+                          (let Parse_<st_input> (shen-<st_input> Parse_<atom>)
+                           (if (not (= (fail) Parse_<st_input>))
+                            (shen-reassemble (fst Parse_<st_input>)
+                             (cons (macroexpand (snd Parse_<atom>))
+                              (snd Parse_<st_input>)))
+                            (fail)))
+                          (fail)))
+                        (if (= Result (fail))
+                         (let Result
+                          (let Parse_<whitespaces> (shen-<whitespaces> V944)
+                           (if (not (= (fail) Parse_<whitespaces>))
+                            (let Parse_<st_input>
+                             (shen-<st_input> Parse_<whitespaces>)
+                             (if (not (= (fail) Parse_<st_input>))
+                              (shen-reassemble (fst Parse_<st_input>)
+                               (snd Parse_<st_input>))
+                              (fail)))
+                            (fail)))
+                          (if (= Result (fail))
+                           (let Result
+                            (let Parse_<e> (<e> V944)
+                             (if (not (= (fail) Parse_<e>))
+                              (shen-reassemble (fst Parse_<e>) ()) (fail)))
+                            (if (= Result (fail)) (fail) Result))
+                           Result))
+                         Result))
+                       Result))
+                     Result))
+                   Result))
+                 Result))
+               Result))
+             Result))
+           Result))
+         Result))
+       Result))
+     Result))
+   Result)))
+
+(defun shen-<lsb> (V945)
+ (let Result
+  (if (cons? (fst V945))
+   (shen-reassemble (fst (shen-reassemble (tl (fst V945)) (snd V945)))
+    (if (= (hd (fst V945)) 91) shen-skip (fail)))
+   (fail))
+  (if (= Result (fail)) (fail) Result)))
+
+(defun shen-<rsb> (V946)
+ (let Result
+  (if (cons? (fst V946))
+   (shen-reassemble (fst (shen-reassemble (tl (fst V946)) (snd V946)))
+    (if (= (hd (fst V946)) 93) shen-skip (fail)))
+   (fail))
+  (if (= Result (fail)) (fail) Result)))
+
+(defun shen-<lcurly> (V947)
+ (let Result
+  (if (cons? (fst V947))
+   (shen-reassemble (fst (shen-reassemble (tl (fst V947)) (snd V947)))
+    (if (= (hd (fst V947)) 123) shen-skip (fail)))
+   (fail))
+  (if (= Result (fail)) (fail) Result)))
+
+(defun shen-<rcurly> (V948)
+ (let Result
+  (if (cons? (fst V948))
+   (shen-reassemble (fst (shen-reassemble (tl (fst V948)) (snd V948)))
+    (if (= (hd (fst V948)) 125) shen-skip (fail)))
+   (fail))
+  (if (= Result (fail)) (fail) Result)))
+
+(defun shen-<bar> (V949)
+ (let Result
+  (if (cons? (fst V949))
+   (shen-reassemble (fst (shen-reassemble (tl (fst V949)) (snd V949)))
+    (if (= (hd (fst V949)) 124) shen-skip (fail)))
+   (fail))
+  (if (= Result (fail)) (fail) Result)))
+
+(defun shen-<semicolon> (V950)
+ (let Result
+  (if (cons? (fst V950))
+   (shen-reassemble (fst (shen-reassemble (tl (fst V950)) (snd V950)))
+    (if (= (hd (fst V950)) 59) shen-skip (fail)))
+   (fail))
+  (if (= Result (fail)) (fail) Result)))
+
+(defun shen-<colon> (V951)
+ (let Result
+  (if (cons? (fst V951))
+   (shen-reassemble (fst (shen-reassemble (tl (fst V951)) (snd V951)))
+    (if (= (hd (fst V951)) 58) shen-skip (fail)))
+   (fail))
+  (if (= Result (fail)) (fail) Result)))
+
+(defun shen-<comma> (V952)
+ (let Result
+  (if (cons? (fst V952))
+   (shen-reassemble (fst (shen-reassemble (tl (fst V952)) (snd V952)))
+    (if (= (hd (fst V952)) 44) shen-skip (fail)))
+   (fail))
+  (if (= Result (fail)) (fail) Result)))
+
+(defun shen-<equal> (V953)
+ (let Result
+  (if (cons? (fst V953))
+   (shen-reassemble (fst (shen-reassemble (tl (fst V953)) (snd V953)))
+    (if (= (hd (fst V953)) 61) shen-skip (fail)))
+   (fail))
+  (if (= Result (fail)) (fail) Result)))
+
+(defun shen-<minus> (V954)
+ (let Result
+  (if (cons? (fst V954))
+   (shen-reassemble (fst (shen-reassemble (tl (fst V954)) (snd V954)))
+    (if (= (hd (fst V954)) 45) shen-skip (fail)))
+   (fail))
+  (if (= Result (fail)) (fail) Result)))
+
+(defun shen-<lrb> (V955)
+ (let Result
+  (if (cons? (fst V955))
+   (shen-reassemble (fst (shen-reassemble (tl (fst V955)) (snd V955)))
+    (if (= (hd (fst V955)) 40) shen-skip (fail)))
+   (fail))
+  (if (= Result (fail)) (fail) Result)))
+
+(defun shen-<rrb> (V956)
+ (let Result
+  (if (cons? (fst V956))
+   (shen-reassemble (fst (shen-reassemble (tl (fst V956)) (snd V956)))
+    (if (= (hd (fst V956)) 41) shen-skip (fail)))
+   (fail))
+  (if (= Result (fail)) (fail) Result)))
+
+(defun shen-<atom> (V957)
+ (let Result
+  (let Parse_<str> (shen-<str> V957)
+   (if (not (= (fail) Parse_<str>))
+    (shen-reassemble (fst Parse_<str>) (shen-control-chars (snd Parse_<str>)))
+    (fail)))
+  (if (= Result (fail))
+   (let Result
+    (let Parse_<number> (shen-<number> V957)
+     (if (not (= (fail) Parse_<number>))
+      (shen-reassemble (fst Parse_<number>) (snd Parse_<number>)) (fail)))
+    (if (= Result (fail))
+     (let Result
+      (let Parse_<sym> (shen-<sym> V957)
+       (if (not (= (fail) Parse_<sym>))
+        (shen-reassemble (fst Parse_<sym>) (snd Parse_<sym>)) (fail)))
+      (if (= Result (fail)) (fail) Result))
+     Result))
+   Result)))
+
+(defun shen-control-chars (V958)
+ (cond ((= () V958) "")
+  ((and (cons? V958)
+    (and (= "c" (hd V958))
+     (and (cons? (tl V958)) (= "#" (hd (tl V958))))))
+   (let CodePoint (shen-code-point (tl (tl V958)))
+    (let AfterCodePoint (shen-after-codepoint (tl (tl V958)))
+     (@s (n->string (shen-decimalise CodePoint))
+      (shen-control-chars AfterCodePoint)))))
+  ((cons? V958) (@s (hd V958) (shen-control-chars (tl V958))))
+  (true (shen-sys-error shen-control-chars))))
+
+(defun shen-code-point (V961)
+ (cond ((and (cons? V961) (= ";" (hd V961))) "")
+  ((and (cons? V961)
+    (element? (hd V961)
+     (cons "0"
+      (cons "1"
+       (cons "2"
+        (cons "3"
+         (cons "4"
+          (cons "5"
+           (cons "6" (cons "7" (cons "8" (cons "9" (cons "0" ())))))))))))))
+   (cons (hd V961) (shen-code-point (tl V961))))
+  (true (interror "code point parse error ~A~%" (@p V961 ())))))
+
+(defun shen-after-codepoint (V966)
+ (cond ((= () V966) ())
+  ((and (cons? V966) (= ";" (hd V966))) (tl V966))
+  ((cons? V966) (shen-after-codepoint (tl V966)))
+  (true (shen-sys-error shen-after-codepoint))))
+
+(defun shen-decimalise (V967)
+ (shen-pre (reverse (shen-digits->integers V967)) 0))
+
+(defun shen-digits->integers (V972)
+ (cond
+  ((and (cons? V972) (= "0" (hd V972)))
+   (cons 0 (shen-digits->integers (tl V972))))
+  ((and (cons? V972) (= "1" (hd V972)))
+   (cons 1 (shen-digits->integers (tl V972))))
+  ((and (cons? V972) (= "2" (hd V972)))
+   (cons 2 (shen-digits->integers (tl V972))))
+  ((and (cons? V972) (= "3" (hd V972)))
+   (cons 3 (shen-digits->integers (tl V972))))
+  ((and (cons? V972) (= "4" (hd V972)))
+   (cons 4 (shen-digits->integers (tl V972))))
+  ((and (cons? V972) (= "5" (hd V972)))
+   (cons 5 (shen-digits->integers (tl V972))))
+  ((and (cons? V972) (= "6" (hd V972)))
+   (cons 6 (shen-digits->integers (tl V972))))
+  ((and (cons? V972) (= "7" (hd V972)))
+   (cons 7 (shen-digits->integers (tl V972))))
+  ((and (cons? V972) (= "8" (hd V972)))
+   (cons 8 (shen-digits->integers (tl V972))))
+  ((and (cons? V972) (= "9" (hd V972)))
+   (cons 9 (shen-digits->integers (tl V972))))
+  (true ())))
+
+(defun shen-<sym> (V973)
+ (let Result
+  (let Parse_<alpha> (shen-<alpha> V973)
+   (if (not (= (fail) Parse_<alpha>))
+    (let Parse_<symchars> (shen-<symchars> Parse_<alpha>)
+     (if (not (= (fail) Parse_<symchars>))
+      (shen-reassemble (fst Parse_<symchars>)
+       (intern (cn (snd Parse_<alpha>) (snd Parse_<symchars>))))
+      (fail)))
+    (fail)))
+  (if (= Result (fail))
+   (let Result
+    (let Parse_<alpha> (shen-<alpha> V973)
+     (if (not (= (fail) Parse_<alpha>))
+      (shen-reassemble (fst Parse_<alpha>) (intern (snd Parse_<alpha>)))
+      (fail)))
+    (if (= Result (fail)) (fail) Result))
+   Result)))
+
+(defun shen-<symchars> (V974)
+ (let Result
+  (let Parse_<symchar> (shen-<symchar> V974)
+   (if (not (= (fail) Parse_<symchar>))
+    (let Parse_<symchars> (shen-<symchars> Parse_<symchar>)
+     (if (not (= (fail) Parse_<symchars>))
+      (shen-reassemble (fst Parse_<symchars>)
+       (cn (snd Parse_<symchar>) (snd Parse_<symchars>)))
+      (fail)))
+    (fail)))
+  (if (= Result (fail))
+   (let Result
+    (let Parse_<symchar> (shen-<symchar> V974)
+     (if (not (= (fail) Parse_<symchar>))
+      (shen-reassemble (fst Parse_<symchar>) (snd Parse_<symchar>)) (fail)))
+    (if (= Result (fail)) (fail) Result))
+   Result)))
+
+(defun shen-<symchar> (V975)
+ (let Result
+  (let Parse_<alpha> (shen-<alpha> V975)
+   (if (not (= (fail) Parse_<alpha>))
+    (shen-reassemble (fst Parse_<alpha>) (snd Parse_<alpha>)) (fail)))
+  (if (= Result (fail))
+   (let Result
+    (let Parse_<digit->string> (shen-<digit->string> V975)
+     (if (not (= (fail) Parse_<digit->string>))
+      (shen-reassemble (fst Parse_<digit->string>) (snd Parse_<digit->string>))
+      (fail)))
+    (if (= Result (fail)) (fail) Result))
+   Result)))
+
+(defun shen-<digit->string> (V976)
+ (let Result
+  (if (cons? (fst V976))
+   (shen-reassemble (fst (shen-reassemble (tl (fst V976)) (snd V976)))
+    (if (shen-digit-byte? (hd (fst V976))) (n->string (hd (fst V976))) (fail)))
+   (fail))
+  (if (= Result (fail)) (fail) Result)))
+
+(defun shen-digit-byte? (V981)
+ (cond ((= 48 V981) true) ((= 49 V981) true) ((= 50 V981) true)
+  ((= 51 V981) true) ((= 52 V981) true) ((= 53 V981) true)
+  ((= 54 V981) true) ((= 55 V981) true) ((= 56 V981) true)
+  ((= 57 V981) true) (true false)))
+
+(defun shen-<alpha> (V982)
+ (let Result
+  (if (cons? (fst V982))
+   (shen-reassemble (fst (shen-reassemble (tl (fst V982)) (snd V982)))
+    (let S (shen-symbol-byte->string (hd (fst V982)))
+     (if (= S (fail)) (fail) S)))
+   (fail))
+  (if (= Result (fail)) (fail) Result)))
+
+(defun shen-symbol-byte->string (V983)
+ (<-address (value shen-*symbolcodes*) V983))
+
+(defun shen-<str> (V984)
+ (let Result
+  (let Parse_<dbq> (shen-<dbq> V984)
+   (if (not (= (fail) Parse_<dbq>))
+    (let Parse_<strcontents> (shen-<strcontents> Parse_<dbq>)
+     (if (not (= (fail) Parse_<strcontents>))
+      (let Parse_<dbq> (shen-<dbq> Parse_<strcontents>)
+       (if (not (= (fail) Parse_<dbq>))
+        (shen-reassemble (fst Parse_<dbq>) (snd Parse_<strcontents>)) (fail)))
+      (fail)))
+    (fail)))
+  (if (= Result (fail)) (fail) Result)))
+
+(defun shen-<dbq> (V985)
+ (let Result
+  (if (cons? (fst V985))
+   (shen-reassemble (fst (shen-reassemble (tl (fst V985)) (snd V985)))
+    (if (= (hd (fst V985)) 34) shen-skip (fail)))
+   (fail))
+  (if (= Result (fail)) (fail) Result)))
+
+(defun shen-<strcontents> (V986)
+ (let Result
+  (let Parse_<backslash> (shen-<backslash> V986)
+   (if (not (= (fail) Parse_<backslash>))
+    (let Parse_<byte> (shen-<byte> Parse_<backslash>)
+     (if (not (= (fail) Parse_<byte>))
+      (let Parse_<strcontents> (shen-<strcontents> Parse_<byte>)
+       (if (not (= (fail) Parse_<strcontents>))
+        (shen-reassemble (fst Parse_<strcontents>)
+         (cons (snd Parse_<byte>) (snd Parse_<strcontents>)))
+        (fail)))
+      (fail)))
+    (fail)))
+  (if (= Result (fail))
+   (let Result
+    (let Parse_<strc> (shen-<strc> V986)
+     (if (not (= (fail) Parse_<strc>))
+      (let Parse_<strcontents> (shen-<strcontents> Parse_<strc>)
+       (if (not (= (fail) Parse_<strcontents>))
+        (shen-reassemble (fst Parse_<strcontents>)
+         (cons (snd Parse_<strc>) (snd Parse_<strcontents>)))
+        (fail)))
+      (fail)))
+    (if (= Result (fail))
+     (let Result
+      (let Parse_<e> (<e> V986)
+       (if (not (= (fail) Parse_<e>)) (shen-reassemble (fst Parse_<e>) ())
+        (fail)))
+      (if (= Result (fail)) (fail) Result))
+     Result))
+   Result)))
+
+(defun shen-<byte> (V987)
+ (let Result
+  (if (cons? (fst V987))
+   (shen-reassemble (fst (shen-reassemble (tl (fst V987)) (snd V987)))
+    (n->string (hd (fst V987))))
+   (fail))
+  (if (= Result (fail)) (fail) Result)))
+
+(defun shen-<strc> (V988)
+ (let Result
+  (if (cons? (fst V988))
+   (shen-reassemble (fst (shen-reassemble (tl (fst V988)) (snd V988)))
+    (if (= (hd (fst V988)) 34) (fail) (n->string (hd (fst V988)))))
+   (fail))
+  (if (= Result (fail)) (fail) Result)))
+
+(defun shen-<backslash> (V989)
+ (let Result
+  (if (cons? (fst V989))
+   (shen-reassemble (fst (shen-reassemble (tl (fst V989)) (snd V989)))
+    (if (= (hd (fst V989)) 92) shen-skip (fail)))
+   (fail))
+  (if (= Result (fail)) (fail) Result)))
+
+(defun shen-<number> (V990)
+ (let Result
+  (let Parse_<minus> (shen-<minus> V990)
+   (if (not (= (fail) Parse_<minus>))
+    (let Parse_<number> (shen-<number> Parse_<minus>)
+     (if (not (= (fail) Parse_<number>))
+      (shen-reassemble (fst Parse_<number>) (- 0 (snd Parse_<number>)))
+      (fail)))
+    (fail)))
+  (if (= Result (fail))
+   (let Result
+    (let Parse_<plus> (shen-<plus> V990)
+     (if (not (= (fail) Parse_<plus>))
+      (let Parse_<number> (shen-<number> Parse_<plus>)
+       (if (not (= (fail) Parse_<number>))
+        (shen-reassemble (fst Parse_<number>) (snd Parse_<number>)) (fail)))
+      (fail)))
+    (if (= Result (fail))
+     (let Result
+      (let Parse_<predigits> (shen-<predigits> V990)
+       (if (not (= (fail) Parse_<predigits>))
+        (let Parse_<stop> (shen-<stop> Parse_<predigits>)
+         (if (not (= (fail) Parse_<stop>))
+          (let Parse_<postdigits> (shen-<postdigits> Parse_<stop>)
+           (if (not (= (fail) Parse_<postdigits>))
+            (let Parse_<E> (shen-<E> Parse_<postdigits>)
+             (if (not (= (fail) Parse_<E>))
+              (let Parse_<log10> (shen-<log10> Parse_<E>)
+               (if (not (= (fail) Parse_<log10>))
+                (shen-reassemble (fst Parse_<log10>)
+                 (* (shen-expt 10 (snd Parse_<log10>))
+                  (+ (shen-pre (reverse (snd Parse_<predigits>)) 0)
+                   (shen-post (snd Parse_<postdigits>) 1))))
+                (fail)))
+              (fail)))
+            (fail)))
+          (fail)))
+        (fail)))
+      (if (= Result (fail))
+       (let Result
+        (let Parse_<digits> (shen-<digits> V990)
+         (if (not (= (fail) Parse_<digits>))
+          (let Parse_<E> (shen-<E> Parse_<digits>)
+           (if (not (= (fail) Parse_<E>))
+            (let Parse_<log10> (shen-<log10> Parse_<E>)
+             (if (not (= (fail) Parse_<log10>))
+              (shen-reassemble (fst Parse_<log10>)
+               (* (shen-expt 10 (snd Parse_<log10>))
+                (shen-pre (reverse (snd Parse_<digits>)) 0)))
+              (fail)))
+            (fail)))
+          (fail)))
+        (if (= Result (fail))
+         (let Result
+          (let Parse_<predigits> (shen-<predigits> V990)
+           (if (not (= (fail) Parse_<predigits>))
+            (let Parse_<stop> (shen-<stop> Parse_<predigits>)
+             (if (not (= (fail) Parse_<stop>))
+              (let Parse_<postdigits> (shen-<postdigits> Parse_<stop>)
+               (if (not (= (fail) Parse_<postdigits>))
+                (shen-reassemble (fst Parse_<postdigits>)
+                 (+ (shen-pre (reverse (snd Parse_<predigits>)) 0)
+                  (shen-post (snd Parse_<postdigits>) 1)))
+                (fail)))
+              (fail)))
+            (fail)))
+          (if (= Result (fail))
+           (let Result
+            (let Parse_<digits> (shen-<digits> V990)
+             (if (not (= (fail) Parse_<digits>))
+              (shen-reassemble (fst Parse_<digits>)
+               (shen-pre (reverse (snd Parse_<digits>)) 0))
+              (fail)))
+            (if (= Result (fail)) (fail) Result))
+           Result))
+         Result))
+       Result))
+     Result))
+   Result)))
+
+(defun shen-<E> (V991)
+ (let Result
+  (if (and (cons? (fst V991)) (= 101 (hd (fst V991))))
+   (shen-reassemble (fst (shen-reassemble (tl (fst V991)) (snd V991)))
+    (cons 101 ()))
+   (fail))
+  (if (= Result (fail)) (fail) Result)))
+
+(defun shen-<log10> (V992)
+ (let Result
+  (let Parse_<minus> (shen-<minus> V992)
+   (if (not (= (fail) Parse_<minus>))
+    (let Parse_<digits> (shen-<digits> Parse_<minus>)
+     (if (not (= (fail) Parse_<digits>))
+      (shen-reassemble (fst Parse_<digits>)
+       (- 0 (shen-pre (reverse (snd Parse_<digits>)) 0)))
+      (fail)))
+    (fail)))
+  (if (= Result (fail))
+   (let Result
+    (let Parse_<digits> (shen-<digits> V992)
+     (if (not (= (fail) Parse_<digits>))
+      (shen-reassemble (fst Parse_<digits>)
+       (shen-pre (reverse (snd Parse_<digits>)) 0))
+      (fail)))
+    (if (= Result (fail)) (fail) Result))
+   Result)))
+
+(defun shen-<plus> (V993)
+ (let Result
+  (if (cons? (fst V993))
+   (shen-reassemble (fst (shen-reassemble (tl (fst V993)) (snd V993)))
+    (if (= (hd (fst V993)) 43) shen-skip (fail)))
+   (fail))
+  (if (= Result (fail)) (fail) Result)))
+
+(defun shen-<stop> (V994)
+ (let Result
+  (if (cons? (fst V994))
+   (shen-reassemble (fst (shen-reassemble (tl (fst V994)) (snd V994)))
+    (if (= (hd (fst V994)) 46) shen-skip (fail)))
+   (fail))
+  (if (= Result (fail)) (fail) Result)))
+
+(defun shen-<predigits> (V995)
+ (let Result
+  (let Parse_<digits> (shen-<digits> V995)
+   (if (not (= (fail) Parse_<digits>))
+    (shen-reassemble (fst Parse_<digits>) (snd Parse_<digits>)) (fail)))
+  (if (= Result (fail))
+   (let Result
+    (let Parse_<e> (<e> V995)
+     (if (not (= (fail) Parse_<e>)) (shen-reassemble (fst Parse_<e>) ())
+      (fail)))
+    (if (= Result (fail)) (fail) Result))
+   Result)))
+
+(defun shen-<postdigits> (V996)
+ (let Result
+  (let Parse_<digits> (shen-<digits> V996)
+   (if (not (= (fail) Parse_<digits>))
+    (shen-reassemble (fst Parse_<digits>) (snd Parse_<digits>)) (fail)))
+  (if (= Result (fail)) (fail) Result)))
+
+(defun shen-<digits> (V997)
+ (let Result
+  (let Parse_<digit> (shen-<digit> V997)
+   (if (not (= (fail) Parse_<digit>))
+    (let Parse_<digits> (shen-<digits> Parse_<digit>)
+     (if (not (= (fail) Parse_<digits>))
+      (shen-reassemble (fst Parse_<digits>)
+       (cons (snd Parse_<digit>) (snd Parse_<digits>)))
+      (fail)))
+    (fail)))
+  (if (= Result (fail))
+   (let Result
+    (let Parse_<digit> (shen-<digit> V997)
+     (if (not (= (fail) Parse_<digit>))
+      (shen-reassemble (fst Parse_<digit>) (cons (snd Parse_<digit>) ()))
+      (fail)))
+    (if (= Result (fail)) (fail) Result))
+   Result)))
+
+(defun shen-<digit> (V998)
+ (let Result
+  (if (cons? (fst V998))
+   (shen-reassemble (fst (shen-reassemble (tl (fst V998)) (snd V998)))
+    (if (shen-digit-byte? (hd (fst V998))) (shen-byte->digit (hd (fst V998)))
+     (fail)))
+   (fail))
+  (if (= Result (fail)) (fail) Result)))
+
+(defun shen-byte->digit (V999)
+ (cond ((= 48 V999) 0) ((= 49 V999) 1) ((= 50 V999) 2)
+  ((= 51 V999) 3) ((= 52 V999) 4) ((= 53 V999) 5) ((= 54 V999) 6)
+  ((= 55 V999) 7) ((= 56 V999) 8) ((= 57 V999) 9)
+  (true (shen-sys-error shen-byte->digit))))
+
+(defun shen-pre (V1002 V1003)
+ (cond ((= () V1002) 0)
+  ((cons? V1002)
+   (+ (* (shen-expt 10 V1003) (hd V1002)) (shen-pre (tl V1002) (+ V1003 1))))
+  (true (shen-sys-error shen-pre))))
+
+(defun shen-post (V1006 V1007)
+ (cond ((= () V1006) 0)
+  ((cons? V1006)
+   (+ (* (shen-expt 10 (- 0 V1007)) (hd V1006))
+    (shen-post (tl V1006) (+ V1007 1))))
+  (true (shen-sys-error shen-post))))
+
+(defun shen-expt (V1010 V1011)
+ (cond ((= 0 V1011) 1)
+  ((> V1011 0) (* V1010 (shen-expt V1010 (- V1011 1))))
+  (true (* 1.0 (/ (shen-expt V1010 (+ V1011 1)) V1010)))))
+
+(defun shen-<st_input1> (V1012)
+ (let Result
+  (let Parse_<st_input> (shen-<st_input> V1012)
+   (if (not (= (fail) Parse_<st_input>))
+    (shen-reassemble (fst Parse_<st_input>) (snd Parse_<st_input>)) (fail)))
+  (if (= Result (fail)) (fail) Result)))
+
+(defun shen-<st_input2> (V1013)
+ (let Result
+  (let Parse_<st_input> (shen-<st_input> V1013)
+   (if (not (= (fail) Parse_<st_input>))
+    (shen-reassemble (fst Parse_<st_input>) (snd Parse_<st_input>)) (fail)))
+  (if (= Result (fail)) (fail) Result)))
+
+(defun shen-<comment> (V1014)
+ (let Result
+  (let Parse_<backslash> (shen-<backslash> V1014)
+   (if (not (= (fail) Parse_<backslash>))
+    (let Parse_<times> (shen-<times> Parse_<backslash>)
+     (if (not (= (fail) Parse_<times>))
+      (let Parse_<any> (shen-<any> Parse_<times>)
+       (if (not (= (fail) Parse_<any>))
+        (let Parse_<times> (shen-<times> Parse_<any>)
+         (if (not (= (fail) Parse_<times>))
+          (let Parse_<backslash> (shen-<backslash> Parse_<times>)
+           (if (not (= (fail) Parse_<backslash>))
+            (shen-reassemble (fst Parse_<backslash>) shen-skip) (fail)))
+          (fail)))
+        (fail)))
+      (fail)))
+    (fail)))
+  (if (= Result (fail)) (fail) Result)))
+
+(defun shen-<times> (V1015)
+ (let Result
+  (if (cons? (fst V1015))
+   (shen-reassemble (fst (shen-reassemble (tl (fst V1015)) (snd V1015)))
+    (if (= (hd (fst V1015)) 42) shen-skip (fail)))
+   (fail))
+  (if (= Result (fail)) (fail) Result)))
+
+(defun shen-<any> (V1016)
+ (let Result
+  (let Parse_<comment> (shen-<comment> V1016)
+   (if (not (= (fail) Parse_<comment>))
+    (let Parse_<any> (shen-<any> Parse_<comment>)
+     (if (not (= (fail) Parse_<any>))
+      (shen-reassemble (fst Parse_<any>) shen-skip) (fail)))
+    (fail)))
+  (if (= Result (fail))
+   (let Result
+    (let Parse_<blah> (shen-<blah> V1016)
+     (if (not (= (fail) Parse_<blah>))
+      (let Parse_<any> (shen-<any> Parse_<blah>)
+       (if (not (= (fail) Parse_<any>))
+        (shen-reassemble (fst Parse_<any>) shen-skip) (fail)))
+      (fail)))
+    (if (= Result (fail))
+     (let Result
+      (let Parse_<e> (<e> V1016)
+       (if (not (= (fail) Parse_<e>))
+        (shen-reassemble (fst Parse_<e>) shen-skip) (fail)))
+      (if (= Result (fail)) (fail) Result))
+     Result))
+   Result)))
+
+(defun shen-<blah> (V1017)
+ (let Result
+  (if (cons? (fst V1017))
+   (shen-reassemble (fst (shen-reassemble (tl (fst V1017)) (snd V1017)))
+    (if (shen-end-of-comment? (fst V1017)) (fail) shen-skip))
+   (fail))
+  (if (= Result (fail)) (fail) Result)))
+
+(defun shen-end-of-comment? (V1024)
+ (cond
+  ((and (cons? V1024)
+    (and (= 42 (hd V1024))
+     (and (cons? (tl V1024)) (= 92 (hd (tl V1024))))))
+   true)
+  (true false)))
+
+(defun shen-<whitespaces> (V1025)
+ (let Result
+  (let Parse_<whitespace> (shen-<whitespace> V1025)
+   (if (not (= (fail) Parse_<whitespace>))
+    (let Parse_<whitespaces> (shen-<whitespaces> Parse_<whitespace>)
+     (if (not (= (fail) Parse_<whitespaces>))
+      (shen-reassemble (fst Parse_<whitespaces>) shen-skip) (fail)))
+    (fail)))
+  (if (= Result (fail))
+   (let Result
+    (let Parse_<whitespace> (shen-<whitespace> V1025)
+     (if (not (= (fail) Parse_<whitespace>))
+      (shen-reassemble (fst Parse_<whitespace>) shen-skip) (fail)))
+    (if (= Result (fail)) (fail) Result))
+   Result)))
+
+(defun shen-<whitespace> (V1026)
+ (let Result
+  (if (cons? (fst V1026))
+   (shen-reassemble (fst (shen-reassemble (tl (fst V1026)) (snd V1026)))
+    (let Case (hd (fst V1026))
+     (if (= Case 32) shen-skip
+      (if (= Case 13) shen-skip
+       (if (= Case 10) shen-skip (if (= Case 9) shen-skip (fail)))))))
+   (fail))
+  (if (= Result (fail)) (fail) Result)))
+
+(defun shen-cons_form (V1027)
+ (cond ((= () V1027) ())
+  ((and (cons? V1027)
+    (and (cons? (tl V1027))
+     (and (= bar! (hd (tl V1027)))
+      (and (cons? (tl (tl V1027))) (= () (tl (tl (tl V1027))))))))
+   (cons cons (cons (hd V1027) (tl (tl V1027)))))
+  ((cons? V1027)
+   (cons cons (cons (hd V1027) (cons (shen-cons_form (tl V1027)) ()))))
+  (true (shen-sys-error shen-cons_form))))
+
+(defun shen-package-macro (V1030 V1031)
+ (cond
+  ((and (cons? V1030)
+    (and (= package (hd V1030))
+     (and (cons? (tl V1030))
+      (and (= null (hd (tl V1030))) (cons? (tl (tl V1030)))))))
+   (append (tl (tl (tl V1030))) V1031))
+  ((and (cons? V1030)
+    (and (= package (hd V1030))
+     (and (cons? (tl V1030)) (cons? (tl (tl V1030))))))
+   (let ListofExceptions (eval-without-macros (hd (tl (tl V1030))))
+    (let Record (shen-record-exceptions ListofExceptions (hd (tl V1030)))
+     (append
+      (shen-packageh (hd (tl V1030)) ListofExceptions (tl (tl (tl V1030))))
+      V1031))))
+  (true (cons V1030 V1031))))
+
+(defun shen-record-exceptions (V1032 V1033)
+ (let CurrExceptions
+  (trap-error (get V1033 shen-external-symbols (value shen-*property-vector*))
+   (lambda E ()))
+  (let AllExceptions (union V1032 CurrExceptions)
+   (put V1033 shen-external-symbols AllExceptions
+    (value shen-*property-vector*)))))
+
+(defun shen-packageh (V1042 V1043 V1044)
+ (cond
+  ((cons? V1044)
+   (cons (shen-packageh V1042 V1043 (hd V1044))
+    (shen-packageh V1042 V1043 (tl V1044))))
+  ((or (shen-sysfunc? V1044)
+    (or (variable? V1044)
+     (or (element? V1044 V1043)
+      (or (shen-doubleunderline? V1044) (shen-singleunderline? V1044)))))
+   V1044)
+  ((and (symbol? V1044)
+    (not
+     (shen-prefix? (cons "s" (cons "h" (cons "e" (cons "n" (cons "-" ())))))
+      (explode V1044))))
+   (concat V1042 V1044))
+  (true V1044)))
+

@@ -1,0 +1,989 @@
+
+"                                                   The License
+ 
+ The user is free to produce commercial applications with the software, to distribute these applications in source or binary  form, and to charge monies for them as he sees fit and in concordance with the laws of the land subject to the following  license.
+ 
+ 1. The license applies to all the software and all derived software and must appear on such.
+ 2. It is illegal to distribute the software without this license attached to it and use of the software implies agreement 
+    with the license as such. It is illegal for anyone who is not the copyright holder to tamper with or change the license.
+ 3. Neither the names of Lambda Associates or the copyright holder may be used to endorse or promote products built using
+     the software without specific prior written permission from the copyright holder.
+ 4. That possession of this license does not confer on the copyright holder any special contractual obligation towards the    user. That in no event shall the copyright holder be liable for any direct, indirect, incidental, special, exemplary or   consequential damages (including but not limited to procurement of substitute goods or services, loss of use, data, or    profits; or business interruption), however caused and on any theory of liability, whether in contract, strict liability   or tort (including negligence) arising in any way out of the use of the software, even if advised of the possibility of   such damage. 
+5. It is permitted for the user to change the software, for the purpose of improving performance, correcting an error, or    porting to a new platform, and distribute the modified version of Shen (hereafter the modified version) provided the     resulting program conforms in all respects to the Shen standard and is issued under that title. The user must make it clear   with his distribution that he/she is the author of the changes and what these changes are and why. 
+6. Derived versions of this software in whatever form are subject to the same restrictions. In particular it is not          permitted to make derived copies of this software which do not conform to the Shen standard or appear under a different title.
+7. It is permitted to distribute versions of Shen which incorporate libraries, graphics or other facilities which are not    part of the Shen standard.
+
+For an explication of this license see http://www.lambdassociates.org/News/june11/license.htm which explains this license in full."
+
+(defun shen-shen->kl (V363 V364)
+ (compile (lambda V365 (shen-<define> V365)) (cons V363 V364)
+  (lambda X (shen-shen-syntax-error V363 X))))
+
+(defun shen-shen-syntax-error (V366 V367)
+ (interror "syntax error in ~A here:~%~% ~A~%"
+  (@p V366 (@p (shen-next-50 50 V367) ()))))
+
+(defun shen-<define> (V368)
+ (let Result
+  (let Parse_<name> (shen-<name> V368)
+   (if (not (= (fail) Parse_<name>))
+    (let Parse_<signature> (shen-<signature> Parse_<name>)
+     (if (not (= (fail) Parse_<signature>))
+      (let Parse_<rules> (shen-<rules> Parse_<signature>)
+       (if (not (= (fail) Parse_<rules>))
+        (shen-reassemble (fst Parse_<rules>)
+         (shen-compile_to_machine_code (snd Parse_<name>) (snd Parse_<rules>)))
+        (fail)))
+      (fail)))
+    (fail)))
+  (if (= Result (fail))
+   (let Result
+    (let Parse_<name> (shen-<name> V368)
+     (if (not (= (fail) Parse_<name>))
+      (let Parse_<rules> (shen-<rules> Parse_<name>)
+       (if (not (= (fail) Parse_<rules>))
+        (shen-reassemble (fst Parse_<rules>)
+         (shen-compile_to_machine_code (snd Parse_<name>) (snd Parse_<rules>)))
+        (fail)))
+      (fail)))
+    (if (= Result (fail)) (fail) Result))
+   Result)))
+
+(defun shen-<name> (V369)
+ (let Result
+  (if (cons? (fst V369))
+   (shen-reassemble (fst (shen-reassemble (tl (fst V369)) (snd V369)))
+    (if (and (symbol? (hd (fst V369))) (not (shen-sysfunc? (hd (fst V369)))))
+     (hd (fst V369))
+     (interror "~A is not a legitimate functor.~%" (@p (hd (fst V369)) ()))))
+   (fail))
+  (if (= Result (fail)) (fail) Result)))
+
+(defun shen-sysfunc? (V370) (element? V370 (value shen-*system*)))
+
+(defun shen-<signature> (V371)
+ (let Result
+  (if (and (cons? (fst V371)) (= { (hd (fst V371))))
+   (let Parse_<signature-help>
+    (shen-<signature-help> (shen-reassemble (tl (fst V371)) (snd V371)))
+    (if (not (= (fail) Parse_<signature-help>))
+     (if
+      (and (cons? (fst Parse_<signature-help>))
+       (= } (hd (fst Parse_<signature-help>))))
+      (shen-reassemble
+       (fst
+        (shen-reassemble (tl (fst Parse_<signature-help>))
+         (snd Parse_<signature-help>)))
+       (shen-normalise-type (shen-curry-type (snd Parse_<signature-help>))))
+      (fail))
+     (fail)))
+   (fail))
+  (if (= Result (fail)) (fail) Result)))
+
+(defun shen-curry-type (V374)
+ (cond
+  ((and (cons? V374)
+    (and (cons? (tl V374))
+     (and (= --> (hd (tl V374)))
+      (and (cons? (tl (tl V374)))
+       (and (cons? (tl (tl (tl V374))))
+        (= --> (hd (tl (tl (tl V374))))))))))
+   (shen-curry-type (cons (hd V374) (cons --> (cons (tl (tl V374)) ())))))
+  ((and (cons? V374)
+    (and (= cons (hd V374))
+     (and (cons? (tl V374))
+      (and (cons? (tl (tl V374))) (= () (tl (tl (tl V374))))))))
+   (cons list (cons (shen-curry-type (hd (tl V374))) ())))
+  ((and (cons? V374)
+    (and (cons? (tl V374))
+     (and (= * (hd (tl V374)))
+      (and (cons? (tl (tl V374)))
+       (and (cons? (tl (tl (tl V374)))) (= * (hd (tl (tl (tl V374))))))))))
+   (shen-curry-type (cons (hd V374) (cons * (cons (tl (tl V374)) ())))))
+  ((cons? V374) (map (lambda V375 (shen-curry-type V375)) V374)) (true V374)))
+
+(defun shen-<signature-help> (V376)
+ (let Result
+  (if (cons? (fst V376))
+   (let Parse_<signature-help>
+    (shen-<signature-help> (shen-reassemble (tl (fst V376)) (snd V376)))
+    (if (not (= (fail) Parse_<signature-help>))
+     (shen-reassemble (fst Parse_<signature-help>)
+      (if (element? (hd (fst V376)) (cons { (cons } ()))) (fail)
+       (cons (hd (fst V376)) (snd Parse_<signature-help>))))
+     (fail)))
+   (fail))
+  (if (= Result (fail))
+   (let Result
+    (let Parse_<e> (<e> V376)
+     (if (not (= (fail) Parse_<e>)) (shen-reassemble (fst Parse_<e>) ())
+      (fail)))
+    (if (= Result (fail)) (fail) Result))
+   Result)))
+
+(defun shen-<rules> (V377)
+ (let Result
+  (let Parse_<rule> (shen-<rule> V377)
+   (if (not (= (fail) Parse_<rule>))
+    (let Parse_<rules> (shen-<rules> Parse_<rule>)
+     (if (not (= (fail) Parse_<rules>))
+      (shen-reassemble (fst Parse_<rules>)
+       (cons (snd Parse_<rule>) (snd Parse_<rules>)))
+      (fail)))
+    (fail)))
+  (if (= Result (fail))
+   (let Result
+    (let Parse_<rule> (shen-<rule> V377)
+     (if (not (= (fail) Parse_<rule>))
+      (shen-reassemble (fst Parse_<rule>) (cons (snd Parse_<rule>) ()))
+      (fail)))
+    (if (= Result (fail)) (fail) Result))
+   Result)))
+
+(defun shen-<rule> (V378)
+ (let Result
+  (let Parse_<patterns> (shen-<patterns> V378)
+   (if (not (= (fail) Parse_<patterns>))
+    (if
+     (and (cons? (fst Parse_<patterns>)) (= -> (hd (fst Parse_<patterns>))))
+     (let Parse_<action>
+      (shen-<action>
+       (shen-reassemble (tl (fst Parse_<patterns>)) (snd Parse_<patterns>)))
+      (if (not (= (fail) Parse_<action>))
+       (if
+        (and (cons? (fst Parse_<action>))
+         (= where (hd (fst Parse_<action>))))
+        (let Parse_<guard>
+         (shen-<guard>
+          (shen-reassemble (tl (fst Parse_<action>)) (snd Parse_<action>)))
+         (if (not (= (fail) Parse_<guard>))
+          (shen-reassemble (fst Parse_<guard>)
+           (cons (snd Parse_<patterns>)
+            (cons
+             (cons where
+              (cons (snd Parse_<guard>) (cons (snd Parse_<action>) ())))
+             ())))
+          (fail)))
+        (fail))
+       (fail)))
+     (fail))
+    (fail)))
+  (if (= Result (fail))
+   (let Result
+    (let Parse_<patterns> (shen-<patterns> V378)
+     (if (not (= (fail) Parse_<patterns>))
+      (if
+       (and (cons? (fst Parse_<patterns>))
+        (= -> (hd (fst Parse_<patterns>))))
+       (let Parse_<action>
+        (shen-<action>
+         (shen-reassemble (tl (fst Parse_<patterns>)) (snd Parse_<patterns>)))
+        (if (not (= (fail) Parse_<action>))
+         (shen-reassemble (fst Parse_<action>)
+          (cons (snd Parse_<patterns>) (cons (snd Parse_<action>) ())))
+         (fail)))
+       (fail))
+      (fail)))
+    (if (= Result (fail))
+     (let Result
+      (let Parse_<patterns> (shen-<patterns> V378)
+       (if (not (= (fail) Parse_<patterns>))
+        (if
+         (and (cons? (fst Parse_<patterns>))
+          (= <- (hd (fst Parse_<patterns>))))
+         (let Parse_<action>
+          (shen-<action>
+           (shen-reassemble (tl (fst Parse_<patterns>))
+            (snd Parse_<patterns>)))
+          (if (not (= (fail) Parse_<action>))
+           (if
+            (and (cons? (fst Parse_<action>))
+             (= where (hd (fst Parse_<action>))))
+            (let Parse_<guard>
+             (shen-<guard>
+              (shen-reassemble (tl (fst Parse_<action>)) (snd Parse_<action>)))
+             (if (not (= (fail) Parse_<guard>))
+              (shen-reassemble (fst Parse_<guard>)
+               (cons (snd Parse_<patterns>)
+                (cons
+                 (cons where
+                  (cons (snd Parse_<guard>)
+                   (cons
+                    (cons shen-choicepoint! (cons (snd Parse_<action>) ()))
+                    ())))
+                 ())))
+              (fail)))
+            (fail))
+           (fail)))
+         (fail))
+        (fail)))
+      (if (= Result (fail))
+       (let Result
+        (let Parse_<patterns> (shen-<patterns> V378)
+         (if (not (= (fail) Parse_<patterns>))
+          (if
+           (and (cons? (fst Parse_<patterns>))
+            (= <- (hd (fst Parse_<patterns>))))
+           (let Parse_<action>
+            (shen-<action>
+             (shen-reassemble (tl (fst Parse_<patterns>))
+              (snd Parse_<patterns>)))
+            (if (not (= (fail) Parse_<action>))
+             (shen-reassemble (fst Parse_<action>)
+              (cons (snd Parse_<patterns>)
+               (cons (cons shen-choicepoint! (cons (snd Parse_<action>) ()))
+                ())))
+             (fail)))
+           (fail))
+          (fail)))
+        (if (= Result (fail)) (fail) Result))
+       Result))
+     Result))
+   Result)))
+
+(defun shen-fail_if (V379 V380) (if (V379 V380) (fail) V380))
+
+(defun shen-succeeds? (V385) (cond ((= V385 (fail)) false) (true true)))
+
+(defun shen-<patterns> (V386)
+ (let Result
+  (let Parse_<pattern> (shen-<pattern> V386)
+   (if (not (= (fail) Parse_<pattern>))
+    (let Parse_<patterns> (shen-<patterns> Parse_<pattern>)
+     (if (not (= (fail) Parse_<patterns>))
+      (shen-reassemble (fst Parse_<patterns>)
+       (cons (snd Parse_<pattern>) (snd Parse_<patterns>)))
+      (fail)))
+    (fail)))
+  (if (= Result (fail))
+   (let Result
+    (let Parse_<e> (<e> V386)
+     (if (not (= (fail) Parse_<e>)) (shen-reassemble (fst Parse_<e>) ())
+      (fail)))
+    (if (= Result (fail)) (fail) Result))
+   Result)))
+
+(defun shen-<pattern> (V387)
+ (let Result
+  (if (and (cons? (fst V387)) (cons? (hd (fst V387))))
+   (shen-snd-or-fail
+    (if
+     (and (cons? (fst (shen-reassemble (hd (fst V387)) (snd V387))))
+      (= @p (hd (fst (shen-reassemble (hd (fst V387)) (snd V387))))))
+     (let Parse_<pattern1>
+      (shen-<pattern1>
+       (shen-reassemble (tl (fst (shen-reassemble (hd (fst V387)) (snd V387))))
+        (snd (shen-reassemble (hd (fst V387)) (snd V387)))))
+      (if (not (= (fail) Parse_<pattern1>))
+       (let Parse_<pattern2> (shen-<pattern2> Parse_<pattern1>)
+        (if (not (= (fail) Parse_<pattern2>))
+         (shen-reassemble (fst Parse_<pattern2>)
+          (shen-reassemble (fst (shen-reassemble (tl (fst V387)) (snd V387)))
+           (cons @p
+            (cons (snd Parse_<pattern1>) (cons (snd Parse_<pattern2>) ())))))
+         (fail)))
+       (fail)))
+     (fail)))
+   (fail))
+  (if (= Result (fail))
+   (let Result
+    (if (and (cons? (fst V387)) (cons? (hd (fst V387))))
+     (shen-snd-or-fail
+      (if
+       (and (cons? (fst (shen-reassemble (hd (fst V387)) (snd V387))))
+        (= cons (hd (fst (shen-reassemble (hd (fst V387)) (snd V387))))))
+       (let Parse_<pattern1>
+        (shen-<pattern1>
+         (shen-reassemble
+          (tl (fst (shen-reassemble (hd (fst V387)) (snd V387))))
+          (snd (shen-reassemble (hd (fst V387)) (snd V387)))))
+        (if (not (= (fail) Parse_<pattern1>))
+         (let Parse_<pattern2> (shen-<pattern2> Parse_<pattern1>)
+          (if (not (= (fail) Parse_<pattern2>))
+           (shen-reassemble (fst Parse_<pattern2>)
+            (shen-reassemble (fst (shen-reassemble (tl (fst V387)) (snd V387)))
+             (cons cons
+              (cons (snd Parse_<pattern1>)
+               (cons (snd Parse_<pattern2>) ())))))
+           (fail)))
+         (fail)))
+       (fail)))
+     (fail))
+    (if (= Result (fail))
+     (let Result
+      (if (and (cons? (fst V387)) (cons? (hd (fst V387))))
+       (shen-snd-or-fail
+        (if
+         (and (cons? (fst (shen-reassemble (hd (fst V387)) (snd V387))))
+          (= @v (hd (fst (shen-reassemble (hd (fst V387)) (snd V387))))))
+         (let Parse_<pattern1>
+          (shen-<pattern1>
+           (shen-reassemble
+            (tl (fst (shen-reassemble (hd (fst V387)) (snd V387))))
+            (snd (shen-reassemble (hd (fst V387)) (snd V387)))))
+          (if (not (= (fail) Parse_<pattern1>))
+           (let Parse_<pattern2> (shen-<pattern2> Parse_<pattern1>)
+            (if (not (= (fail) Parse_<pattern2>))
+             (shen-reassemble (fst Parse_<pattern2>)
+              (shen-reassemble
+               (fst (shen-reassemble (tl (fst V387)) (snd V387)))
+               (cons @v
+                (cons (snd Parse_<pattern1>)
+                 (cons (snd Parse_<pattern2>) ())))))
+             (fail)))
+           (fail)))
+         (fail)))
+       (fail))
+      (if (= Result (fail))
+       (let Result
+        (if (and (cons? (fst V387)) (cons? (hd (fst V387))))
+         (shen-snd-or-fail
+          (if
+           (and (cons? (fst (shen-reassemble (hd (fst V387)) (snd V387))))
+            (= @s (hd (fst (shen-reassemble (hd (fst V387)) (snd V387))))))
+           (let Parse_<pattern1>
+            (shen-<pattern1>
+             (shen-reassemble
+              (tl (fst (shen-reassemble (hd (fst V387)) (snd V387))))
+              (snd (shen-reassemble (hd (fst V387)) (snd V387)))))
+            (if (not (= (fail) Parse_<pattern1>))
+             (let Parse_<pattern2> (shen-<pattern2> Parse_<pattern1>)
+              (if (not (= (fail) Parse_<pattern2>))
+               (shen-reassemble (fst Parse_<pattern2>)
+                (shen-reassemble
+                 (fst (shen-reassemble (tl (fst V387)) (snd V387)))
+                 (cons @s
+                  (cons (snd Parse_<pattern1>)
+                   (cons (snd Parse_<pattern2>) ())))))
+               (fail)))
+             (fail)))
+           (fail)))
+         (fail))
+        (if (= Result (fail))
+         (let Result
+          (if (and (cons? (fst V387)) (cons? (hd (fst V387))))
+           (shen-snd-or-fail
+            (if
+             (and (cons? (fst (shen-reassemble (hd (fst V387)) (snd V387))))
+              (= vector
+               (hd (fst (shen-reassemble (hd (fst V387)) (snd V387))))))
+             (if
+              (and
+               (cons?
+                (fst
+                 (shen-reassemble
+                  (tl (fst (shen-reassemble (hd (fst V387)) (snd V387))))
+                  (snd (shen-reassemble (hd (fst V387)) (snd V387))))))
+               (= 0
+                (hd
+                 (fst
+                  (shen-reassemble
+                   (tl (fst (shen-reassemble (hd (fst V387)) (snd V387))))
+                   (snd (shen-reassemble (hd (fst V387)) (snd V387))))))))
+              (shen-reassemble
+               (fst
+                (shen-reassemble
+                 (tl
+                  (fst
+                   (shen-reassemble
+                    (tl (fst (shen-reassemble (hd (fst V387)) (snd V387))))
+                    (snd (shen-reassemble (hd (fst V387)) (snd V387))))))
+                 (snd
+                  (shen-reassemble
+                   (tl (fst (shen-reassemble (hd (fst V387)) (snd V387))))
+                   (snd (shen-reassemble (hd (fst V387)) (snd V387)))))))
+               (shen-reassemble
+                (fst (shen-reassemble (tl (fst V387)) (snd V387)))
+                (cons vector (cons 0 ()))))
+              (fail))
+             (fail)))
+           (fail))
+          (if (= Result (fail))
+           (let Result
+            (if (cons? (fst V387))
+             (shen-reassemble
+              (fst (shen-reassemble (tl (fst V387)) (snd V387)))
+              (if (cons? (hd (fst V387)))
+               (interror "~A is not a legitimate constructor~%"
+                (@p (hd (fst V387)) ()))
+               (fail)))
+             (fail))
+            (if (= Result (fail))
+             (let Result
+              (let Parse_<simple_pattern> (shen-<simple_pattern> V387)
+               (if (not (= (fail) Parse_<simple_pattern>))
+                (shen-reassemble (fst Parse_<simple_pattern>)
+                 (snd Parse_<simple_pattern>))
+                (fail)))
+              (if (= Result (fail)) (fail) Result))
+             Result))
+           Result))
+         Result))
+       Result))
+     Result))
+   Result)))
+
+(defun shen-<simple_pattern> (V388)
+ (let Result
+  (if (cons? (fst V388))
+   (shen-reassemble (fst (shen-reassemble (tl (fst V388)) (snd V388)))
+    (if (= (hd (fst V388)) _) (gensym X) (fail)))
+   (fail))
+  (if (= Result (fail))
+   (let Result
+    (if (cons? (fst V388))
+     (shen-reassemble (fst (shen-reassemble (tl (fst V388)) (snd V388)))
+      (if (element? (hd (fst V388)) (cons -> (cons <- ()))) (fail)
+       (hd (fst V388))))
+     (fail))
+    (if (= Result (fail)) (fail) Result))
+   Result)))
+
+(defun shen-<pattern1> (V389)
+ (let Result
+  (let Parse_<pattern> (shen-<pattern> V389)
+   (if (not (= (fail) Parse_<pattern>))
+    (shen-reassemble (fst Parse_<pattern>) (snd Parse_<pattern>)) (fail)))
+  (if (= Result (fail)) (fail) Result)))
+
+(defun shen-<pattern2> (V390)
+ (let Result
+  (let Parse_<pattern> (shen-<pattern> V390)
+   (if (not (= (fail) Parse_<pattern>))
+    (shen-reassemble (fst Parse_<pattern>) (snd Parse_<pattern>)) (fail)))
+  (if (= Result (fail)) (fail) Result)))
+
+(defun shen-<action> (V391)
+ (let Result
+  (if (cons? (fst V391))
+   (shen-reassemble (fst (shen-reassemble (tl (fst V391)) (snd V391)))
+    (hd (fst V391)))
+   (fail))
+  (if (= Result (fail)) (fail) Result)))
+
+(defun shen-<guard> (V392)
+ (let Result
+  (if (cons? (fst V392))
+   (shen-reassemble (fst (shen-reassemble (tl (fst V392)) (snd V392)))
+    (hd (fst V392)))
+   (fail))
+  (if (= Result (fail)) (fail) Result)))
+
+(defun shen-compile_to_machine_code (V393 V394)
+ (let Lambda+ (shen-compile_to_lambda+ V393 V394)
+  (let KL (shen-compile_to_kl V393 Lambda+)
+   (let Record (shen-record-source V393 KL) KL))))
+
+(defun shen-record-source (V397 V398)
+ (cond ((value shen-*installing-kl*) shen-skip)
+  (true (put V397 shen-source V398 (value shen-*property-vector*)))))
+
+(defun shen-compile_to_lambda+ (V399 V400)
+ (let Arity (shen-aritycheck V399 V400)
+  (let Free (map (lambda Rule (shen-free_variable_check V399 Rule)) V400)
+   (let Variables (shen-parameters Arity)
+    (let Linear (map shen-linearise V400)
+     (let Abstractions (map (lambda V401 (shen-abstract_rule V401)) Linear)
+      (let Applications
+       (map (lambda X (shen-application_build Variables X)) Abstractions)
+       (cons Variables (cons Applications ())))))))))
+
+(defun shen-free_variable_check (V402 V403)
+ (cond
+  ((and (cons? V403) (and (cons? (tl V403)) (= () (tl (tl V403)))))
+   (let Bound (shen-extract_vars (hd V403))
+    (let Free (shen-extract_free_vars Bound (hd (tl V403)))
+     (shen-free_variable_warnings V402 Free))))
+  (true (shen-sys-error shen-free_variable_check))))
+
+(defun shen-extract_vars (V404)
+ (cond ((variable? V404) (cons V404 ()))
+  ((cons? V404)
+   (union (shen-extract_vars (hd V404)) (shen-extract_vars (tl V404))))
+  (true ())))
+
+(defun shen-extract_free_vars (V413 V414)
+ (cond ((and (variable? V414) (not (element? V414 V413))) (cons V414 ()))
+  ((and (cons? V414)
+    (and (= lambda (hd V414))
+     (and (cons? (tl V414))
+      (and (cons? (tl (tl V414))) (= () (tl (tl (tl V414))))))))
+   (shen-extract_free_vars (cons (hd (tl V414)) V413) (hd (tl (tl V414)))))
+  ((and (cons? V414)
+    (and (= let (hd V414))
+     (and (cons? (tl V414))
+      (and (cons? (tl (tl V414)))
+       (and (cons? (tl (tl (tl V414))))
+        (= () (tl (tl (tl (tl V414))))))))))
+   (union (shen-extract_free_vars V413 (hd (tl (tl V414))))
+    (shen-extract_free_vars (cons (hd (tl V414)) V413)
+     (hd (tl (tl (tl V414)))))))
+  ((cons? V414)
+   (union (shen-extract_free_vars V413 (hd V414))
+    (shen-extract_free_vars V413 (tl V414))))
+  (true ())))
+
+(defun shen-free_variable_warnings (V417 V418)
+ (cond ((= () V418) _)
+  (true
+   (let Warning
+    (intoutput "~%The following variables are free in ~A: " (@p V417 ()))
+    (shen-list_variables V418)))))
+
+(defun shen-list_variables (V419)
+ (cond
+  ((and (cons? V419) (= () (tl V419)))
+   (intoutput "~A~%" (@p (hd V419) ())))
+  ((cons? V419)
+   (do (intoutput "~A, " (@p (hd V419) ())) (shen-list_variables (tl V419))))
+  (true (shen-sys-error shen-list_variables))))
+
+(defun shen-linearise (V420)
+ (cond
+  ((and (cons? V420) (and (cons? (tl V420)) (= () (tl (tl V420)))))
+   (shen-linearise_help (shen-flatten (hd V420)) (hd V420) (hd (tl V420))))
+  (true (shen-sys-error shen-linearise))))
+
+(defun shen-flatten (V421)
+ (cond ((= () V421) ())
+  ((cons? V421) (append (shen-flatten (hd V421)) (shen-flatten (tl V421))))
+  (true (cons V421 ()))))
+
+(defun shen-linearise_help (V422 V423 V424)
+ (cond ((= () V422) (cons V423 (cons V424 ())))
+  ((cons? V422)
+   (if (and (variable? (hd V422)) (element? (hd V422) (tl V422)))
+    (let Var (gensym (hd V422))
+     (let NewAction
+      (cons where
+       (cons (cons = (cons (hd V422) (cons Var ()))) (cons V424 ())))
+      (let NewPatts (shen-linearise_X (hd V422) Var V423)
+       (shen-linearise_help (tl V422) NewPatts NewAction))))
+    (shen-linearise_help (tl V422) V423 V424)))
+  (true (shen-sys-error shen-linearise_help))))
+
+(defun shen-linearise_X (V433 V434 V435)
+ (cond ((= V435 V433) V434)
+  ((cons? V435)
+   (let L (shen-linearise_X V433 V434 (hd V435))
+    (if (= L (hd V435))
+     (cons (hd V435) (shen-linearise_X V433 V434 (tl V435)))
+     (cons L (tl V435)))))
+  (true V435)))
+
+(defun shen-aritycheck (V437 V438)
+ (cond
+  ((and (cons? V438)
+    (and (cons? (hd V438))
+     (and (cons? (tl (hd V438)))
+      (and (= () (tl (tl (hd V438)))) (= () (tl V438))))))
+   (do (shen-aritycheck-action (hd (tl (hd V438))))
+    (shen-aritycheck-name V437 (arity V437) (length (hd (hd V438))))))
+  ((and (cons? V438)
+    (and (cons? (hd V438))
+     (and (cons? (tl (hd V438)))
+      (and (= () (tl (tl (hd V438))))
+       (and (cons? (tl V438))
+        (and (cons? (hd (tl V438)))
+         (and (cons? (tl (hd (tl V438))))
+          (= () (tl (tl (hd (tl V438))))))))))))
+   (if (= (length (hd (hd V438))) (length (hd (hd (tl V438)))))
+    (do (shen-aritycheck-action Action) (shen-aritycheck V437 (tl V438)))
+    (interror "arity error in ~A~%" (@p V437 ()))))
+  (true (shen-sys-error shen-aritycheck))))
+
+(defun shen-aritycheck-name (V447 V448 V449)
+ (cond ((= -1 V448) V449) ((= V449 V448) V449)
+  (true
+   (do
+    (intoutput "~%warning: changing the arity of ~A can cause errors.~%"
+     (@p V447 ()))
+    V449))))
+
+(defun shen-aritycheck-action (V455)
+ (cond
+  ((cons? V455)
+   (do (shen-aah (hd V455) (tl V455))
+    (map (lambda V456 (shen-aritycheck-action V456)) V455)))
+  (true shen-skip)))
+
+(defun shen-aah (V457 V458)
+ (let Arity (arity V457)
+  (let Len (length V458)
+   (if (and (> Arity -1) (> Len Arity))
+    (intoutput "warning: ~A might not like ~A argument~A.~%"
+     (@p V457 (@p Len (@p (if (> Len 1) "s" "") ()))))
+    shen-skip))))
+
+(defun shen-abstract_rule (V459)
+ (cond
+  ((and (cons? V459) (and (cons? (tl V459)) (= () (tl (tl V459)))))
+   (shen-abstraction_build (hd V459) (hd (tl V459))))
+  (true (shen-sys-error shen-abstract_rule))))
+
+(defun shen-abstraction_build (V460 V461)
+ (cond ((= () V460) V461)
+  ((cons? V460)
+   (cons /.
+    (cons (hd V460) (cons (shen-abstraction_build (tl V460) V461) ()))))
+  (true (shen-sys-error shen-abstraction_build))))
+
+(defun shen-parameters (V462)
+ (cond ((= 0 V462) ())
+  (true (cons (gensym V) (shen-parameters (- V462 1))))))
+
+(defun shen-application_build (V463 V464)
+ (cond ((= () V463) V464)
+  ((cons? V463)
+   (shen-application_build (tl V463) (cons V464 (cons (hd V463) ()))))
+  (true (shen-sys-error shen-application_build))))
+
+(defun shen-compile_to_kl (V465 V466)
+ (cond
+  ((and (cons? V466) (and (cons? (tl V466)) (= () (tl (tl V466)))))
+   (let Arity (shen-store-arity V465 (length (hd V466)))
+    (let Reduce (map (lambda V467 (shen-reduce V467)) (hd (tl V466)))
+     (let CondExpression (shen-cond-expression V465 (hd V466) Reduce)
+      (let KL
+       (cons defun (cons V465 (cons (hd V466) (cons CondExpression ()))))
+       KL)))))
+  (true (shen-sys-error shen-compile_to_kl))))
+
+(defun shen-store-arity (V470 V471)
+ (cond ((value shen-*installing-kl*) shen-skip)
+  (true (put V470 arity V471 (value shen-*property-vector*)))))
+
+(defun shen-reduce (V472)
+ (do (set shen-*teststack* ())
+  (let Result (shen-reduce_help V472)
+   (cons (cons shen-tests (reverse (value shen-*teststack*)))
+    (cons Result ())))))
+
+(defun shen-reduce_help (V473)
+ (cond
+  ((and (cons? V473)
+    (and (cons? (hd V473))
+     (and (= /. (hd (hd V473)))
+      (and (cons? (tl (hd V473)))
+       (and (cons? (hd (tl (hd V473))))
+        (and (= cons (hd (hd (tl (hd V473)))))
+         (and (cons? (tl (hd (tl (hd V473)))))
+          (and (cons? (tl (tl (hd (tl (hd V473))))))
+           (and (= () (tl (tl (tl (hd (tl (hd V473)))))))
+            (and (cons? (tl (tl (hd V473))))
+             (and (= () (tl (tl (tl (hd V473)))))
+              (and (cons? (tl V473)) (= () (tl (tl V473)))))))))))))))
+   (do (shen-add_test (cons cons? (tl V473)))
+    (let Abstraction
+     (cons /.
+      (cons (hd (tl (hd (tl (hd V473)))))
+       (cons
+        (cons /.
+         (cons (hd (tl (tl (hd (tl (hd V473))))))
+          (cons
+           (shen-ebr (hd (tl V473)) (hd (tl (hd V473)))
+            (hd (tl (tl (hd V473)))))
+           ())))
+        ())))
+     (let Application
+      (cons (cons Abstraction (cons (cons hd (tl V473)) ()))
+       (cons (cons tl (tl V473)) ()))
+      (shen-reduce_help Application)))))
+  ((and (cons? V473)
+    (and (cons? (hd V473))
+     (and (= /. (hd (hd V473)))
+      (and (cons? (tl (hd V473)))
+       (and (cons? (hd (tl (hd V473))))
+        (and (= @p (hd (hd (tl (hd V473)))))
+         (and (cons? (tl (hd (tl (hd V473)))))
+          (and (cons? (tl (tl (hd (tl (hd V473))))))
+           (and (= () (tl (tl (tl (hd (tl (hd V473)))))))
+            (and (cons? (tl (tl (hd V473))))
+             (and (= () (tl (tl (tl (hd V473)))))
+              (and (cons? (tl V473)) (= () (tl (tl V473)))))))))))))))
+   (do (shen-add_test (cons tuple? (tl V473)))
+    (let Abstraction
+     (cons /.
+      (cons (hd (tl (hd (tl (hd V473)))))
+       (cons
+        (cons /.
+         (cons (hd (tl (tl (hd (tl (hd V473))))))
+          (cons
+           (shen-ebr (hd (tl V473)) (hd (tl (hd V473)))
+            (hd (tl (tl (hd V473)))))
+           ())))
+        ())))
+     (let Application
+      (cons (cons Abstraction (cons (cons fst (tl V473)) ()))
+       (cons (cons snd (tl V473)) ()))
+      (shen-reduce_help Application)))))
+  ((and (cons? V473)
+    (and (cons? (hd V473))
+     (and (= /. (hd (hd V473)))
+      (and (cons? (tl (hd V473)))
+       (and (cons? (hd (tl (hd V473))))
+        (and (= @v (hd (hd (tl (hd V473)))))
+         (and (cons? (tl (hd (tl (hd V473)))))
+          (and (cons? (tl (tl (hd (tl (hd V473))))))
+           (and (= () (tl (tl (tl (hd (tl (hd V473)))))))
+            (and (cons? (tl (tl (hd V473))))
+             (and (= () (tl (tl (tl (hd V473)))))
+              (and (cons? (tl V473)) (= () (tl (tl V473)))))))))))))))
+   (do (shen-add_test (cons shen-+vector? (tl V473)))
+    (let Abstraction
+     (cons /.
+      (cons (hd (tl (hd (tl (hd V473)))))
+       (cons
+        (cons /.
+         (cons (hd (tl (tl (hd (tl (hd V473))))))
+          (cons
+           (shen-ebr (hd (tl V473)) (hd (tl (hd V473)))
+            (hd (tl (tl (hd V473)))))
+           ())))
+        ())))
+     (let Application
+      (cons (cons Abstraction (cons (cons hdv (tl V473)) ()))
+       (cons (cons tlv (tl V473)) ()))
+      (shen-reduce_help Application)))))
+  ((and (cons? V473)
+    (and (cons? (hd V473))
+     (and (= /. (hd (hd V473)))
+      (and (cons? (tl (hd V473)))
+       (and (cons? (hd (tl (hd V473))))
+        (and (= @s (hd (hd (tl (hd V473)))))
+         (and (cons? (tl (hd (tl (hd V473)))))
+          (and (cons? (tl (tl (hd (tl (hd V473))))))
+           (and (= () (tl (tl (tl (hd (tl (hd V473)))))))
+            (and (cons? (tl (tl (hd V473))))
+             (and (= () (tl (tl (tl (hd V473)))))
+              (and (cons? (tl V473)) (= () (tl (tl V473)))))))))))))))
+   (do (shen-add_test (cons shen-+string? (tl V473)))
+    (let Abstraction
+     (cons /.
+      (cons (hd (tl (hd (tl (hd V473)))))
+       (cons
+        (cons /.
+         (cons (hd (tl (tl (hd (tl (hd V473))))))
+          (cons
+           (shen-ebr (hd (tl V473)) (cons @v (tl (hd (tl (hd V473)))))
+            (hd (tl (tl (hd V473)))))
+           ())))
+        ())))
+     (let Application
+      (cons
+       (cons Abstraction
+        (cons (cons pos (cons (hd (tl V473)) (cons 0 ()))) ()))
+       (cons (cons tlstr (tl V473)) ()))
+      (shen-reduce_help Application)))))
+  ((and (cons? V473)
+    (and (cons? (hd V473))
+     (and (= /. (hd (hd V473)))
+      (and (cons? (tl (hd V473)))
+       (and (cons? (tl (tl (hd V473))))
+        (and (= () (tl (tl (tl (hd V473)))))
+         (and (cons? (tl V473))
+          (and (= () (tl (tl V473)))
+           (not (variable? (hd (tl (hd V473)))))))))))))
+   (do (shen-add_test (cons = (cons (hd (tl (hd V473))) (tl V473))))
+    (shen-reduce_help (hd (tl (tl (hd V473)))))))
+  ((and (cons? V473)
+    (and (cons? (hd V473))
+     (and (= /. (hd (hd V473)))
+      (and (cons? (tl (hd V473)))
+       (and (cons? (tl (tl (hd V473))))
+        (and (= () (tl (tl (tl (hd V473)))))
+         (and (cons? (tl V473)) (= () (tl (tl V473))))))))))
+   (shen-reduce_help
+    (shen-ebr (hd (tl V473)) (hd (tl (hd V473))) (hd (tl (tl (hd V473)))))))
+  ((and (cons? V473)
+    (and (= where (hd V473))
+     (and (cons? (tl V473))
+      (and (cons? (tl (tl V473))) (= () (tl (tl (tl V473))))))))
+   (do (shen-add_test (hd (tl V473))) (shen-reduce_help (hd (tl (tl V473))))))
+  ((and (cons? V473) (and (cons? (tl V473)) (= () (tl (tl V473)))))
+   (let Z (shen-reduce_help (hd V473))
+    (if (= (hd V473) Z) V473 (shen-reduce_help (cons Z (tl V473))))))
+  (true V473)))
+
+(defun shen-+string? (V474)
+ (cond ((= "" V474) false) (true (string? V474))))
+
+(defun shen-+vector (V475)
+ (cond ((= V475 (vector 0)) false) (true (vector? V475))))
+
+(defun shen-ebr (V484 V485 V486)
+ (cond ((= V486 V485) V484)
+  ((and (cons? V486)
+    (and (= /. (hd V486))
+     (and (cons? (tl V486))
+      (and (cons? (tl (tl V486)))
+       (and (= () (tl (tl (tl V486))))
+        (> (occurrences V485 (hd (tl V486))) 0))))))
+   V486)
+  ((and (cons? V486)
+    (and (= let (hd V486))
+     (and (cons? (tl V486))
+      (and (cons? (tl (tl V486)))
+       (and (cons? (tl (tl (tl V486))))
+        (and (= () (tl (tl (tl (tl V486)))))
+         (= (hd (tl V486)) V485)))))))
+   (cons let
+    (cons (hd (tl V486))
+     (cons (shen-ebr V484 (hd (tl V486)) (hd (tl (tl V486))))
+      (tl (tl (tl V486)))))))
+  ((cons? V486)
+   (cons (shen-ebr V484 V485 (hd V486)) (shen-ebr V484 V485 (tl V486))))
+  (true V486)))
+
+(defun shen-add_test (V489)
+ (set shen-*teststack* (cons V489 (value shen-*teststack*))))
+
+(defun shen-cond-expression (V490 V491 V492)
+ (let Err (shen-err-condition V490)
+  (let Cases (shen-case-form V492 Err)
+   (let EncodeChoices (shen-encode-choices Cases V490)
+    (shen-cond-form EncodeChoices)))))
+
+(defun shen-cond-form (V495)
+ (cond
+  ((and (cons? V495)
+    (and (cons? (hd V495))
+     (and (= true (hd (hd V495)))
+      (and (cons? (tl (hd V495))) (= () (tl (tl (hd V495))))))))
+   (hd (tl (hd V495))))
+  (true (cons cond V495))))
+
+(defun shen-encode-choices (V498 V499)
+ (cond ((= () V498) ())
+  ((and (cons? V498)
+    (and (cons? (hd V498))
+     (and (= true (hd (hd V498)))
+      (and (cons? (tl (hd V498)))
+       (and (cons? (hd (tl (hd V498))))
+        (and (= shen-choicepoint! (hd (hd (tl (hd V498)))))
+         (and (cons? (tl (hd (tl (hd V498)))))
+          (and (= () (tl (tl (hd (tl (hd V498))))))
+           (and (= () (tl (tl (hd V498)))) (= () (tl V498)))))))))))
+   (cons
+    (cons true
+     (cons
+      (cons let
+       (cons Result
+        (cons (hd (tl (hd (tl (hd V498)))))
+         (cons
+          (cons if
+           (cons (cons = (cons Result (cons (cons fail ()) ())))
+            (cons
+             (if (value shen-*installing-kl*)
+              (cons shen-sys-error (cons V499 ()))
+              (cons shen-f_error (cons V499 ())))
+             (cons Result ()))))
+          ()))))
+      ()))
+    ()))
+  ((and (cons? V498)
+    (and (cons? (hd V498))
+     (and (= true (hd (hd V498)))
+      (and (cons? (tl (hd V498)))
+       (and (cons? (hd (tl (hd V498))))
+        (and (= shen-choicepoint! (hd (hd (tl (hd V498)))))
+         (and (cons? (tl (hd (tl (hd V498)))))
+          (and (= () (tl (tl (hd (tl (hd V498))))))
+           (= () (tl (tl (hd V498))))))))))))
+   (cons
+    (cons true
+     (cons
+      (cons let
+       (cons Result
+        (cons (hd (tl (hd (tl (hd V498)))))
+         (cons
+          (cons if
+           (cons (cons = (cons Result (cons (cons fail ()) ())))
+            (cons (shen-cond-form (shen-encode-choices (tl V498) V499))
+             (cons Result ()))))
+          ()))))
+      ()))
+    ()))
+  ((and (cons? V498)
+    (and (cons? (hd V498))
+     (and (cons? (tl (hd V498)))
+      (and (cons? (hd (tl (hd V498))))
+       (and (= shen-choicepoint! (hd (hd (tl (hd V498)))))
+        (and (cons? (tl (hd (tl (hd V498)))))
+         (and (= () (tl (tl (hd (tl (hd V498))))))
+          (= () (tl (tl (hd V498)))))))))))
+   (cons
+    (cons true
+     (cons
+      (cons let
+       (cons Freeze
+        (cons
+         (cons freeze
+          (cons (shen-cond-form (shen-encode-choices (tl V498) V499)) ()))
+         (cons
+          (cons if
+           (cons (hd (hd V498))
+            (cons
+             (cons let
+              (cons Result
+               (cons (hd (tl (hd (tl (hd V498)))))
+                (cons
+                 (cons if
+                  (cons (cons = (cons Result (cons (cons fail ()) ())))
+                   (cons (cons thaw (cons Freeze ())) (cons Result ()))))
+                 ()))))
+             (cons (cons thaw (cons Freeze ())) ()))))
+          ()))))
+      ()))
+    ()))
+  ((and (cons? V498)
+    (and (cons? (hd V498))
+     (and (cons? (tl (hd V498))) (= () (tl (tl (hd V498)))))))
+   (cons (hd V498) (shen-encode-choices (tl V498) V499)))
+  (true (shen-sys-error shen-encode-choices))))
+
+(defun shen-case-form (V504 V505)
+ (cond ((= () V504) (cons V505 ()))
+  ((and (cons? V504)
+    (and (cons? (hd V504))
+     (and (cons? (hd (hd V504)))
+      (and (= shen-tests (hd (hd (hd V504))))
+       (and (= () (tl (hd (hd V504))))
+        (and (cons? (tl (hd V504)))
+         (and (cons? (hd (tl (hd V504))))
+          (and (= shen-choicepoint! (hd (hd (tl (hd V504)))))
+           (and (cons? (tl (hd (tl (hd V504)))))
+            (and (= () (tl (tl (hd (tl (hd V504))))))
+             (= () (tl (tl (hd V504))))))))))))))
+   (cons (cons true (tl (hd V504))) (shen-case-form (tl V504) V505)))
+  ((and (cons? V504)
+    (and (cons? (hd V504))
+     (and (cons? (hd (hd V504)))
+      (and (= shen-tests (hd (hd (hd V504))))
+       (and (= () (tl (hd (hd V504))))
+        (and (cons? (tl (hd V504))) (= () (tl (tl (hd V504))))))))))
+   (cons (cons true (tl (hd V504))) ()))
+  ((and (cons? V504)
+    (and (cons? (hd V504))
+     (and (cons? (hd (hd V504)))
+      (and (= shen-tests (hd (hd (hd V504))))
+       (and (cons? (tl (hd V504))) (= () (tl (tl (hd V504)))))))))
+   (cons (cons (shen-embed-and (tl (hd (hd V504)))) (tl (hd V504)))
+    (shen-case-form (tl V504) V505)))
+  (true (shen-sys-error shen-case-form))))
+
+(defun shen-embed-and (V506)
+ (cond ((and (cons? V506) (= () (tl V506))) (hd V506))
+  ((cons? V506)
+   (cons and (cons (hd V506) (cons (shen-embed-and (tl V506)) ()))))
+  (true (shen-sys-error shen-embed-and))))
+
+(defun shen-err-condition (V507)
+ (cond
+  ((value shen-*installing-kl*)
+   (cons true (cons (cons shen-sys-error (cons V507 ())) ())))
+  (true (cons true (cons (cons shen-f_error (cons V507 ())) ())))))
+
+(defun shen-sys-error (V508)
+ (interror "system function ~A: unexpected argument~%" (@p V508 ())))
+

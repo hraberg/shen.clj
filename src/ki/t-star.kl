@@ -1,0 +1,3489 @@
+"                                                   The License
+
+ 
+
+ The user is free to produce commercial applications with the software, to distribute these applications in source or binary  form, and to charge monies for them as he sees fit and in concordance with the laws of the land subject to the following  license.
+
+ 
+
+ 1. The license applies to all the software and all derived software and must appear on such.
+
+ 2. It is illegal to distribute the software without this license attached to it and use of the software implies agreement 
+
+    with the license as such. It is illegal for anyone who is not the copyright holder to tamper with or change the license.
+
+ 3. Neither the names of Lambda Associates or the copyright holder may be used to endorse or promote products built using
+
+     the software without specific prior written permission from the copyright holder.
+
+ 4. That possession of this license does not confer on the copyright holder any special contractual obligation towards the    user. That in no event shall the copyright holder be liable for any direct, indirect, incidental, special, exemplary or   consequential damages (including but not limited to procurement of substitute goods or services, loss of use, data, or    profits; or business interruption), however caused and on any theory of liability, whether in contract, strict liability   or tort (including negligence) arising in any way out of the use of the software, even if advised of the possibility of   such damage. 
+
+5. It is permitted for the user to change the software, for the purpose of improving performance, correcting an error, or    porting to a new platform, and distribute the modified version of Shen (hereafter the modified version) provided the     resulting program conforms in all respects to the Shen standard and is issued under that title. The user must it clear   with his distribution that he/she is the author of the changes and what these changes are and why. 
+
+6. Derived versions of this software in whatever form are subject to the same restrictions. In particular it is not          permitted to make derived copies of this software which do not conform to the Shen standard or appear under a different title.
+
+7. It is permitted to distribute versions of Shen which incorporate libraries, graphics or other facilities which are not    part of the Shen standard.
+
+
+
+For an explication of this license see http://www.lambdassociates.org/News/june11/license.htm which explains this license in full."
+
+(defun shen-typecheck (V761 V762)
+ (let Curry (shen-curry V761)
+  (let ProcessN (shen-start-new-prolog-process)
+   (let Type
+    (shen-insert-prolog-variables (shen-normalise-type (shen-curry-type V762))
+     ProcessN)
+    (let Continuation (freeze (return Type ProcessN shen-void))
+     (shen-th* Curry Type () ProcessN Continuation))))))
+
+(defun shen-curry (V763)
+ (cond
+  ((and (cons? V763) (shen-special? (hd V763)))
+   (cons (hd V763) (map (lambda X (shen-curry X)) (tl V763))))
+  ((and (cons? V763) (and (cons? (tl V763)) (shen-extraspecial? (hd V763))))
+   V763)
+  ((and (cons? V763) (and (cons? (tl V763)) (cons? (tl (tl V763)))))
+   (shen-curry
+    (cons (cons (hd V763) (cons (hd (tl V763)) ())) (tl (tl V763)))))
+  ((and (cons? V763) (and (cons? (tl V763)) (= () (tl (tl V763)))))
+   (cons (shen-curry (hd V763)) (cons (shen-curry (hd (tl V763))) ())))
+  (true V763)))
+
+(defun shen-special? (V764) (element? V764 (value shen-*special*)))
+
+(defun shen-extraspecial? (V765) (element? V765 (value shen-*extraspecial*)))
+
+(defun shen-normalise-type (V766)
+ (fix (lambda X (shen-normalise-type-help X)) V766))
+
+(defun shen-normalise-type-help (V767)
+ (cond
+  ((cons? V767)
+   (shen-normalise-X (map (lambda X (shen-normalise-type-help X)) V767)))
+  (true (shen-normalise-X V767))))
+
+(defun shen-normalise-X (V768)
+ (let Val (assoc V768 (value shen-*synonyms*))
+  (if (empty? Val) V768 (tl Val))))
+
+(defun shen-t* (V769 V770 V771 V772)
+ (let Throwcontrol (shen-catchpoint)
+  (shen-cutpoint Throwcontrol
+   (let Case
+    (let Error (shen-newpv V771)
+     (do (shen-incinfs)
+      (fwhen (shen-maxinfexceeded?) V771
+       (freeze (bind Error (shen-errormaxinfs) V771 V772)))))
+    (if (= Case false)
+     (let Case
+      (let V753 (shen-lazyderef V769 V771)
+       (if (cons? V753)
+        (let X (hd V753)
+         (let V754 (shen-lazyderef (tl V753) V771)
+          (if (cons? V754)
+           (let V755 (shen-lazyderef (hd V754) V771)
+            (if (= : V755)
+             (let V756 (shen-lazyderef (tl V754) V771)
+              (if (cons? V756)
+               (let A (hd V756)
+                (let V757 (shen-lazyderef (tl V756) V771)
+                 (if (= () V757)
+                  (do (shen-incinfs)
+                   (cut Throwcontrol V771
+                    (freeze (shen-th* X A V770 V771 V772))))
+                  false)))
+               false))
+             false))
+           false)))
+        false))
+      (if (= Case false)
+       (let Hyps (shen-newpv V771)
+        (let Datatypes (shen-newpv V771)
+         (do (shen-incinfs)
+          (shen-show V769 Hyps V771
+           (freeze
+            (bind Datatypes (value shen-*datatypes*) V771
+             (freeze (shen-udefs* V769 V770 Datatypes V771 V772))))))))
+       Case))
+     Case)))))
+
+(defun shen-maxinfexceeded? ()
+ (> (inferences shen-skip) (value shen-*maxinferences*)))
+
+(defun shen-errormaxinfs () (simple-error "maximum inferences exceeded~%"))
+
+(defun shen-udefs* (V773 V774 V775 V776 V777)
+ (let Case
+  (let V749 (shen-lazyderef V775 V776)
+   (if (cons? V749)
+    (let D (hd V749)
+     (do (shen-incinfs) (call (cons D (cons V773 (cons V774 ()))) V776 V777)))
+    false))
+  (if (= Case false)
+   (let V750 (shen-lazyderef V775 V776)
+    (if (cons? V750)
+     (let Ds (tl V750)
+      (do (shen-incinfs) (shen-udefs* V773 V774 Ds V776 V777)))
+     false))
+   Case)))
+
+(defun shen-th* (V778 V779 V780 V781 V782)
+ (let Throwcontrol (shen-catchpoint)
+  (shen-cutpoint Throwcontrol
+   (let Case
+    (do (shen-incinfs)
+     (shen-show (cons V778 (cons : (cons V779 ()))) V780 V781
+      (freeze (fwhen false V781 V782))))
+    (if (= Case false)
+     (let Case
+      (let F (shen-newpv V781)
+       (do (shen-incinfs)
+        (fwhen (shen-typedf? (shen-lazyderef V778 V781)) V781
+         (freeze
+          (bind F (shen-sigf (shen-lazyderef V778 V781)) V781
+           (freeze (call (cons F (cons V779 ())) V781 V782)))))))
+      (if (= Case false)
+       (let Case (do (shen-incinfs) (shen-base V778 V779 V781 V782))
+        (if (= Case false)
+         (let Case
+          (do (shen-incinfs) (shen-by_hypothesis V778 V779 V780 V781 V782))
+          (if (= Case false)
+           (let Case
+            (let V638 (shen-lazyderef V778 V781)
+             (if (cons? V638)
+              (let F (hd V638)
+               (let V639 (shen-lazyderef (tl V638) V781)
+                (if (cons? V639)
+                 (let X (hd V639)
+                  (let V640 (shen-lazyderef (tl V639) V781)
+                   (if (= () V640)
+                    (let B (shen-newpv V781)
+                     (do (shen-incinfs)
+                      (shen-th* F (cons B (cons --> (cons V779 ()))) V780 V781
+                       (freeze (shen-th* X B V780 V781 V782)))))
+                    false)))
+                 false)))
+              false))
+            (if (= Case false)
+             (let Case
+              (let V641 (shen-lazyderef V778 V781)
+               (if (cons? V641)
+                (let V642 (shen-lazyderef (hd V641) V781)
+                 (if (= cons V642)
+                  (let V643 (shen-lazyderef (tl V641) V781)
+                   (if (cons? V643)
+                    (let X (hd V643)
+                     (let V644 (shen-lazyderef (tl V643) V781)
+                      (if (cons? V644)
+                       (let Y (hd V644)
+                        (let V645 (shen-lazyderef (tl V644) V781)
+                         (if (= () V645)
+                          (let V646 (shen-lazyderef V779 V781)
+                           (if (cons? V646)
+                            (let V647 (shen-lazyderef (hd V646) V781)
+                             (if (= list V647)
+                              (let V648 (shen-lazyderef (tl V646) V781)
+                               (if (cons? V648)
+                                (let A (hd V648)
+                                 (let V649 (shen-lazyderef (tl V648) V781)
+                                  (if (= () V649)
+                                   (do (shen-incinfs)
+                                    (shen-th* X A V780 V781
+                                     (freeze
+                                      (shen-th* Y (cons list (cons A ())) V780
+                                       V781 V782))))
+                                   (if (shen-pvar? V649)
+                                    (do (shen-bindv V649 () V781)
+                                     (let Result
+                                      (do (shen-incinfs)
+                                       (shen-th* X A V780 V781
+                                        (freeze
+                                         (shen-th* Y (cons list (cons A ()))
+                                          V780 V781 V782))))
+                                      (do (shen-unbindv V649 V781) Result)))
+                                    false))))
+                                (if (shen-pvar? V648)
+                                 (let A (shen-newpv V781)
+                                  (do (shen-bindv V648 (cons A ()) V781)
+                                   (let Result
+                                    (do (shen-incinfs)
+                                     (shen-th* X A V780 V781
+                                      (freeze
+                                       (shen-th* Y (cons list (cons A ()))
+                                        V780 V781 V782))))
+                                    (do (shen-unbindv V648 V781) Result))))
+                                 false)))
+                              (if (shen-pvar? V647)
+                               (do (shen-bindv V647 list V781)
+                                (let Result
+                                 (let V650 (shen-lazyderef (tl V646) V781)
+                                  (if (cons? V650)
+                                   (let A (hd V650)
+                                    (let V651 (shen-lazyderef (tl V650) V781)
+                                     (if (= () V651)
+                                      (do (shen-incinfs)
+                                       (shen-th* X A V780 V781
+                                        (freeze
+                                         (shen-th* Y (cons list (cons A ()))
+                                          V780 V781 V782))))
+                                      (if (shen-pvar? V651)
+                                       (do (shen-bindv V651 () V781)
+                                        (let Result
+                                         (do (shen-incinfs)
+                                          (shen-th* X A V780 V781
+                                           (freeze
+                                            (shen-th* Y
+                                             (cons list (cons A ())) V780 V781
+                                             V782))))
+                                         (do (shen-unbindv V651 V781) Result)))
+                                       false))))
+                                   (if (shen-pvar? V650)
+                                    (let A (shen-newpv V781)
+                                     (do (shen-bindv V650 (cons A ()) V781)
+                                      (let Result
+                                       (do (shen-incinfs)
+                                        (shen-th* X A V780 V781
+                                         (freeze
+                                          (shen-th* Y (cons list (cons A ()))
+                                           V780 V781 V782))))
+                                       (do (shen-unbindv V650 V781) Result))))
+                                    false)))
+                                 (do (shen-unbindv V647 V781) Result)))
+                               false)))
+                            (if (shen-pvar? V646)
+                             (let A (shen-newpv V781)
+                              (do
+                               (shen-bindv V646 (cons list (cons A ())) V781)
+                               (let Result
+                                (do (shen-incinfs)
+                                 (shen-th* X A V780 V781
+                                  (freeze
+                                   (shen-th* Y (cons list (cons A ())) V780
+                                    V781 V782))))
+                                (do (shen-unbindv V646 V781) Result))))
+                             false)))
+                          false)))
+                       false)))
+                    false))
+                  false))
+                false))
+              (if (= Case false)
+               (let Case
+                (let V652 (shen-lazyderef V778 V781)
+                 (if (cons? V652)
+                  (let V653 (shen-lazyderef (hd V652) V781)
+                   (if (= @p V653)
+                    (let V654 (shen-lazyderef (tl V652) V781)
+                     (if (cons? V654)
+                      (let X (hd V654)
+                       (let V655 (shen-lazyderef (tl V654) V781)
+                        (if (cons? V655)
+                         (let Y (hd V655)
+                          (let V656 (shen-lazyderef (tl V655) V781)
+                           (if (= () V656)
+                            (let V657 (shen-lazyderef V779 V781)
+                             (if (cons? V657)
+                              (let A (hd V657)
+                               (let V658 (shen-lazyderef (tl V657) V781)
+                                (if (cons? V658)
+                                 (let V659 (shen-lazyderef (hd V658) V781)
+                                  (if (= * V659)
+                                   (let V660 (shen-lazyderef (tl V658) V781)
+                                    (if (cons? V660)
+                                     (let B (hd V660)
+                                      (let V661 (shen-lazyderef (tl V660) V781)
+                                       (if (= () V661)
+                                        (do (shen-incinfs)
+                                         (shen-th* X A V780 V781
+                                          (freeze
+                                           (shen-th* Y B V780 V781 V782))))
+                                        (if (shen-pvar? V661)
+                                         (do (shen-bindv V661 () V781)
+                                          (let Result
+                                           (do (shen-incinfs)
+                                            (shen-th* X A V780 V781
+                                             (freeze
+                                              (shen-th* Y B V780 V781 V782))))
+                                           (do (shen-unbindv V661 V781)
+                                            Result)))
+                                         false))))
+                                     (if (shen-pvar? V660)
+                                      (let B (shen-newpv V781)
+                                       (do (shen-bindv V660 (cons B ()) V781)
+                                        (let Result
+                                         (do (shen-incinfs)
+                                          (shen-th* X A V780 V781
+                                           (freeze
+                                            (shen-th* Y B V780 V781 V782))))
+                                         (do (shen-unbindv V660 V781)
+                                          Result))))
+                                      false)))
+                                   (if (shen-pvar? V659)
+                                    (do (shen-bindv V659 * V781)
+                                     (let Result
+                                      (let V662 (shen-lazyderef (tl V658) V781)
+                                       (if (cons? V662)
+                                        (let B (hd V662)
+                                         (let V663
+                                          (shen-lazyderef (tl V662) V781)
+                                          (if (= () V663)
+                                           (do (shen-incinfs)
+                                            (shen-th* X A V780 V781
+                                             (freeze
+                                              (shen-th* Y B V780 V781 V782))))
+                                           (if (shen-pvar? V663)
+                                            (do (shen-bindv V663 () V781)
+                                             (let Result
+                                              (do (shen-incinfs)
+                                               (shen-th* X A V780 V781
+                                                (freeze
+                                                 (shen-th* Y B V780 V781
+                                                  V782))))
+                                              (do (shen-unbindv V663 V781)
+                                               Result)))
+                                            false))))
+                                        (if (shen-pvar? V662)
+                                         (let B (shen-newpv V781)
+                                          (do
+                                           (shen-bindv V662 (cons B ()) V781)
+                                           (let Result
+                                            (do (shen-incinfs)
+                                             (shen-th* X A V780 V781
+                                              (freeze
+                                               (shen-th* Y B V780 V781 V782))))
+                                            (do (shen-unbindv V662 V781)
+                                             Result))))
+                                         false)))
+                                      (do (shen-unbindv V659 V781) Result)))
+                                    false)))
+                                 (if (shen-pvar? V658)
+                                  (let B (shen-newpv V781)
+                                   (do
+                                    (shen-bindv V658 (cons * (cons B ()))
+                                     V781)
+                                    (let Result
+                                     (do (shen-incinfs)
+                                      (shen-th* X A V780 V781
+                                       (freeze (shen-th* Y B V780 V781 V782))))
+                                     (do (shen-unbindv V658 V781) Result))))
+                                  false))))
+                              (if (shen-pvar? V657)
+                               (let A (shen-newpv V781)
+                                (let B (shen-newpv V781)
+                                 (do
+                                  (shen-bindv V657
+                                   (cons A (cons * (cons B ()))) V781)
+                                  (let Result
+                                   (do (shen-incinfs)
+                                    (shen-th* X A V780 V781
+                                     (freeze (shen-th* Y B V780 V781 V782))))
+                                   (do (shen-unbindv V657 V781) Result)))))
+                               false)))
+                            false)))
+                         false)))
+                      false))
+                    false))
+                  false))
+                (if (= Case false)
+                 (let Case
+                  (let V664 (shen-lazyderef V778 V781)
+                   (if (cons? V664)
+                    (let V665 (shen-lazyderef (hd V664) V781)
+                     (if (= @v V665)
+                      (let V666 (shen-lazyderef (tl V664) V781)
+                       (if (cons? V666)
+                        (let X (hd V666)
+                         (let V667 (shen-lazyderef (tl V666) V781)
+                          (if (cons? V667)
+                           (let Y (hd V667)
+                            (let V668 (shen-lazyderef (tl V667) V781)
+                             (if (= () V668)
+                              (let V669 (shen-lazyderef V779 V781)
+                               (if (cons? V669)
+                                (let V670 (shen-lazyderef (hd V669) V781)
+                                 (if (= vector V670)
+                                  (let V671 (shen-lazyderef (tl V669) V781)
+                                   (if (cons? V671)
+                                    (let A (hd V671)
+                                     (let V672 (shen-lazyderef (tl V671) V781)
+                                      (if (= () V672)
+                                       (do (shen-incinfs)
+                                        (shen-th* X A V780 V781
+                                         (freeze
+                                          (shen-th* Y
+                                           (cons vector (cons A ())) V780 V781
+                                           V782))))
+                                       (if (shen-pvar? V672)
+                                        (do (shen-bindv V672 () V781)
+                                         (let Result
+                                          (do (shen-incinfs)
+                                           (shen-th* X A V780 V781
+                                            (freeze
+                                             (shen-th* Y
+                                              (cons vector (cons A ())) V780
+                                              V781 V782))))
+                                          (do (shen-unbindv V672 V781)
+                                           Result)))
+                                        false))))
+                                    (if (shen-pvar? V671)
+                                     (let A (shen-newpv V781)
+                                      (do (shen-bindv V671 (cons A ()) V781)
+                                       (let Result
+                                        (do (shen-incinfs)
+                                         (shen-th* X A V780 V781
+                                          (freeze
+                                           (shen-th* Y
+                                            (cons vector (cons A ())) V780
+                                            V781 V782))))
+                                        (do (shen-unbindv V671 V781) Result))))
+                                     false)))
+                                  (if (shen-pvar? V670)
+                                   (do (shen-bindv V670 vector V781)
+                                    (let Result
+                                     (let V673 (shen-lazyderef (tl V669) V781)
+                                      (if (cons? V673)
+                                       (let A (hd V673)
+                                        (let V674
+                                         (shen-lazyderef (tl V673) V781)
+                                         (if (= () V674)
+                                          (do (shen-incinfs)
+                                           (shen-th* X A V780 V781
+                                            (freeze
+                                             (shen-th* Y
+                                              (cons vector (cons A ())) V780
+                                              V781 V782))))
+                                          (if (shen-pvar? V674)
+                                           (do (shen-bindv V674 () V781)
+                                            (let Result
+                                             (do (shen-incinfs)
+                                              (shen-th* X A V780 V781
+                                               (freeze
+                                                (shen-th* Y
+                                                 (cons vector (cons A ()))
+                                                 V780 V781 V782))))
+                                             (do (shen-unbindv V674 V781)
+                                              Result)))
+                                           false))))
+                                       (if (shen-pvar? V673)
+                                        (let A (shen-newpv V781)
+                                         (do
+                                          (shen-bindv V673 (cons A ()) V781)
+                                          (let Result
+                                           (do (shen-incinfs)
+                                            (shen-th* X A V780 V781
+                                             (freeze
+                                              (shen-th* Y
+                                               (cons vector (cons A ())) V780
+                                               V781 V782))))
+                                           (do (shen-unbindv V673 V781)
+                                            Result))))
+                                        false)))
+                                     (do (shen-unbindv V670 V781) Result)))
+                                   false)))
+                                (if (shen-pvar? V669)
+                                 (let A (shen-newpv V781)
+                                  (do
+                                   (shen-bindv V669 (cons vector (cons A ()))
+                                    V781)
+                                   (let Result
+                                    (do (shen-incinfs)
+                                     (shen-th* X A V780 V781
+                                      (freeze
+                                       (shen-th* Y (cons vector (cons A ()))
+                                        V780 V781 V782))))
+                                    (do (shen-unbindv V669 V781) Result))))
+                                 false)))
+                              false)))
+                           false)))
+                        false))
+                      false))
+                    false))
+                  (if (= Case false)
+                   (let Case
+                    (let V675 (shen-lazyderef V778 V781)
+                     (if (cons? V675)
+                      (let V676 (shen-lazyderef (hd V675) V781)
+                       (if (= @s V676)
+                        (let V677 (shen-lazyderef (tl V675) V781)
+                         (if (cons? V677)
+                          (let X (hd V677)
+                           (let V678 (shen-lazyderef (tl V677) V781)
+                            (if (cons? V678)
+                             (let Y (hd V678)
+                              (let V679 (shen-lazyderef (tl V678) V781)
+                               (if (= () V679)
+                                (let V680 (shen-lazyderef V779 V781)
+                                 (if (= string V680)
+                                  (do (shen-incinfs)
+                                   (shen-th* X string V780 V781
+                                    (freeze
+                                     (shen-th* Y string V780 V781 V782))))
+                                  (if (shen-pvar? V680)
+                                   (do (shen-bindv V680 string V781)
+                                    (let Result
+                                     (do (shen-incinfs)
+                                      (shen-th* X string V780 V781
+                                       (freeze
+                                        (shen-th* Y string V780 V781 V782))))
+                                     (do (shen-unbindv V680 V781) Result)))
+                                   false)))
+                                false)))
+                             false)))
+                          false))
+                        false))
+                      false))
+                    (if (= Case false)
+                     (let Case
+                      (let V681 (shen-lazyderef V778 V781)
+                       (if (cons? V681)
+                        (let V682 (shen-lazyderef (hd V681) V781)
+                         (if (= lambda V682)
+                          (let V683 (shen-lazyderef (tl V681) V781)
+                           (if (cons? V683)
+                            (let X (hd V683)
+                             (let V684 (shen-lazyderef (tl V683) V781)
+                              (if (cons? V684)
+                               (let Y (hd V684)
+                                (let V685 (shen-lazyderef (tl V684) V781)
+                                 (if (= () V685)
+                                  (let V686 (shen-lazyderef V779 V781)
+                                   (if (cons? V686)
+                                    (let A (hd V686)
+                                     (let V687 (shen-lazyderef (tl V686) V781)
+                                      (if (cons? V687)
+                                       (let V688
+                                        (shen-lazyderef (hd V687) V781)
+                                        (if (= --> V688)
+                                         (let V689
+                                          (shen-lazyderef (tl V687) V781)
+                                          (if (cons? V689)
+                                           (let B (hd V689)
+                                            (let V690
+                                             (shen-lazyderef (tl V689) V781)
+                                             (if (= () V690)
+                                              (let Z (shen-newpv V781)
+                                               (let X&& (shen-newpv V781)
+                                                (do (shen-incinfs)
+                                                 (cut Throwcontrol V781
+                                                  (freeze
+                                                   (bind X&& (shen-placeholder)
+                                                    V781
+                                                    (freeze
+                                                     (bind Z
+                                                      (shen-ebr
+                                                       (shen-lazyderef X&&
+                                                        V781)
+                                                       (shen-lazyderef X V781)
+                                                       (shen-lazyderef Y V781))
+                                                      V781
+                                                      (freeze
+                                                       (shen-th* Z B
+                                                        (cons
+                                                         (cons X&&
+                                                          (cons :
+                                                           (cons A ())))
+                                                         V780)
+                                                        V781 V782))))))))))
+                                              (if (shen-pvar? V690)
+                                               (do (shen-bindv V690 () V781)
+                                                (let Result
+                                                 (let Z (shen-newpv V781)
+                                                  (let X&& (shen-newpv V781)
+                                                   (do (shen-incinfs)
+                                                    (cut Throwcontrol V781
+                                                     (freeze
+                                                      (bind X&&
+                                                       (shen-placeholder) V781
+                                                       (freeze
+                                                        (bind Z
+                                                         (shen-ebr
+                                                          (shen-lazyderef X&&
+                                                           V781)
+                                                          (shen-lazyderef X
+                                                           V781)
+                                                          (shen-lazyderef Y
+                                                           V781))
+                                                         V781
+                                                         (freeze
+                                                          (shen-th* Z B
+                                                           (cons
+                                                            (cons X&&
+                                                             (cons :
+                                                              (cons A ())))
+                                                            V780)
+                                                           V781 V782))))))))))
+                                                 (do (shen-unbindv V690 V781)
+                                                  Result)))
+                                               false))))
+                                           (if (shen-pvar? V689)
+                                            (let B (shen-newpv V781)
+                                             (do
+                                              (shen-bindv V689 (cons B ())
+                                               V781)
+                                              (let Result
+                                               (let Z (shen-newpv V781)
+                                                (let X&& (shen-newpv V781)
+                                                 (do (shen-incinfs)
+                                                  (cut Throwcontrol V781
+                                                   (freeze
+                                                    (bind X&&
+                                                     (shen-placeholder) V781
+                                                     (freeze
+                                                      (bind Z
+                                                       (shen-ebr
+                                                        (shen-lazyderef X&&
+                                                         V781)
+                                                        (shen-lazyderef X V781)
+                                                        (shen-lazyderef Y
+                                                         V781))
+                                                       V781
+                                                       (freeze
+                                                        (shen-th* Z B
+                                                         (cons
+                                                          (cons X&&
+                                                           (cons :
+                                                            (cons A ())))
+                                                          V780)
+                                                         V781 V782))))))))))
+                                               (do (shen-unbindv V689 V781)
+                                                Result))))
+                                            false)))
+                                         (if (shen-pvar? V688)
+                                          (do (shen-bindv V688 --> V781)
+                                           (let Result
+                                            (let V691
+                                             (shen-lazyderef (tl V687) V781)
+                                             (if (cons? V691)
+                                              (let B (hd V691)
+                                               (let V692
+                                                (shen-lazyderef (tl V691) V781)
+                                                (if (= () V692)
+                                                 (let Z (shen-newpv V781)
+                                                  (let X&& (shen-newpv V781)
+                                                   (do (shen-incinfs)
+                                                    (cut Throwcontrol V781
+                                                     (freeze
+                                                      (bind X&&
+                                                       (shen-placeholder) V781
+                                                       (freeze
+                                                        (bind Z
+                                                         (shen-ebr
+                                                          (shen-lazyderef X&&
+                                                           V781)
+                                                          (shen-lazyderef X
+                                                           V781)
+                                                          (shen-lazyderef Y
+                                                           V781))
+                                                         V781
+                                                         (freeze
+                                                          (shen-th* Z B
+                                                           (cons
+                                                            (cons X&&
+                                                             (cons :
+                                                              (cons A ())))
+                                                            V780)
+                                                           V781 V782))))))))))
+                                                 (if (shen-pvar? V692)
+                                                  (do
+                                                   (shen-bindv V692 () V781)
+                                                   (let Result
+                                                    (let Z (shen-newpv V781)
+                                                     (let X&& (shen-newpv V781)
+                                                      (do (shen-incinfs)
+                                                       (cut Throwcontrol V781
+                                                        (freeze
+                                                         (bind X&&
+                                                          (shen-placeholder)
+                                                          V781
+                                                          (freeze
+                                                           (bind Z
+                                                            (shen-ebr
+                                                             (shen-lazyderef
+                                                              X&& V781)
+                                                             (shen-lazyderef X
+                                                              V781)
+                                                             (shen-lazyderef Y
+                                                              V781))
+                                                            V781
+                                                            (freeze
+                                                             (shen-th* Z B
+                                                              (cons
+                                                               (cons X&&
+                                                                (cons :
+                                                                 (cons A ())))
+                                                               V780)
+                                                              V781
+                                                              V782))))))))))
+                                                    (do
+                                                     (shen-unbindv V692 V781)
+                                                     Result)))
+                                                  false))))
+                                              (if (shen-pvar? V691)
+                                               (let B (shen-newpv V781)
+                                                (do
+                                                 (shen-bindv V691 (cons B ())
+                                                  V781)
+                                                 (let Result
+                                                  (let Z (shen-newpv V781)
+                                                   (let X&& (shen-newpv V781)
+                                                    (do (shen-incinfs)
+                                                     (cut Throwcontrol V781
+                                                      (freeze
+                                                       (bind X&&
+                                                        (shen-placeholder) V781
+                                                        (freeze
+                                                         (bind Z
+                                                          (shen-ebr
+                                                           (shen-lazyderef X&&
+                                                            V781)
+                                                           (shen-lazyderef X
+                                                            V781)
+                                                           (shen-lazyderef Y
+                                                            V781))
+                                                          V781
+                                                          (freeze
+                                                           (shen-th* Z B
+                                                            (cons
+                                                             (cons X&&
+                                                              (cons :
+                                                               (cons A ())))
+                                                             V780)
+                                                            V781 V782))))))))))
+                                                  (do (shen-unbindv V691 V781)
+                                                   Result))))
+                                               false)))
+                                            (do (shen-unbindv V688 V781)
+                                             Result)))
+                                          false)))
+                                       (if (shen-pvar? V687)
+                                        (let B (shen-newpv V781)
+                                         (do
+                                          (shen-bindv V687
+                                           (cons --> (cons B ())) V781)
+                                          (let Result
+                                           (let Z (shen-newpv V781)
+                                            (let X&& (shen-newpv V781)
+                                             (do (shen-incinfs)
+                                              (cut Throwcontrol V781
+                                               (freeze
+                                                (bind X&& (shen-placeholder)
+                                                 V781
+                                                 (freeze
+                                                  (bind Z
+                                                   (shen-ebr
+                                                    (shen-lazyderef X&& V781)
+                                                    (shen-lazyderef X V781)
+                                                    (shen-lazyderef Y V781))
+                                                   V781
+                                                   (freeze
+                                                    (shen-th* Z B
+                                                     (cons
+                                                      (cons X&&
+                                                       (cons : (cons A ())))
+                                                      V780)
+                                                     V781 V782))))))))))
+                                           (do (shen-unbindv V687 V781)
+                                            Result))))
+                                        false))))
+                                    (if (shen-pvar? V686)
+                                     (let A (shen-newpv V781)
+                                      (let B (shen-newpv V781)
+                                       (do
+                                        (shen-bindv V686
+                                         (cons A (cons --> (cons B ()))) V781)
+                                        (let Result
+                                         (let Z (shen-newpv V781)
+                                          (let X&& (shen-newpv V781)
+                                           (do (shen-incinfs)
+                                            (cut Throwcontrol V781
+                                             (freeze
+                                              (bind X&& (shen-placeholder) V781
+                                               (freeze
+                                                (bind Z
+                                                 (shen-ebr
+                                                  (shen-lazyderef X&& V781)
+                                                  (shen-lazyderef X V781)
+                                                  (shen-lazyderef Y V781))
+                                                 V781
+                                                 (freeze
+                                                  (shen-th* Z B
+                                                   (cons
+                                                    (cons X&&
+                                                     (cons : (cons A ())))
+                                                    V780)
+                                                   V781 V782))))))))))
+                                         (do (shen-unbindv V686 V781)
+                                          Result)))))
+                                     false)))
+                                  false)))
+                               false)))
+                            false))
+                          false))
+                        false))
+                      (if (= Case false)
+                       (let Case
+                        (let V693 (shen-lazyderef V778 V781)
+                         (if (cons? V693)
+                          (let V694 (shen-lazyderef (hd V693) V781)
+                           (if (= let V694)
+                            (let V695 (shen-lazyderef (tl V693) V781)
+                             (if (cons? V695)
+                              (let X (hd V695)
+                               (let V696 (shen-lazyderef (tl V695) V781)
+                                (if (cons? V696)
+                                 (let Y (hd V696)
+                                  (let V697 (shen-lazyderef (tl V696) V781)
+                                   (if (cons? V697)
+                                    (let Z (hd V697)
+                                     (let V698 (shen-lazyderef (tl V697) V781)
+                                      (if (= () V698)
+                                       (let W (shen-newpv V781)
+                                        (let X&& (shen-newpv V781)
+                                         (let B (shen-newpv V781)
+                                          (do (shen-incinfs)
+                                           (cut Throwcontrol V781
+                                            (freeze
+                                             (shen-th* Y B V780 V781
+                                              (freeze
+                                               (bind X&& (shen-placeholder)
+                                                V781
+                                                (freeze
+                                                 (bind W
+                                                  (shen-ebr
+                                                   (shen-lazyderef X&& V781)
+                                                   (shen-lazyderef X V781)
+                                                   (shen-lazyderef Z V781))
+                                                  V781
+                                                  (freeze
+                                                   (shen-th* W V779
+                                                    (cons
+                                                     (cons X&&
+                                                      (cons : (cons B ())))
+                                                     V780)
+                                                    V781 V782)))))))))))))
+                                       false)))
+                                    false)))
+                                 false)))
+                              false))
+                            false))
+                          false))
+                        (if (= Case false)
+                         (let Case
+                          (let V699 (shen-lazyderef V778 V781)
+                           (if (cons? V699)
+                            (let V700 (shen-lazyderef (hd V699) V781)
+                             (if (= open V700)
+                              (let V701 (shen-lazyderef (tl V699) V781)
+                               (if (cons? V701)
+                                (let V702 (shen-lazyderef (hd V701) V781)
+                                 (if (= file V702)
+                                  (let V703 (shen-lazyderef (tl V701) V781)
+                                   (if (cons? V703)
+                                    (let FileName (hd V703)
+                                     (let V704 (shen-lazyderef (tl V703) V781)
+                                      (if (cons? V704)
+                                       (let Direction634 (hd V704)
+                                        (let V705
+                                         (shen-lazyderef (tl V704) V781)
+                                         (if (= () V705)
+                                          (let V706 (shen-lazyderef V779 V781)
+                                           (if (cons? V706)
+                                            (let V707
+                                             (shen-lazyderef (hd V706) V781)
+                                             (if (= stream V707)
+                                              (let V708
+                                               (shen-lazyderef (tl V706) V781)
+                                               (if (cons? V708)
+                                                (let Direction (hd V708)
+                                                 (let V709
+                                                  (shen-lazyderef (tl V708)
+                                                   V781)
+                                                  (if (= () V709)
+                                                   (do (shen-incinfs)
+                                                    (unify! Direction
+                                                     Direction634 V781
+                                                     (freeze
+                                                      (cut Throwcontrol V781
+                                                       (freeze
+                                                        (shen-th* FileName
+                                                         string V780 V781
+                                                         V782))))))
+                                                   (if (shen-pvar? V709)
+                                                    (do
+                                                     (shen-bindv V709 () V781)
+                                                     (let Result
+                                                      (do (shen-incinfs)
+                                                       (unify! Direction
+                                                        Direction634 V781
+                                                        (freeze
+                                                         (cut Throwcontrol V781
+                                                          (freeze
+                                                           (shen-th* FileName
+                                                            string V780 V781
+                                                            V782))))))
+                                                      (do
+                                                       (shen-unbindv V709 V781)
+                                                       Result)))
+                                                    false))))
+                                                (if (shen-pvar? V708)
+                                                 (let Direction
+                                                  (shen-newpv V781)
+                                                  (do
+                                                   (shen-bindv V708
+                                                    (cons Direction ()) V781)
+                                                   (let Result
+                                                    (do (shen-incinfs)
+                                                     (unify! Direction
+                                                      Direction634 V781
+                                                      (freeze
+                                                       (cut Throwcontrol V781
+                                                        (freeze
+                                                         (shen-th* FileName
+                                                          string V780 V781
+                                                          V782))))))
+                                                    (do
+                                                     (shen-unbindv V708 V781)
+                                                     Result))))
+                                                 false)))
+                                              (if (shen-pvar? V707)
+                                               (do
+                                                (shen-bindv V707 stream V781)
+                                                (let Result
+                                                 (let V710
+                                                  (shen-lazyderef (tl V706)
+                                                   V781)
+                                                  (if (cons? V710)
+                                                   (let Direction (hd V710)
+                                                    (let V711
+                                                     (shen-lazyderef (tl V710)
+                                                      V781)
+                                                     (if (= () V711)
+                                                      (do (shen-incinfs)
+                                                       (unify! Direction
+                                                        Direction634 V781
+                                                        (freeze
+                                                         (cut Throwcontrol V781
+                                                          (freeze
+                                                           (shen-th* FileName
+                                                            string V780 V781
+                                                            V782))))))
+                                                      (if (shen-pvar? V711)
+                                                       (do
+                                                        (shen-bindv V711 ()
+                                                         V781)
+                                                        (let Result
+                                                         (do (shen-incinfs)
+                                                          (unify! Direction
+                                                           Direction634 V781
+                                                           (freeze
+                                                            (cut Throwcontrol
+                                                             V781
+                                                             (freeze
+                                                              (shen-th*
+                                                               FileName string
+                                                               V780 V781
+                                                               V782))))))
+                                                         (do
+                                                          (shen-unbindv V711
+                                                           V781)
+                                                          Result)))
+                                                       false))))
+                                                   (if (shen-pvar? V710)
+                                                    (let Direction
+                                                     (shen-newpv V781)
+                                                     (do
+                                                      (shen-bindv V710
+                                                       (cons Direction ())
+                                                       V781)
+                                                      (let Result
+                                                       (do (shen-incinfs)
+                                                        (unify! Direction
+                                                         Direction634 V781
+                                                         (freeze
+                                                          (cut Throwcontrol
+                                                           V781
+                                                           (freeze
+                                                            (shen-th* FileName
+                                                             string V780 V781
+                                                             V782))))))
+                                                       (do
+                                                        (shen-unbindv V710
+                                                         V781)
+                                                        Result))))
+                                                    false)))
+                                                 (do (shen-unbindv V707 V781)
+                                                  Result)))
+                                               false)))
+                                            (if (shen-pvar? V706)
+                                             (let Direction (shen-newpv V781)
+                                              (do
+                                               (shen-bindv V706
+                                                (cons stream
+                                                 (cons Direction ()))
+                                                V781)
+                                               (let Result
+                                                (do (shen-incinfs)
+                                                 (unify! Direction Direction634
+                                                  V781
+                                                  (freeze
+                                                   (cut Throwcontrol V781
+                                                    (freeze
+                                                     (shen-th* FileName string
+                                                      V780 V781 V782))))))
+                                                (do (shen-unbindv V706 V781)
+                                                 Result))))
+                                             false)))
+                                          false)))
+                                       false)))
+                                    false))
+                                  false))
+                                false))
+                              false))
+                            false))
+                          (if (= Case false)
+                           (let Case
+                            (let V712 (shen-lazyderef V778 V781)
+                             (if (cons? V712)
+                              (let V713 (shen-lazyderef (hd V712) V781)
+                               (if (= type V713)
+                                (let V714 (shen-lazyderef (tl V712) V781)
+                                 (if (cons? V714)
+                                  (let X (hd V714)
+                                   (let V715 (shen-lazyderef (tl V714) V781)
+                                    (if (cons? V715)
+                                     (let A (hd V715)
+                                      (let V716 (shen-lazyderef (tl V715) V781)
+                                       (if (= () V716)
+                                        (do (shen-incinfs)
+                                         (cut Throwcontrol V781
+                                          (freeze
+                                           (unify A V779 V781
+                                            (freeze
+                                             (shen-th* X A V780 V781 V782))))))
+                                        false)))
+                                     false)))
+                                  false))
+                                false))
+                              false))
+                            (if (= Case false)
+                             (let Case
+                              (let V717 (shen-lazyderef V778 V781)
+                               (if (cons? V717)
+                                (let V718 (shen-lazyderef (hd V717) V781)
+                                 (if (= input+ V718)
+                                  (let V719 (shen-lazyderef (tl V717) V781)
+                                   (if (cons? V719)
+                                    (let V720 (shen-lazyderef (hd V719) V781)
+                                     (if (= : V720)
+                                      (let V721 (shen-lazyderef (tl V719) V781)
+                                       (if (cons? V721)
+                                        (let A (hd V721)
+                                         (let V722
+                                          (shen-lazyderef (tl V721) V781)
+                                          (if (= () V722)
+                                           (let C (shen-newpv V781)
+                                            (do (shen-incinfs)
+                                             (cut Throwcontrol V781
+                                              (freeze
+                                               (bind C
+                                                (shen-normalise-type
+                                                 (shen-lazyderef A V781))
+                                                V781
+                                                (freeze
+                                                 (unify V779 C V781 V782)))))))
+                                           false)))
+                                        false))
+                                      false))
+                                    false))
+                                  false))
+                                false))
+                              (if (= Case false)
+                               (let Case
+                                (let V723 (shen-lazyderef V778 V781)
+                                 (if (cons? V723)
+                                  (let V724 (shen-lazyderef (hd V723) V781)
+                                   (if (= where V724)
+                                    (let V725 (shen-lazyderef (tl V723) V781)
+                                     (if (cons? V725)
+                                      (let P (hd V725)
+                                       (let V726
+                                        (shen-lazyderef (tl V725) V781)
+                                        (if (cons? V726)
+                                         (let X (hd V726)
+                                          (let V727
+                                           (shen-lazyderef (tl V726) V781)
+                                           (if (= () V727)
+                                            (do (shen-incinfs)
+                                             (cut Throwcontrol V781
+                                              (freeze
+                                               (shen-th* P boolean V780 V781
+                                                (freeze
+                                                 (cut Throwcontrol V781
+                                                  (freeze
+                                                   (shen-th* X V779
+                                                    (cons
+                                                     (cons P
+                                                      (cons :
+                                                       (cons verified ())))
+                                                     V780)
+                                                    V781 V782))))))))
+                                            false)))
+                                         false)))
+                                      false))
+                                    false))
+                                  false))
+                                (if (= Case false)
+                                 (let Case
+                                  (let V728 (shen-lazyderef V778 V781)
+                                   (if (cons? V728)
+                                    (let V729 (shen-lazyderef (hd V728) V781)
+                                     (if (= set V729)
+                                      (let V730 (shen-lazyderef (tl V728) V781)
+                                       (if (cons? V730)
+                                        (let Var (hd V730)
+                                         (let V731
+                                          (shen-lazyderef (tl V730) V781)
+                                          (if (cons? V731)
+                                           (let Val (hd V731)
+                                            (let V732
+                                             (shen-lazyderef (tl V731) V781)
+                                             (if (= () V732)
+                                              (do (shen-incinfs)
+                                               (cut Throwcontrol V781
+                                                (freeze
+                                                 (shen-th*
+                                                  (cons value (cons Var ()))
+                                                  V779 V780 V781
+                                                  (freeze
+                                                   (shen-th* Val V779 V780 V781
+                                                    V782))))))
+                                              false)))
+                                           false)))
+                                        false))
+                                      false))
+                                    false))
+                                  (if (= Case false)
+                                   (let Case
+                                    (let V733 (shen-lazyderef V778 V781)
+                                     (if (cons? V733)
+                                      (let V734 (shen-lazyderef (hd V733) V781)
+                                       (if (= fail V734)
+                                        (let V735
+                                         (shen-lazyderef (tl V733) V781)
+                                         (if (= () V735)
+                                          (let V736 (shen-lazyderef V779 V781)
+                                           (if (= symbol V736)
+                                            (do (shen-incinfs) (thaw V782))
+                                            (if (shen-pvar? V736)
+                                             (do (shen-bindv V736 symbol V781)
+                                              (let Result
+                                               (do (shen-incinfs) (thaw V782))
+                                               (do (shen-unbindv V736 V781)
+                                                Result)))
+                                             false)))
+                                          false))
+                                        false))
+                                      false))
+                                    (if (= Case false)
+                                     (let Case
+                                      (let NewHyp (shen-newpv V781)
+                                       (do (shen-incinfs)
+                                        (shen-t*-hyps V780 NewHyp V781
+                                         (freeze
+                                          (shen-th* V778 V779 NewHyp V781
+                                           V782)))))
+                                      (if (= Case false)
+                                       (let Case
+                                        (let V737 (shen-lazyderef V778 V781)
+                                         (if (cons? V737)
+                                          (let V738
+                                           (shen-lazyderef (hd V737) V781)
+                                           (if (= define V738)
+                                            (let V739
+                                             (shen-lazyderef (tl V737) V781)
+                                             (if (cons? V739)
+                                              (let F (hd V739)
+                                               (let X (tl V739)
+                                                (do (shen-incinfs)
+                                                 (cut Throwcontrol V781
+                                                  (freeze
+                                                   (shen-t*-def
+                                                    (cons define (cons F X))
+                                                    V779 V780 V781 V782))))))
+                                              false))
+                                            false))
+                                          false))
+                                        (if (= Case false)
+                                         (let Case
+                                          (let V740 (shen-lazyderef V778 V781)
+                                           (if (cons? V740)
+                                            (let V741
+                                             (shen-lazyderef (hd V740) V781)
+                                             (if (= shen-process-datatype V741)
+                                              (let V742
+                                               (shen-lazyderef V779 V781)
+                                               (if (= symbol V742)
+                                                (do (shen-incinfs) (thaw V782))
+                                                (if (shen-pvar? V742)
+                                                 (do
+                                                  (shen-bindv V742 symbol V781)
+                                                  (let Result
+                                                   (do (shen-incinfs)
+                                                    (thaw V782))
+                                                   (do (shen-unbindv V742 V781)
+                                                    Result)))
+                                                 false)))
+                                              false))
+                                            false))
+                                          (if (= Case false)
+                                           (let Case
+                                            (let V743
+                                             (shen-lazyderef V778 V781)
+                                             (if (cons? V743)
+                                              (let V744
+                                               (shen-lazyderef (hd V743) V781)
+                                               (if (= shen-synonyms-help V744)
+                                                (let V745
+                                                 (shen-lazyderef V779 V781)
+                                                 (if (= symbol V745)
+                                                  (do (shen-incinfs)
+                                                   (thaw V782))
+                                                  (if (shen-pvar? V745)
+                                                   (do
+                                                    (shen-bindv V745 symbol
+                                                     V781)
+                                                    (let Result
+                                                     (do (shen-incinfs)
+                                                      (thaw V782))
+                                                     (do
+                                                      (shen-unbindv V745 V781)
+                                                      Result)))
+                                                   false)))
+                                                false))
+                                              false))
+                                            (if (= Case false)
+                                             (let Datatypes (shen-newpv V781)
+                                              (do (shen-incinfs)
+                                               (bind Datatypes
+                                                (value shen-*datatypes*) V781
+                                                (freeze
+                                                 (shen-udefs*
+                                                  (cons V778
+                                                   (cons : (cons V779 ())))
+                                                  V780 Datatypes V781 V782)))))
+                                             Case))
+                                           Case))
+                                         Case))
+                                       Case))
+                                     Case))
+                                   Case))
+                                 Case))
+                               Case))
+                             Case))
+                           Case))
+                         Case))
+                       Case))
+                     Case))
+                   Case))
+                 Case))
+               Case))
+             Case))
+           Case))
+         Case))
+       Case))
+     Case)))))
+
+(defun shen-t*-hyps (V783 V784 V785 V786)
+ (let Case
+  (let V549 (shen-lazyderef V783 V785)
+   (if (cons? V549)
+    (let V550 (shen-lazyderef (hd V549) V785)
+     (if (cons? V550)
+      (let V551 (shen-lazyderef (hd V550) V785)
+       (if (cons? V551)
+        (let V552 (shen-lazyderef (hd V551) V785)
+         (if (= cons V552)
+          (let V553 (shen-lazyderef (tl V551) V785)
+           (if (cons? V553)
+            (let X (hd V553)
+             (let V554 (shen-lazyderef (tl V553) V785)
+              (if (cons? V554)
+               (let Y (hd V554)
+                (let V555 (shen-lazyderef (tl V554) V785)
+                 (if (= () V555)
+                  (let V556 (shen-lazyderef (tl V550) V785)
+                   (if (cons? V556)
+                    (let V557 (shen-lazyderef (hd V556) V785)
+                     (if (= : V557)
+                      (let V558 (shen-lazyderef (tl V556) V785)
+                       (if (cons? V558)
+                        (let V559 (shen-lazyderef (hd V558) V785)
+                         (if (cons? V559)
+                          (let V560 (shen-lazyderef (hd V559) V785)
+                           (if (= list V560)
+                            (let V561 (shen-lazyderef (tl V559) V785)
+                             (if (cons? V561)
+                              (let A (hd V561)
+                               (let V562 (shen-lazyderef (tl V561) V785)
+                                (if (= () V562)
+                                 (let V563 (shen-lazyderef (tl V558) V785)
+                                  (if (= () V563)
+                                   (let Hyp (tl V549)
+                                    (do (shen-incinfs)
+                                     (bind V784
+                                      (cons
+                                       (cons (shen-lazyderef X V785)
+                                        (cons :
+                                         (cons (shen-lazyderef A V785) ())))
+                                       (cons
+                                        (cons (shen-lazyderef Y V785)
+                                         (cons :
+                                          (cons
+                                           (cons list
+                                            (cons (shen-lazyderef A V785) ()))
+                                           ())))
+                                        (shen-lazyderef Hyp V785)))
+                                      V785 V786)))
+                                   (if (shen-pvar? V563)
+                                    (do (shen-bindv V563 () V785)
+                                     (let Result
+                                      (let Hyp (tl V549)
+                                       (do (shen-incinfs)
+                                        (bind V784
+                                         (cons
+                                          (cons (shen-lazyderef X V785)
+                                           (cons :
+                                            (cons (shen-lazyderef A V785)
+                                             ())))
+                                          (cons
+                                           (cons (shen-lazyderef Y V785)
+                                            (cons :
+                                             (cons
+                                              (cons list
+                                               (cons (shen-lazyderef A V785)
+                                                ()))
+                                              ())))
+                                           (shen-lazyderef Hyp V785)))
+                                         V785 V786)))
+                                      (do (shen-unbindv V563 V785) Result)))
+                                    false)))
+                                 (if (shen-pvar? V562)
+                                  (do (shen-bindv V562 () V785)
+                                   (let Result
+                                    (let V564 (shen-lazyderef (tl V558) V785)
+                                     (if (= () V564)
+                                      (let Hyp (tl V549)
+                                       (do (shen-incinfs)
+                                        (bind V784
+                                         (cons
+                                          (cons (shen-lazyderef X V785)
+                                           (cons :
+                                            (cons (shen-lazyderef A V785)
+                                             ())))
+                                          (cons
+                                           (cons (shen-lazyderef Y V785)
+                                            (cons :
+                                             (cons
+                                              (cons list
+                                               (cons (shen-lazyderef A V785)
+                                                ()))
+                                              ())))
+                                           (shen-lazyderef Hyp V785)))
+                                         V785 V786)))
+                                      (if (shen-pvar? V564)
+                                       (do (shen-bindv V564 () V785)
+                                        (let Result
+                                         (let Hyp (tl V549)
+                                          (do (shen-incinfs)
+                                           (bind V784
+                                            (cons
+                                             (cons (shen-lazyderef X V785)
+                                              (cons :
+                                               (cons (shen-lazyderef A V785)
+                                                ())))
+                                             (cons
+                                              (cons (shen-lazyderef Y V785)
+                                               (cons :
+                                                (cons
+                                                 (cons list
+                                                  (cons (shen-lazyderef A V785)
+                                                   ()))
+                                                 ())))
+                                              (shen-lazyderef Hyp V785)))
+                                            V785 V786)))
+                                         (do (shen-unbindv V564 V785) Result)))
+                                       false)))
+                                    (do (shen-unbindv V562 V785) Result)))
+                                  false))))
+                              (if (shen-pvar? V561)
+                               (let A (shen-newpv V785)
+                                (do (shen-bindv V561 (cons A ()) V785)
+                                 (let Result
+                                  (let V565 (shen-lazyderef (tl V558) V785)
+                                   (if (= () V565)
+                                    (let Hyp (tl V549)
+                                     (do (shen-incinfs)
+                                      (bind V784
+                                       (cons
+                                        (cons (shen-lazyderef X V785)
+                                         (cons :
+                                          (cons (shen-lazyderef A V785) ())))
+                                        (cons
+                                         (cons (shen-lazyderef Y V785)
+                                          (cons :
+                                           (cons
+                                            (cons list
+                                             (cons (shen-lazyderef A V785)
+                                              ()))
+                                            ())))
+                                         (shen-lazyderef Hyp V785)))
+                                       V785 V786)))
+                                    (if (shen-pvar? V565)
+                                     (do (shen-bindv V565 () V785)
+                                      (let Result
+                                       (let Hyp (tl V549)
+                                        (do (shen-incinfs)
+                                         (bind V784
+                                          (cons
+                                           (cons (shen-lazyderef X V785)
+                                            (cons :
+                                             (cons (shen-lazyderef A V785)
+                                              ())))
+                                           (cons
+                                            (cons (shen-lazyderef Y V785)
+                                             (cons :
+                                              (cons
+                                               (cons list
+                                                (cons (shen-lazyderef A V785)
+                                                 ()))
+                                               ())))
+                                            (shen-lazyderef Hyp V785)))
+                                          V785 V786)))
+                                       (do (shen-unbindv V565 V785) Result)))
+                                     false)))
+                                  (do (shen-unbindv V561 V785) Result))))
+                               false)))
+                            (if (shen-pvar? V560)
+                             (do (shen-bindv V560 list V785)
+                              (let Result
+                               (let V566 (shen-lazyderef (tl V559) V785)
+                                (if (cons? V566)
+                                 (let A (hd V566)
+                                  (let V567 (shen-lazyderef (tl V566) V785)
+                                   (if (= () V567)
+                                    (let V568 (shen-lazyderef (tl V558) V785)
+                                     (if (= () V568)
+                                      (let Hyp (tl V549)
+                                       (do (shen-incinfs)
+                                        (bind V784
+                                         (cons
+                                          (cons (shen-lazyderef X V785)
+                                           (cons :
+                                            (cons (shen-lazyderef A V785)
+                                             ())))
+                                          (cons
+                                           (cons (shen-lazyderef Y V785)
+                                            (cons :
+                                             (cons
+                                              (cons list
+                                               (cons (shen-lazyderef A V785)
+                                                ()))
+                                              ())))
+                                           (shen-lazyderef Hyp V785)))
+                                         V785 V786)))
+                                      (if (shen-pvar? V568)
+                                       (do (shen-bindv V568 () V785)
+                                        (let Result
+                                         (let Hyp (tl V549)
+                                          (do (shen-incinfs)
+                                           (bind V784
+                                            (cons
+                                             (cons (shen-lazyderef X V785)
+                                              (cons :
+                                               (cons (shen-lazyderef A V785)
+                                                ())))
+                                             (cons
+                                              (cons (shen-lazyderef Y V785)
+                                               (cons :
+                                                (cons
+                                                 (cons list
+                                                  (cons (shen-lazyderef A V785)
+                                                   ()))
+                                                 ())))
+                                              (shen-lazyderef Hyp V785)))
+                                            V785 V786)))
+                                         (do (shen-unbindv V568 V785) Result)))
+                                       false)))
+                                    (if (shen-pvar? V567)
+                                     (do (shen-bindv V567 () V785)
+                                      (let Result
+                                       (let V569
+                                        (shen-lazyderef (tl V558) V785)
+                                        (if (= () V569)
+                                         (let Hyp (tl V549)
+                                          (do (shen-incinfs)
+                                           (bind V784
+                                            (cons
+                                             (cons (shen-lazyderef X V785)
+                                              (cons :
+                                               (cons (shen-lazyderef A V785)
+                                                ())))
+                                             (cons
+                                              (cons (shen-lazyderef Y V785)
+                                               (cons :
+                                                (cons
+                                                 (cons list
+                                                  (cons (shen-lazyderef A V785)
+                                                   ()))
+                                                 ())))
+                                              (shen-lazyderef Hyp V785)))
+                                            V785 V786)))
+                                         (if (shen-pvar? V569)
+                                          (do (shen-bindv V569 () V785)
+                                           (let Result
+                                            (let Hyp (tl V549)
+                                             (do (shen-incinfs)
+                                              (bind V784
+                                               (cons
+                                                (cons (shen-lazyderef X V785)
+                                                 (cons :
+                                                  (cons (shen-lazyderef A V785)
+                                                   ())))
+                                                (cons
+                                                 (cons (shen-lazyderef Y V785)
+                                                  (cons :
+                                                   (cons
+                                                    (cons list
+                                                     (cons
+                                                      (shen-lazyderef A V785)
+                                                      ()))
+                                                    ())))
+                                                 (shen-lazyderef Hyp V785)))
+                                               V785 V786)))
+                                            (do (shen-unbindv V569 V785)
+                                             Result)))
+                                          false)))
+                                       (do (shen-unbindv V567 V785) Result)))
+                                     false))))
+                                 (if (shen-pvar? V566)
+                                  (let A (shen-newpv V785)
+                                   (do (shen-bindv V566 (cons A ()) V785)
+                                    (let Result
+                                     (let V570 (shen-lazyderef (tl V558) V785)
+                                      (if (= () V570)
+                                       (let Hyp (tl V549)
+                                        (do (shen-incinfs)
+                                         (bind V784
+                                          (cons
+                                           (cons (shen-lazyderef X V785)
+                                            (cons :
+                                             (cons (shen-lazyderef A V785)
+                                              ())))
+                                           (cons
+                                            (cons (shen-lazyderef Y V785)
+                                             (cons :
+                                              (cons
+                                               (cons list
+                                                (cons (shen-lazyderef A V785)
+                                                 ()))
+                                               ())))
+                                            (shen-lazyderef Hyp V785)))
+                                          V785 V786)))
+                                       (if (shen-pvar? V570)
+                                        (do (shen-bindv V570 () V785)
+                                         (let Result
+                                          (let Hyp (tl V549)
+                                           (do (shen-incinfs)
+                                            (bind V784
+                                             (cons
+                                              (cons (shen-lazyderef X V785)
+                                               (cons :
+                                                (cons (shen-lazyderef A V785)
+                                                 ())))
+                                              (cons
+                                               (cons (shen-lazyderef Y V785)
+                                                (cons :
+                                                 (cons
+                                                  (cons list
+                                                   (cons
+                                                    (shen-lazyderef A V785)
+                                                    ()))
+                                                  ())))
+                                               (shen-lazyderef Hyp V785)))
+                                             V785 V786)))
+                                          (do (shen-unbindv V570 V785)
+                                           Result)))
+                                        false)))
+                                     (do (shen-unbindv V566 V785) Result))))
+                                  false)))
+                               (do (shen-unbindv V560 V785) Result)))
+                             false)))
+                          (if (shen-pvar? V559)
+                           (let A (shen-newpv V785)
+                            (do (shen-bindv V559 (cons list (cons A ())) V785)
+                             (let Result
+                              (let V571 (shen-lazyderef (tl V558) V785)
+                               (if (= () V571)
+                                (let Hyp (tl V549)
+                                 (do (shen-incinfs)
+                                  (bind V784
+                                   (cons
+                                    (cons (shen-lazyderef X V785)
+                                     (cons :
+                                      (cons (shen-lazyderef A V785) ())))
+                                    (cons
+                                     (cons (shen-lazyderef Y V785)
+                                      (cons :
+                                       (cons
+                                        (cons list
+                                         (cons (shen-lazyderef A V785) ()))
+                                        ())))
+                                     (shen-lazyderef Hyp V785)))
+                                   V785 V786)))
+                                (if (shen-pvar? V571)
+                                 (do (shen-bindv V571 () V785)
+                                  (let Result
+                                   (let Hyp (tl V549)
+                                    (do (shen-incinfs)
+                                     (bind V784
+                                      (cons
+                                       (cons (shen-lazyderef X V785)
+                                        (cons :
+                                         (cons (shen-lazyderef A V785) ())))
+                                       (cons
+                                        (cons (shen-lazyderef Y V785)
+                                         (cons :
+                                          (cons
+                                           (cons list
+                                            (cons (shen-lazyderef A V785) ()))
+                                           ())))
+                                        (shen-lazyderef Hyp V785)))
+                                      V785 V786)))
+                                   (do (shen-unbindv V571 V785) Result)))
+                                 false)))
+                              (do (shen-unbindv V559 V785) Result))))
+                           false)))
+                        false))
+                      false))
+                    false))
+                  false)))
+               false)))
+            false))
+          false))
+        false))
+      false))
+    false))
+  (if (= Case false)
+   (let Case
+    (let V572 (shen-lazyderef V783 V785)
+     (if (cons? V572)
+      (let V573 (shen-lazyderef (hd V572) V785)
+       (if (cons? V573)
+        (let V574 (shen-lazyderef (hd V573) V785)
+         (if (cons? V574)
+          (let V575 (shen-lazyderef (hd V574) V785)
+           (if (= @p V575)
+            (let V576 (shen-lazyderef (tl V574) V785)
+             (if (cons? V576)
+              (let X (hd V576)
+               (let V577 (shen-lazyderef (tl V576) V785)
+                (if (cons? V577)
+                 (let Y (hd V577)
+                  (let V578 (shen-lazyderef (tl V577) V785)
+                   (if (= () V578)
+                    (let V579 (shen-lazyderef (tl V573) V785)
+                     (if (cons? V579)
+                      (let V580 (shen-lazyderef (hd V579) V785)
+                       (if (= : V580)
+                        (let V581 (shen-lazyderef (tl V579) V785)
+                         (if (cons? V581)
+                          (let V582 (shen-lazyderef (hd V581) V785)
+                           (if (cons? V582)
+                            (let A (hd V582)
+                             (let V583 (shen-lazyderef (tl V582) V785)
+                              (if (cons? V583)
+                               (let V584 (shen-lazyderef (hd V583) V785)
+                                (if (= * V584)
+                                 (let V585 (shen-lazyderef (tl V583) V785)
+                                  (if (cons? V585)
+                                   (let B (hd V585)
+                                    (let V586 (shen-lazyderef (tl V585) V785)
+                                     (if (= () V586)
+                                      (let V587 (shen-lazyderef (tl V581) V785)
+                                       (if (= () V587)
+                                        (let Hyp (tl V572)
+                                         (do (shen-incinfs)
+                                          (bind V784
+                                           (cons
+                                            (cons (shen-lazyderef X V785)
+                                             (cons :
+                                              (cons (shen-lazyderef A V785)
+                                               ())))
+                                            (cons
+                                             (cons (shen-lazyderef Y V785)
+                                              (cons :
+                                               (cons (shen-lazyderef B V785)
+                                                ())))
+                                             (shen-lazyderef Hyp V785)))
+                                           V785 V786)))
+                                        (if (shen-pvar? V587)
+                                         (do (shen-bindv V587 () V785)
+                                          (let Result
+                                           (let Hyp (tl V572)
+                                            (do (shen-incinfs)
+                                             (bind V784
+                                              (cons
+                                               (cons (shen-lazyderef X V785)
+                                                (cons :
+                                                 (cons (shen-lazyderef A V785)
+                                                  ())))
+                                               (cons
+                                                (cons (shen-lazyderef Y V785)
+                                                 (cons :
+                                                  (cons (shen-lazyderef B V785)
+                                                   ())))
+                                                (shen-lazyderef Hyp V785)))
+                                              V785 V786)))
+                                           (do (shen-unbindv V587 V785)
+                                            Result)))
+                                         false)))
+                                      (if (shen-pvar? V586)
+                                       (do (shen-bindv V586 () V785)
+                                        (let Result
+                                         (let V588
+                                          (shen-lazyderef (tl V581) V785)
+                                          (if (= () V588)
+                                           (let Hyp (tl V572)
+                                            (do (shen-incinfs)
+                                             (bind V784
+                                              (cons
+                                               (cons (shen-lazyderef X V785)
+                                                (cons :
+                                                 (cons (shen-lazyderef A V785)
+                                                  ())))
+                                               (cons
+                                                (cons (shen-lazyderef Y V785)
+                                                 (cons :
+                                                  (cons (shen-lazyderef B V785)
+                                                   ())))
+                                                (shen-lazyderef Hyp V785)))
+                                              V785 V786)))
+                                           (if (shen-pvar? V588)
+                                            (do (shen-bindv V588 () V785)
+                                             (let Result
+                                              (let Hyp (tl V572)
+                                               (do (shen-incinfs)
+                                                (bind V784
+                                                 (cons
+                                                  (cons (shen-lazyderef X V785)
+                                                   (cons :
+                                                    (cons
+                                                     (shen-lazyderef A V785)
+                                                     ())))
+                                                  (cons
+                                                   (cons
+                                                    (shen-lazyderef Y V785)
+                                                    (cons :
+                                                     (cons
+                                                      (shen-lazyderef B V785)
+                                                      ())))
+                                                   (shen-lazyderef Hyp V785)))
+                                                 V785 V786)))
+                                              (do (shen-unbindv V588 V785)
+                                               Result)))
+                                            false)))
+                                         (do (shen-unbindv V586 V785) Result)))
+                                       false))))
+                                   (if (shen-pvar? V585)
+                                    (let B (shen-newpv V785)
+                                     (do (shen-bindv V585 (cons B ()) V785)
+                                      (let Result
+                                       (let V589
+                                        (shen-lazyderef (tl V581) V785)
+                                        (if (= () V589)
+                                         (let Hyp (tl V572)
+                                          (do (shen-incinfs)
+                                           (bind V784
+                                            (cons
+                                             (cons (shen-lazyderef X V785)
+                                              (cons :
+                                               (cons (shen-lazyderef A V785)
+                                                ())))
+                                             (cons
+                                              (cons (shen-lazyderef Y V785)
+                                               (cons :
+                                                (cons (shen-lazyderef B V785)
+                                                 ())))
+                                              (shen-lazyderef Hyp V785)))
+                                            V785 V786)))
+                                         (if (shen-pvar? V589)
+                                          (do (shen-bindv V589 () V785)
+                                           (let Result
+                                            (let Hyp (tl V572)
+                                             (do (shen-incinfs)
+                                              (bind V784
+                                               (cons
+                                                (cons (shen-lazyderef X V785)
+                                                 (cons :
+                                                  (cons (shen-lazyderef A V785)
+                                                   ())))
+                                                (cons
+                                                 (cons (shen-lazyderef Y V785)
+                                                  (cons :
+                                                   (cons
+                                                    (shen-lazyderef B V785)
+                                                    ())))
+                                                 (shen-lazyderef Hyp V785)))
+                                               V785 V786)))
+                                            (do (shen-unbindv V589 V785)
+                                             Result)))
+                                          false)))
+                                       (do (shen-unbindv V585 V785) Result))))
+                                    false)))
+                                 (if (shen-pvar? V584)
+                                  (do (shen-bindv V584 * V785)
+                                   (let Result
+                                    (let V590 (shen-lazyderef (tl V583) V785)
+                                     (if (cons? V590)
+                                      (let B (hd V590)
+                                       (let V591
+                                        (shen-lazyderef (tl V590) V785)
+                                        (if (= () V591)
+                                         (let V592
+                                          (shen-lazyderef (tl V581) V785)
+                                          (if (= () V592)
+                                           (let Hyp (tl V572)
+                                            (do (shen-incinfs)
+                                             (bind V784
+                                              (cons
+                                               (cons (shen-lazyderef X V785)
+                                                (cons :
+                                                 (cons (shen-lazyderef A V785)
+                                                  ())))
+                                               (cons
+                                                (cons (shen-lazyderef Y V785)
+                                                 (cons :
+                                                  (cons (shen-lazyderef B V785)
+                                                   ())))
+                                                (shen-lazyderef Hyp V785)))
+                                              V785 V786)))
+                                           (if (shen-pvar? V592)
+                                            (do (shen-bindv V592 () V785)
+                                             (let Result
+                                              (let Hyp (tl V572)
+                                               (do (shen-incinfs)
+                                                (bind V784
+                                                 (cons
+                                                  (cons (shen-lazyderef X V785)
+                                                   (cons :
+                                                    (cons
+                                                     (shen-lazyderef A V785)
+                                                     ())))
+                                                  (cons
+                                                   (cons
+                                                    (shen-lazyderef Y V785)
+                                                    (cons :
+                                                     (cons
+                                                      (shen-lazyderef B V785)
+                                                      ())))
+                                                   (shen-lazyderef Hyp V785)))
+                                                 V785 V786)))
+                                              (do (shen-unbindv V592 V785)
+                                               Result)))
+                                            false)))
+                                         (if (shen-pvar? V591)
+                                          (do (shen-bindv V591 () V785)
+                                           (let Result
+                                            (let V593
+                                             (shen-lazyderef (tl V581) V785)
+                                             (if (= () V593)
+                                              (let Hyp (tl V572)
+                                               (do (shen-incinfs)
+                                                (bind V784
+                                                 (cons
+                                                  (cons (shen-lazyderef X V785)
+                                                   (cons :
+                                                    (cons
+                                                     (shen-lazyderef A V785)
+                                                     ())))
+                                                  (cons
+                                                   (cons
+                                                    (shen-lazyderef Y V785)
+                                                    (cons :
+                                                     (cons
+                                                      (shen-lazyderef B V785)
+                                                      ())))
+                                                   (shen-lazyderef Hyp V785)))
+                                                 V785 V786)))
+                                              (if (shen-pvar? V593)
+                                               (do (shen-bindv V593 () V785)
+                                                (let Result
+                                                 (let Hyp (tl V572)
+                                                  (do (shen-incinfs)
+                                                   (bind V784
+                                                    (cons
+                                                     (cons
+                                                      (shen-lazyderef X V785)
+                                                      (cons :
+                                                       (cons
+                                                        (shen-lazyderef A V785)
+                                                        ())))
+                                                     (cons
+                                                      (cons
+                                                       (shen-lazyderef Y V785)
+                                                       (cons :
+                                                        (cons
+                                                         (shen-lazyderef B
+                                                          V785)
+                                                         ())))
+                                                      (shen-lazyderef Hyp
+                                                       V785)))
+                                                    V785 V786)))
+                                                 (do (shen-unbindv V593 V785)
+                                                  Result)))
+                                               false)))
+                                            (do (shen-unbindv V591 V785)
+                                             Result)))
+                                          false))))
+                                      (if (shen-pvar? V590)
+                                       (let B (shen-newpv V785)
+                                        (do (shen-bindv V590 (cons B ()) V785)
+                                         (let Result
+                                          (let V594
+                                           (shen-lazyderef (tl V581) V785)
+                                           (if (= () V594)
+                                            (let Hyp (tl V572)
+                                             (do (shen-incinfs)
+                                              (bind V784
+                                               (cons
+                                                (cons (shen-lazyderef X V785)
+                                                 (cons :
+                                                  (cons (shen-lazyderef A V785)
+                                                   ())))
+                                                (cons
+                                                 (cons (shen-lazyderef Y V785)
+                                                  (cons :
+                                                   (cons
+                                                    (shen-lazyderef B V785)
+                                                    ())))
+                                                 (shen-lazyderef Hyp V785)))
+                                               V785 V786)))
+                                            (if (shen-pvar? V594)
+                                             (do (shen-bindv V594 () V785)
+                                              (let Result
+                                               (let Hyp (tl V572)
+                                                (do (shen-incinfs)
+                                                 (bind V784
+                                                  (cons
+                                                   (cons
+                                                    (shen-lazyderef X V785)
+                                                    (cons :
+                                                     (cons
+                                                      (shen-lazyderef A V785)
+                                                      ())))
+                                                   (cons
+                                                    (cons
+                                                     (shen-lazyderef Y V785)
+                                                     (cons :
+                                                      (cons
+                                                       (shen-lazyderef B V785)
+                                                       ())))
+                                                    (shen-lazyderef Hyp V785)))
+                                                  V785 V786)))
+                                               (do (shen-unbindv V594 V785)
+                                                Result)))
+                                             false)))
+                                          (do (shen-unbindv V590 V785)
+                                           Result))))
+                                       false)))
+                                    (do (shen-unbindv V584 V785) Result)))
+                                  false)))
+                               (if (shen-pvar? V583)
+                                (let B (shen-newpv V785)
+                                 (do
+                                  (shen-bindv V583 (cons * (cons B ())) V785)
+                                  (let Result
+                                   (let V595 (shen-lazyderef (tl V581) V785)
+                                    (if (= () V595)
+                                     (let Hyp (tl V572)
+                                      (do (shen-incinfs)
+                                       (bind V784
+                                        (cons
+                                         (cons (shen-lazyderef X V785)
+                                          (cons :
+                                           (cons (shen-lazyderef A V785) ())))
+                                         (cons
+                                          (cons (shen-lazyderef Y V785)
+                                           (cons :
+                                            (cons (shen-lazyderef B V785)
+                                             ())))
+                                          (shen-lazyderef Hyp V785)))
+                                        V785 V786)))
+                                     (if (shen-pvar? V595)
+                                      (do (shen-bindv V595 () V785)
+                                       (let Result
+                                        (let Hyp (tl V572)
+                                         (do (shen-incinfs)
+                                          (bind V784
+                                           (cons
+                                            (cons (shen-lazyderef X V785)
+                                             (cons :
+                                              (cons (shen-lazyderef A V785)
+                                               ())))
+                                            (cons
+                                             (cons (shen-lazyderef Y V785)
+                                              (cons :
+                                               (cons (shen-lazyderef B V785)
+                                                ())))
+                                             (shen-lazyderef Hyp V785)))
+                                           V785 V786)))
+                                        (do (shen-unbindv V595 V785) Result)))
+                                      false)))
+                                   (do (shen-unbindv V583 V785) Result))))
+                                false))))
+                            (if (shen-pvar? V582)
+                             (let A (shen-newpv V785)
+                              (let B (shen-newpv V785)
+                               (do
+                                (shen-bindv V582 (cons A (cons * (cons B ())))
+                                 V785)
+                                (let Result
+                                 (let V596 (shen-lazyderef (tl V581) V785)
+                                  (if (= () V596)
+                                   (let Hyp (tl V572)
+                                    (do (shen-incinfs)
+                                     (bind V784
+                                      (cons
+                                       (cons (shen-lazyderef X V785)
+                                        (cons :
+                                         (cons (shen-lazyderef A V785) ())))
+                                       (cons
+                                        (cons (shen-lazyderef Y V785)
+                                         (cons :
+                                          (cons (shen-lazyderef B V785) ())))
+                                        (shen-lazyderef Hyp V785)))
+                                      V785 V786)))
+                                   (if (shen-pvar? V596)
+                                    (do (shen-bindv V596 () V785)
+                                     (let Result
+                                      (let Hyp (tl V572)
+                                       (do (shen-incinfs)
+                                        (bind V784
+                                         (cons
+                                          (cons (shen-lazyderef X V785)
+                                           (cons :
+                                            (cons (shen-lazyderef A V785)
+                                             ())))
+                                          (cons
+                                           (cons (shen-lazyderef Y V785)
+                                            (cons :
+                                             (cons (shen-lazyderef B V785)
+                                              ())))
+                                           (shen-lazyderef Hyp V785)))
+                                         V785 V786)))
+                                      (do (shen-unbindv V596 V785) Result)))
+                                    false)))
+                                 (do (shen-unbindv V582 V785) Result)))))
+                             false)))
+                          false))
+                        false))
+                      false))
+                    false)))
+                 false)))
+              false))
+            false))
+          false))
+        false))
+      false))
+    (if (= Case false)
+     (let Case
+      (let V597 (shen-lazyderef V783 V785)
+       (if (cons? V597)
+        (let V598 (shen-lazyderef (hd V597) V785)
+         (if (cons? V598)
+          (let V599 (shen-lazyderef (hd V598) V785)
+           (if (cons? V599)
+            (let V600 (shen-lazyderef (hd V599) V785)
+             (if (= @v V600)
+              (let V601 (shen-lazyderef (tl V599) V785)
+               (if (cons? V601)
+                (let X (hd V601)
+                 (let V602 (shen-lazyderef (tl V601) V785)
+                  (if (cons? V602)
+                   (let Y (hd V602)
+                    (let V603 (shen-lazyderef (tl V602) V785)
+                     (if (= () V603)
+                      (let V604 (shen-lazyderef (tl V598) V785)
+                       (if (cons? V604)
+                        (let V605 (shen-lazyderef (hd V604) V785)
+                         (if (= : V605)
+                          (let V606 (shen-lazyderef (tl V604) V785)
+                           (if (cons? V606)
+                            (let V607 (shen-lazyderef (hd V606) V785)
+                             (if (cons? V607)
+                              (let V608 (shen-lazyderef (hd V607) V785)
+                               (if (= vector V608)
+                                (let V609 (shen-lazyderef (tl V607) V785)
+                                 (if (cons? V609)
+                                  (let A (hd V609)
+                                   (let V610 (shen-lazyderef (tl V609) V785)
+                                    (if (= () V610)
+                                     (let V611 (shen-lazyderef (tl V606) V785)
+                                      (if (= () V611)
+                                       (let Hyp (tl V597)
+                                        (do (shen-incinfs)
+                                         (bind V784
+                                          (cons
+                                           (cons (shen-lazyderef X V785)
+                                            (cons :
+                                             (cons (shen-lazyderef A V785)
+                                              ())))
+                                           (cons
+                                            (cons (shen-lazyderef Y V785)
+                                             (cons :
+                                              (cons
+                                               (cons vector
+                                                (cons (shen-lazyderef A V785)
+                                                 ()))
+                                               ())))
+                                            (shen-lazyderef Hyp V785)))
+                                          V785 V786)))
+                                       (if (shen-pvar? V611)
+                                        (do (shen-bindv V611 () V785)
+                                         (let Result
+                                          (let Hyp (tl V597)
+                                           (do (shen-incinfs)
+                                            (bind V784
+                                             (cons
+                                              (cons (shen-lazyderef X V785)
+                                               (cons :
+                                                (cons (shen-lazyderef A V785)
+                                                 ())))
+                                              (cons
+                                               (cons (shen-lazyderef Y V785)
+                                                (cons :
+                                                 (cons
+                                                  (cons vector
+                                                   (cons
+                                                    (shen-lazyderef A V785)
+                                                    ()))
+                                                  ())))
+                                               (shen-lazyderef Hyp V785)))
+                                             V785 V786)))
+                                          (do (shen-unbindv V611 V785)
+                                           Result)))
+                                        false)))
+                                     (if (shen-pvar? V610)
+                                      (do (shen-bindv V610 () V785)
+                                       (let Result
+                                        (let V612
+                                         (shen-lazyderef (tl V606) V785)
+                                         (if (= () V612)
+                                          (let Hyp (tl V597)
+                                           (do (shen-incinfs)
+                                            (bind V784
+                                             (cons
+                                              (cons (shen-lazyderef X V785)
+                                               (cons :
+                                                (cons (shen-lazyderef A V785)
+                                                 ())))
+                                              (cons
+                                               (cons (shen-lazyderef Y V785)
+                                                (cons :
+                                                 (cons
+                                                  (cons vector
+                                                   (cons
+                                                    (shen-lazyderef A V785)
+                                                    ()))
+                                                  ())))
+                                               (shen-lazyderef Hyp V785)))
+                                             V785 V786)))
+                                          (if (shen-pvar? V612)
+                                           (do (shen-bindv V612 () V785)
+                                            (let Result
+                                             (let Hyp (tl V597)
+                                              (do (shen-incinfs)
+                                               (bind V784
+                                                (cons
+                                                 (cons (shen-lazyderef X V785)
+                                                  (cons :
+                                                   (cons
+                                                    (shen-lazyderef A V785)
+                                                    ())))
+                                                 (cons
+                                                  (cons (shen-lazyderef Y V785)
+                                                   (cons :
+                                                    (cons
+                                                     (cons vector
+                                                      (cons
+                                                       (shen-lazyderef A V785)
+                                                       ()))
+                                                     ())))
+                                                  (shen-lazyderef Hyp V785)))
+                                                V785 V786)))
+                                             (do (shen-unbindv V612 V785)
+                                              Result)))
+                                           false)))
+                                        (do (shen-unbindv V610 V785) Result)))
+                                      false))))
+                                  (if (shen-pvar? V609)
+                                   (let A (shen-newpv V785)
+                                    (do (shen-bindv V609 (cons A ()) V785)
+                                     (let Result
+                                      (let V613 (shen-lazyderef (tl V606) V785)
+                                       (if (= () V613)
+                                        (let Hyp (tl V597)
+                                         (do (shen-incinfs)
+                                          (bind V784
+                                           (cons
+                                            (cons (shen-lazyderef X V785)
+                                             (cons :
+                                              (cons (shen-lazyderef A V785)
+                                               ())))
+                                            (cons
+                                             (cons (shen-lazyderef Y V785)
+                                              (cons :
+                                               (cons
+                                                (cons vector
+                                                 (cons (shen-lazyderef A V785)
+                                                  ()))
+                                                ())))
+                                             (shen-lazyderef Hyp V785)))
+                                           V785 V786)))
+                                        (if (shen-pvar? V613)
+                                         (do (shen-bindv V613 () V785)
+                                          (let Result
+                                           (let Hyp (tl V597)
+                                            (do (shen-incinfs)
+                                             (bind V784
+                                              (cons
+                                               (cons (shen-lazyderef X V785)
+                                                (cons :
+                                                 (cons (shen-lazyderef A V785)
+                                                  ())))
+                                               (cons
+                                                (cons (shen-lazyderef Y V785)
+                                                 (cons :
+                                                  (cons
+                                                   (cons vector
+                                                    (cons
+                                                     (shen-lazyderef A V785)
+                                                     ()))
+                                                   ())))
+                                                (shen-lazyderef Hyp V785)))
+                                              V785 V786)))
+                                           (do (shen-unbindv V613 V785)
+                                            Result)))
+                                         false)))
+                                      (do (shen-unbindv V609 V785) Result))))
+                                   false)))
+                                (if (shen-pvar? V608)
+                                 (do (shen-bindv V608 vector V785)
+                                  (let Result
+                                   (let V614 (shen-lazyderef (tl V607) V785)
+                                    (if (cons? V614)
+                                     (let A (hd V614)
+                                      (let V615 (shen-lazyderef (tl V614) V785)
+                                       (if (= () V615)
+                                        (let V616
+                                         (shen-lazyderef (tl V606) V785)
+                                         (if (= () V616)
+                                          (let Hyp (tl V597)
+                                           (do (shen-incinfs)
+                                            (bind V784
+                                             (cons
+                                              (cons (shen-lazyderef X V785)
+                                               (cons :
+                                                (cons (shen-lazyderef A V785)
+                                                 ())))
+                                              (cons
+                                               (cons (shen-lazyderef Y V785)
+                                                (cons :
+                                                 (cons
+                                                  (cons vector
+                                                   (cons
+                                                    (shen-lazyderef A V785)
+                                                    ()))
+                                                  ())))
+                                               (shen-lazyderef Hyp V785)))
+                                             V785 V786)))
+                                          (if (shen-pvar? V616)
+                                           (do (shen-bindv V616 () V785)
+                                            (let Result
+                                             (let Hyp (tl V597)
+                                              (do (shen-incinfs)
+                                               (bind V784
+                                                (cons
+                                                 (cons (shen-lazyderef X V785)
+                                                  (cons :
+                                                   (cons
+                                                    (shen-lazyderef A V785)
+                                                    ())))
+                                                 (cons
+                                                  (cons (shen-lazyderef Y V785)
+                                                   (cons :
+                                                    (cons
+                                                     (cons vector
+                                                      (cons
+                                                       (shen-lazyderef A V785)
+                                                       ()))
+                                                     ())))
+                                                  (shen-lazyderef Hyp V785)))
+                                                V785 V786)))
+                                             (do (shen-unbindv V616 V785)
+                                              Result)))
+                                           false)))
+                                        (if (shen-pvar? V615)
+                                         (do (shen-bindv V615 () V785)
+                                          (let Result
+                                           (let V617
+                                            (shen-lazyderef (tl V606) V785)
+                                            (if (= () V617)
+                                             (let Hyp (tl V597)
+                                              (do (shen-incinfs)
+                                               (bind V784
+                                                (cons
+                                                 (cons (shen-lazyderef X V785)
+                                                  (cons :
+                                                   (cons
+                                                    (shen-lazyderef A V785)
+                                                    ())))
+                                                 (cons
+                                                  (cons (shen-lazyderef Y V785)
+                                                   (cons :
+                                                    (cons
+                                                     (cons vector
+                                                      (cons
+                                                       (shen-lazyderef A V785)
+                                                       ()))
+                                                     ())))
+                                                  (shen-lazyderef Hyp V785)))
+                                                V785 V786)))
+                                             (if (shen-pvar? V617)
+                                              (do (shen-bindv V617 () V785)
+                                               (let Result
+                                                (let Hyp (tl V597)
+                                                 (do (shen-incinfs)
+                                                  (bind V784
+                                                   (cons
+                                                    (cons
+                                                     (shen-lazyderef X V785)
+                                                     (cons :
+                                                      (cons
+                                                       (shen-lazyderef A V785)
+                                                       ())))
+                                                    (cons
+                                                     (cons
+                                                      (shen-lazyderef Y V785)
+                                                      (cons :
+                                                       (cons
+                                                        (cons vector
+                                                         (cons
+                                                          (shen-lazyderef A
+                                                           V785)
+                                                          ()))
+                                                        ())))
+                                                     (shen-lazyderef Hyp
+                                                      V785)))
+                                                   V785 V786)))
+                                                (do (shen-unbindv V617 V785)
+                                                 Result)))
+                                              false)))
+                                           (do (shen-unbindv V615 V785)
+                                            Result)))
+                                         false))))
+                                     (if (shen-pvar? V614)
+                                      (let A (shen-newpv V785)
+                                       (do (shen-bindv V614 (cons A ()) V785)
+                                        (let Result
+                                         (let V618
+                                          (shen-lazyderef (tl V606) V785)
+                                          (if (= () V618)
+                                           (let Hyp (tl V597)
+                                            (do (shen-incinfs)
+                                             (bind V784
+                                              (cons
+                                               (cons (shen-lazyderef X V785)
+                                                (cons :
+                                                 (cons (shen-lazyderef A V785)
+                                                  ())))
+                                               (cons
+                                                (cons (shen-lazyderef Y V785)
+                                                 (cons :
+                                                  (cons
+                                                   (cons vector
+                                                    (cons
+                                                     (shen-lazyderef A V785)
+                                                     ()))
+                                                   ())))
+                                                (shen-lazyderef Hyp V785)))
+                                              V785 V786)))
+                                           (if (shen-pvar? V618)
+                                            (do (shen-bindv V618 () V785)
+                                             (let Result
+                                              (let Hyp (tl V597)
+                                               (do (shen-incinfs)
+                                                (bind V784
+                                                 (cons
+                                                  (cons (shen-lazyderef X V785)
+                                                   (cons :
+                                                    (cons
+                                                     (shen-lazyderef A V785)
+                                                     ())))
+                                                  (cons
+                                                   (cons
+                                                    (shen-lazyderef Y V785)
+                                                    (cons :
+                                                     (cons
+                                                      (cons vector
+                                                       (cons
+                                                        (shen-lazyderef A V785)
+                                                        ()))
+                                                      ())))
+                                                   (shen-lazyderef Hyp V785)))
+                                                 V785 V786)))
+                                              (do (shen-unbindv V618 V785)
+                                               Result)))
+                                            false)))
+                                         (do (shen-unbindv V614 V785)
+                                          Result))))
+                                      false)))
+                                   (do (shen-unbindv V608 V785) Result)))
+                                 false)))
+                              (if (shen-pvar? V607)
+                               (let A (shen-newpv V785)
+                                (do
+                                 (shen-bindv V607 (cons vector (cons A ()))
+                                  V785)
+                                 (let Result
+                                  (let V619 (shen-lazyderef (tl V606) V785)
+                                   (if (= () V619)
+                                    (let Hyp (tl V597)
+                                     (do (shen-incinfs)
+                                      (bind V784
+                                       (cons
+                                        (cons (shen-lazyderef X V785)
+                                         (cons :
+                                          (cons (shen-lazyderef A V785) ())))
+                                        (cons
+                                         (cons (shen-lazyderef Y V785)
+                                          (cons :
+                                           (cons
+                                            (cons vector
+                                             (cons (shen-lazyderef A V785)
+                                              ()))
+                                            ())))
+                                         (shen-lazyderef Hyp V785)))
+                                       V785 V786)))
+                                    (if (shen-pvar? V619)
+                                     (do (shen-bindv V619 () V785)
+                                      (let Result
+                                       (let Hyp (tl V597)
+                                        (do (shen-incinfs)
+                                         (bind V784
+                                          (cons
+                                           (cons (shen-lazyderef X V785)
+                                            (cons :
+                                             (cons (shen-lazyderef A V785)
+                                              ())))
+                                           (cons
+                                            (cons (shen-lazyderef Y V785)
+                                             (cons :
+                                              (cons
+                                               (cons vector
+                                                (cons (shen-lazyderef A V785)
+                                                 ()))
+                                               ())))
+                                            (shen-lazyderef Hyp V785)))
+                                          V785 V786)))
+                                       (do (shen-unbindv V619 V785) Result)))
+                                     false)))
+                                  (do (shen-unbindv V607 V785) Result))))
+                               false)))
+                            false))
+                          false))
+                        false))
+                      false)))
+                   false)))
+                false))
+              false))
+            false))
+          false))
+        false))
+      (if (= Case false)
+       (let Case
+        (let V620 (shen-lazyderef V783 V785)
+         (if (cons? V620)
+          (let V621 (shen-lazyderef (hd V620) V785)
+           (if (cons? V621)
+            (let V622 (shen-lazyderef (hd V621) V785)
+             (if (cons? V622)
+              (let V623 (shen-lazyderef (hd V622) V785)
+               (if (= @s V623)
+                (let V624 (shen-lazyderef (tl V622) V785)
+                 (if (cons? V624)
+                  (let X (hd V624)
+                   (let V625 (shen-lazyderef (tl V624) V785)
+                    (if (cons? V625)
+                     (let Y (hd V625)
+                      (let V626 (shen-lazyderef (tl V625) V785)
+                       (if (= () V626)
+                        (let V627 (shen-lazyderef (tl V621) V785)
+                         (if (cons? V627)
+                          (let V628 (shen-lazyderef (hd V627) V785)
+                           (if (= : V628)
+                            (let V629 (shen-lazyderef (tl V627) V785)
+                             (if (cons? V629)
+                              (let V630 (shen-lazyderef (hd V629) V785)
+                               (if (= string V630)
+                                (let V631 (shen-lazyderef (tl V629) V785)
+                                 (if (= () V631)
+                                  (let Hyp (tl V620)
+                                   (do (shen-incinfs)
+                                    (bind V784
+                                     (cons
+                                      (cons (shen-lazyderef X V785)
+                                       (cons : (cons string ())))
+                                      (cons
+                                       (cons (shen-lazyderef Y V785)
+                                        (cons : (cons string ())))
+                                       (shen-lazyderef Hyp V785)))
+                                     V785 V786)))
+                                  (if (shen-pvar? V631)
+                                   (do (shen-bindv V631 () V785)
+                                    (let Result
+                                     (let Hyp (tl V620)
+                                      (do (shen-incinfs)
+                                       (bind V784
+                                        (cons
+                                         (cons (shen-lazyderef X V785)
+                                          (cons : (cons string ())))
+                                         (cons
+                                          (cons (shen-lazyderef Y V785)
+                                           (cons : (cons string ())))
+                                          (shen-lazyderef Hyp V785)))
+                                        V785 V786)))
+                                     (do (shen-unbindv V631 V785) Result)))
+                                   false)))
+                                (if (shen-pvar? V630)
+                                 (do (shen-bindv V630 string V785)
+                                  (let Result
+                                   (let V632 (shen-lazyderef (tl V629) V785)
+                                    (if (= () V632)
+                                     (let Hyp (tl V620)
+                                      (do (shen-incinfs)
+                                       (bind V784
+                                        (cons
+                                         (cons (shen-lazyderef X V785)
+                                          (cons : (cons string ())))
+                                         (cons
+                                          (cons (shen-lazyderef Y V785)
+                                           (cons : (cons string ())))
+                                          (shen-lazyderef Hyp V785)))
+                                        V785 V786)))
+                                     (if (shen-pvar? V632)
+                                      (do (shen-bindv V632 () V785)
+                                       (let Result
+                                        (let Hyp (tl V620)
+                                         (do (shen-incinfs)
+                                          (bind V784
+                                           (cons
+                                            (cons (shen-lazyderef X V785)
+                                             (cons : (cons string ())))
+                                            (cons
+                                             (cons (shen-lazyderef Y V785)
+                                              (cons : (cons string ())))
+                                             (shen-lazyderef Hyp V785)))
+                                           V785 V786)))
+                                        (do (shen-unbindv V632 V785) Result)))
+                                      false)))
+                                   (do (shen-unbindv V630 V785) Result)))
+                                 false)))
+                              false))
+                            false))
+                          false))
+                        false)))
+                     false)))
+                  false))
+                false))
+              false))
+            false))
+          false))
+        (if (= Case false)
+         (let V633 (shen-lazyderef V783 V785)
+          (if (cons? V633)
+           (let X (hd V633)
+            (let Hyp (tl V633)
+             (let NewHyps (shen-newpv V785)
+              (do (shen-incinfs)
+               (bind V784
+                (cons (shen-lazyderef X V785) (shen-lazyderef NewHyps V785))
+                V785 (freeze (shen-t*-hyps Hyp NewHyps V785 V786)))))))
+           false))
+         Case))
+       Case))
+     Case))
+   Case)))
+
+(defun shen-show (V799 V800 V801 V802)
+ (cond
+  ((value shen-*spy*)
+   (do (shen-line)
+    (do (shen-show-p (shen-deref V799 V801))
+     (do (nl 1)
+      (do (nl 1)
+       (do (shen-show-assumptions (shen-deref V800 V801) 1)
+        (do (intoutput "~%> " ())
+         (do (shen-pause-for-user (value *language*)) (thaw V802)))))))))
+  (true (thaw V802))))
+
+(defun shen-line ()
+ (let Infs (inferences _)
+  (intoutput
+   "____________________________________________________________ ~A inference~A ~%?- "
+   (@p Infs (@p (if (= 1 Infs) "" "s") ())))))
+
+(defun shen-show-p (V803)
+ (cond
+  ((and (cons? V803)
+    (and (cons? (tl V803))
+     (and (= : (hd (tl V803)))
+      (and (cons? (tl (tl V803))) (= () (tl (tl (tl V803))))))))
+   (intoutput "~R : ~R" (@p (hd V803) (@p (hd (tl (tl V803))) ()))))
+  (true (intoutput "~R" (@p V803 ())))))
+
+(defun shen-show-assumptions (V806 V807)
+ (cond ((= () V806) shen-skip)
+  ((cons? V806)
+   (do (intoutput "~A. " (@p V807 ()))
+    (do (shen-show-p (hd V806))
+     (do (nl 1) (shen-show-assumptions (tl V806) (+ V807 1))))))
+  (true (shen-f_error shen-show-assumptions))))
+
+(defun shen-pause-for-user (V812)
+ (cond
+  ((= "Common Lisp" V812)
+   (let I (FORMAT () "~C" (READ-CHAR))
+    (if (= I "a") (interror "input aborted~%" ()) (nl 1))))
+  (true
+   (let I (shen-read-char)
+    (if (= I "a") (interror "input aborted~%" ()) (nl 1))))))
+
+(defun shen-read-char () (shen-read-char-h (read-byte (stinput 0)) 0))
+
+(defun shen-read-char-h (V815 V816)
+ (cond
+  ((and (= -1 V815) (= 0 V816)) (shen-read-char-h (read-byte (stinput 0)) 1))
+  ((= 0 V816) (shen-read-char-h (read-byte (stinput 0)) 0))
+  ((and (= -1 V815) (= 1 V816)) (shen-read-char-h (read-byte (stinput 0)) 1))
+  ((= 1 V816) (byte->string V815)) (true (shen-f_error shen-read-char-h))))
+
+(defun shen-typedf? (V817) (element? V817 (value shen-*signedfuncs*)))
+
+(defun shen-sigf (V818) (concat shen-type-signature-of- V818))
+
+(defun shen-placeholder () (gensym &&))
+
+(defun shen-base (V819 V820 V821 V822)
+ (let Case
+  (let V536 (shen-lazyderef V820 V821)
+   (if (= number V536)
+    (do (shen-incinfs) (fwhen (number? (shen-lazyderef V819 V821)) V821 V822))
+    (if (shen-pvar? V536)
+     (do (shen-bindv V536 number V821)
+      (let Result
+       (do (shen-incinfs)
+        (fwhen (number? (shen-lazyderef V819 V821)) V821 V822))
+       (do (shen-unbindv V536 V821) Result)))
+     false)))
+  (if (= Case false)
+   (let Case
+    (let V537 (shen-lazyderef V820 V821)
+     (if (= boolean V537)
+      (do (shen-incinfs)
+       (fwhen (boolean? (shen-lazyderef V819 V821)) V821 V822))
+      (if (shen-pvar? V537)
+       (do (shen-bindv V537 boolean V821)
+        (let Result
+         (do (shen-incinfs)
+          (fwhen (boolean? (shen-lazyderef V819 V821)) V821 V822))
+         (do (shen-unbindv V537 V821) Result)))
+       false)))
+    (if (= Case false)
+     (let Case
+      (let V538 (shen-lazyderef V820 V821)
+       (if (= string V538)
+        (do (shen-incinfs)
+         (fwhen (string? (shen-lazyderef V819 V821)) V821 V822))
+        (if (shen-pvar? V538)
+         (do (shen-bindv V538 string V821)
+          (let Result
+           (do (shen-incinfs)
+            (fwhen (string? (shen-lazyderef V819 V821)) V821 V822))
+           (do (shen-unbindv V538 V821) Result)))
+         false)))
+      (if (= Case false)
+       (let Case
+        (let V539 (shen-lazyderef V820 V821)
+         (if (= symbol V539)
+          (do (shen-incinfs)
+           (fwhen (symbol? (shen-lazyderef V819 V821)) V821
+            (freeze
+             (fwhen (not (shen-placeholder? (shen-lazyderef V819 V821))) V821
+              V822))))
+          (if (shen-pvar? V539)
+           (do (shen-bindv V539 symbol V821)
+            (let Result
+             (do (shen-incinfs)
+              (fwhen (symbol? (shen-lazyderef V819 V821)) V821
+               (freeze
+                (fwhen (not (shen-placeholder? (shen-lazyderef V819 V821)))
+                 V821 V822))))
+             (do (shen-unbindv V539 V821) Result)))
+           false)))
+        (if (= Case false)
+         (let V540 (shen-lazyderef V819 V821)
+          (if (= () V540)
+           (let V541 (shen-lazyderef V820 V821)
+            (if (cons? V541)
+             (let V542 (shen-lazyderef (hd V541) V821)
+              (if (= list V542)
+               (let V543 (shen-lazyderef (tl V541) V821)
+                (if (cons? V543)
+                 (let A (hd V543)
+                  (let V544 (shen-lazyderef (tl V543) V821)
+                   (if (= () V544) (do (shen-incinfs) (thaw V822))
+                    (if (shen-pvar? V544)
+                     (do (shen-bindv V544 () V821)
+                      (let Result (do (shen-incinfs) (thaw V822))
+                       (do (shen-unbindv V544 V821) Result)))
+                     false))))
+                 (if (shen-pvar? V543)
+                  (let A (shen-newpv V821)
+                   (do (shen-bindv V543 (cons A ()) V821)
+                    (let Result (do (shen-incinfs) (thaw V822))
+                     (do (shen-unbindv V543 V821) Result))))
+                  false)))
+               (if (shen-pvar? V542)
+                (do (shen-bindv V542 list V821)
+                 (let Result
+                  (let V545 (shen-lazyderef (tl V541) V821)
+                   (if (cons? V545)
+                    (let A (hd V545)
+                     (let V546 (shen-lazyderef (tl V545) V821)
+                      (if (= () V546) (do (shen-incinfs) (thaw V822))
+                       (if (shen-pvar? V546)
+                        (do (shen-bindv V546 () V821)
+                         (let Result (do (shen-incinfs) (thaw V822))
+                          (do (shen-unbindv V546 V821) Result)))
+                        false))))
+                    (if (shen-pvar? V545)
+                     (let A (shen-newpv V821)
+                      (do (shen-bindv V545 (cons A ()) V821)
+                       (let Result (do (shen-incinfs) (thaw V822))
+                        (do (shen-unbindv V545 V821) Result))))
+                     false)))
+                  (do (shen-unbindv V542 V821) Result)))
+                false)))
+             (if (shen-pvar? V541)
+              (let A (shen-newpv V821)
+               (do (shen-bindv V541 (cons list (cons A ())) V821)
+                (let Result (do (shen-incinfs) (thaw V822))
+                 (do (shen-unbindv V541 V821) Result))))
+              false)))
+           false))
+         Case))
+       Case))
+     Case))
+   Case)))
+
+(defun shen-placeholder? (V823)
+ (and (symbol? V823) (shen-placeholder-help? (str V823))))
+
+(defun shen-placeholder-help? (V830)
+ (cond
+  ((and (shen-+string? V830)
+    (and (= "&" (pos V830 0))
+     (and (shen-+string? (tlstr V830)) (= "&" (pos (tlstr V830) 0)))))
+   true)
+  (true false)))
+
+(defun shen-by_hypothesis (V831 V832 V833 V834 V835)
+ (let Case
+  (let V527 (shen-lazyderef V833 V834)
+   (if (cons? V527)
+    (let V528 (shen-lazyderef (hd V527) V834)
+     (if (cons? V528)
+      (let Y (hd V528)
+       (let V529 (shen-lazyderef (tl V528) V834)
+        (if (cons? V529)
+         (let V530 (shen-lazyderef (hd V529) V834)
+          (if (= : V530)
+           (let V531 (shen-lazyderef (tl V529) V834)
+            (if (cons? V531)
+             (let B (hd V531)
+              (let V532 (shen-lazyderef (tl V531) V834)
+               (if (= () V532)
+                (do (shen-incinfs)
+                 (identical V831 Y V834 (freeze (unify! V832 B V834 V835))))
+                false)))
+             false))
+           false))
+         false)))
+      false))
+    false))
+  (if (= Case false)
+   (let V533 (shen-lazyderef V833 V834)
+    (if (cons? V533)
+     (let Hyp (tl V533)
+      (do (shen-incinfs) (shen-by_hypothesis V831 V832 Hyp V834 V835)))
+     false))
+   Case)))
+
+(defun shen-t*-def (V836 V837 V838 V839 V840)
+ (let Throwcontrol (shen-catchpoint)
+  (shen-cutpoint Throwcontrol
+   (let V521 (shen-lazyderef V836 V839)
+    (if (cons? V521)
+     (let V522 (shen-lazyderef (hd V521) V839)
+      (if (= define V522)
+       (let V523 (shen-lazyderef (tl V521) V839)
+        (if (cons? V523)
+         (let F (hd V523)
+          (let X (tl V523)
+           (let Error (shen-newpv V839)
+            (let Sig+Rules (shen-newpv V839)
+             (let Vars (shen-newpv V839)
+              (let Rules (shen-newpv V839)
+               (let Sig&& (shen-newpv V839)
+                (let Declare (shen-newpv V839)
+                 (let Sig (shen-newpv V839)
+                  (do (shen-incinfs)
+                   (bind Sig+Rules
+                    (compile (lambda X (shen-<sig+rules> X))
+                     (shen-lazyderef X V839) ())
+                    V839
+                    (freeze
+                     (bind Error
+                      (if (= (shen-lazyderef Sig+Rules V839) (fail))
+                       (shen-errordef (shen-lazyderef F V839)) shen-skip)
+                      V839
+                      (freeze
+                       (bind Sig (hd (shen-lazyderef Sig+Rules V839)) V839
+                        (freeze
+                         (bind Rules (tl (shen-lazyderef Sig+Rules V839)) V839
+                          (freeze
+                           (bind Vars
+                            (shen-extract_vars (shen-lazyderef Sig V839)) V839
+                            (freeze
+                             (bind Sig&&
+                              (shen-placeholders (shen-lazyderef Sig V839)
+                               (shen-lazyderef Vars V839))
+                              V839
+                              (freeze
+                               (cut Throwcontrol V839
+                                (freeze
+                                 (shen-t*-rules Rules Sig&& 1 F
+                                  (cons (cons F (cons : (cons Sig&& ())))
+                                   V838)
+                                  V839
+                                  (freeze
+                                   (bind Declare
+                                    (declare (shen-lazyderef F V839)
+                                     (shen-lazyderef Sig V839))
+                                    V839
+                                    (freeze
+                                     (unify! V837 Sig V839
+                                      V840)))))))))))))))))))))))))))))
+         false))
+       false))
+     false)))))
+
+(defun shen-<sig+rules> (V845)
+ (let Result
+  (let Parse_<signature> (shen-<signature> V845)
+   (if (not (= (fail) Parse_<signature>))
+    (let Parse_<trules> (shen-<trules> Parse_<signature>)
+     (if (not (= (fail) Parse_<trules>))
+      (shen-reassemble (fst Parse_<trules>)
+       (cons (snd Parse_<signature>) (snd Parse_<trules>)))
+      (fail)))
+    (fail)))
+  (if (= Result (fail)) (fail) Result)))
+
+(defun shen-placeholders (V850 V851)
+ (cond ((cons? V850) (map (lambda Z (shen-placeholders Z V851)) V850))
+  ((element? V850 V851) (concat && V850)) (true V850)))
+
+(defun shen-<trules> (V856)
+ (let Result
+  (let Parse_<trule> (shen-<trule> V856)
+   (if (not (= (fail) Parse_<trule>))
+    (let Parse_<trules> (shen-<trules> Parse_<trule>)
+     (if (not (= (fail) Parse_<trules>))
+      (shen-reassemble (fst Parse_<trules>)
+       (cons (snd Parse_<trule>) (snd Parse_<trules>)))
+      (fail)))
+    (fail)))
+  (if (= Result (fail))
+   (let Result
+    (let Parse_<trule> (shen-<trule> V856)
+     (if (not (= (fail) Parse_<trule>))
+      (shen-reassemble (fst Parse_<trule>) (cons (snd Parse_<trule>) ()))
+      (fail)))
+    (if (= Result (fail)) (fail) Result))
+   Result)))
+
+(defun shen-<trule> (V861)
+ (let Result
+  (let Parse_<patterns> (shen-<patterns> V861)
+   (if (not (= (fail) Parse_<patterns>))
+    (let Parse_<arrow> (shen-<arrow> Parse_<patterns>)
+     (if (not (= (fail) Parse_<arrow>))
+      (let Parse_<action> (shen-<action> Parse_<arrow>)
+       (if (not (= (fail) Parse_<action>))
+        (let Parse_<guard?> (shen-<guard?> Parse_<action>)
+         (if (not (= (fail) Parse_<guard?>))
+          (shen-reassemble (fst Parse_<guard?>)
+           (let Vars (shen-extract_vars (snd Parse_<patterns>))
+            (let Patterns (shen-placeholders (snd Parse_<patterns>) Vars)
+             (let Action
+              (shen-placeholders (shen-curry (snd Parse_<action>)) Vars)
+              (let Guard
+               (shen-placeholders (shen-curry (snd Parse_<guard?>)) Vars)
+               (shen-form-rule Patterns (snd Parse_<arrow>) Action Guard))))))
+          (fail)))
+        (fail)))
+      (fail)))
+    (fail)))
+  (if (= Result (fail)) (fail) Result)))
+
+(defun shen-form-rule (V862 V863 V864 V865)
+ (cond
+  ((= shen-forward V863)
+   (cons V862
+    (cons (if (= V865 shen-skip) V864 (cons where (cons V865 (cons V864 ()))))
+     ())))
+  ((and (= shen-backward V863)
+    (and (cons? V864)
+     (and (cons? (hd V864))
+      (and (= fail-if (hd (hd V864)))
+       (and (cons? (tl (hd V864)))
+        (and (= () (tl (tl (hd V864))))
+         (and (cons? (tl V864)) (= () (tl (tl V864))))))))))
+   (cons V862
+    (cons
+     (if (= V865 shen-skip)
+      (cons where
+       (cons (cons not (cons (cons (hd (tl (hd V864))) (tl V864)) ()))
+        (tl V864)))
+      (cons where
+       (cons
+        (cons (cons and (cons V865 ()))
+         (cons (cons not (cons (cons (hd (tl (hd V864))) (tl V864)) ())) ()))
+        (tl V864))))
+     ())))
+  ((= shen-backward V863)
+   (cons V862
+    (cons
+     (if (= V865 shen-skip)
+      (cons where
+       (cons
+        (cons not
+         (cons (cons (cons == (cons V864 ())) (cons (cons fail ()) ()))
+          ()))
+        (cons V864 ())))
+      (cons where
+       (cons
+        (cons (cons and (cons V865 ()))
+         (cons
+          (cons not
+           (cons (cons (cons == (cons V864 ())) (cons (cons fail ()) ()))
+            ()))
+          ()))
+        (cons V864 ()))))
+     ())))
+  (true (shen-f_error shen-form-rule))))
+
+(defun shen-<guard?> (V870)
+ (let Result
+  (if (and (cons? (fst V870)) (= where (hd (fst V870))))
+   (let Parse_<guard>
+    (shen-<guard> (shen-reassemble (tl (fst V870)) (snd V870)))
+    (if (not (= (fail) Parse_<guard>))
+     (shen-reassemble (fst Parse_<guard>) (snd Parse_<guard>)) (fail)))
+   (fail))
+  (if (= Result (fail))
+   (let Result
+    (let Parse_<e> (<e> V870)
+     (if (not (= (fail) Parse_<e>)) (shen-reassemble (fst Parse_<e>) shen-skip)
+      (fail)))
+    (if (= Result (fail)) (fail) Result))
+   Result)))
+
+(defun shen-<arrow> (V875)
+ (let Result
+  (if (and (cons? (fst V875)) (= -> (hd (fst V875))))
+   (shen-reassemble (fst (shen-reassemble (tl (fst V875)) (snd V875)))
+    shen-forward)
+   (fail))
+  (if (= Result (fail))
+   (let Result
+    (if (and (cons? (fst V875)) (= <- (hd (fst V875))))
+     (shen-reassemble (fst (shen-reassemble (tl (fst V875)) (snd V875)))
+      shen-backward)
+     (fail))
+    (if (= Result (fail)) (fail) Result))
+   Result)))
+
+(defun shen-errordef (V876) (interror "syntax error in ~A~%" (@p V876 ())))
+
+(defun shen-t*-rules (V877 V878 V879 V880 V881 V882 V883)
+ (let Throwcontrol (shen-catchpoint)
+  (shen-cutpoint Throwcontrol
+   (let Case
+    (let V516 (shen-lazyderef V877 V882)
+     (if (= () V516) (do (shen-incinfs) (thaw V883)) false))
+    (if (= Case false)
+     (let V517 (shen-lazyderef V877 V882)
+      (if (cons? V517)
+       (let Rule (hd V517)
+        (let Rules (tl V517)
+         (let M (shen-newpv V882)
+          (do (shen-incinfs)
+           (shen-t*-rule Rule V878 V879 V880 V881 V882
+            (freeze
+             (cut Throwcontrol V882
+              (freeze
+               (bind M (+ (shen-lazyderef V879 V882) 1) V882
+                (freeze
+                 (shen-t*-rules Rules V878 M V880 V881 V882 V883)))))))))))
+       false))
+     Case)))))
+
+(defun shen-t*-rule (V884 V885 V886 V887 V888 V889 V890)
+ (let Case (do (shen-incinfs) (shen-t*-ruleh V884 V885 V888 V889 V890))
+  (if (= Case false)
+   (let Error (shen-newpv V889)
+    (do (shen-incinfs)
+     (bind Error
+      (shen-type-insecure-rule-error-message (shen-lazyderef V886 V889)
+       (shen-lazyderef V887 V889))
+      V889 V890)))
+   Case)))
+
+(defun shen-t*-ruleh (V891 V892 V893 V894 V895)
+ (let Throwcontrol (shen-catchpoint)
+  (shen-cutpoint Throwcontrol
+   (let V503 (shen-lazyderef V891 V894)
+    (if (cons? V503)
+     (let Patterns (hd V503)
+      (let V504 (shen-lazyderef (tl V503) V894)
+       (if (cons? V504)
+        (let Result (hd V504)
+         (let V505 (shen-lazyderef (tl V504) V894)
+          (if (= () V505)
+           (let NewHyp (shen-newpv V894)
+            (let B (shen-newpv V894)
+             (let AllHyp (shen-newpv V894)
+              (do (shen-incinfs)
+               (shen-t*-patterns Patterns V892 NewHyp B V894
+                (freeze
+                 (cut Throwcontrol V894
+                  (freeze
+                   (shen-conc NewHyp V893 AllHyp V894
+                    (freeze
+                     (cut Throwcontrol V894
+                      (freeze (shen-th* Result B AllHyp V894 V895)))))))))))))
+           false)))
+        false)))
+     false)))))
+
+(defun shen-type-insecure-rule-error-message (V896 V897)
+ (interror "type error in rule ~A of ~A~%" (@p V896 (@p V897 ()))))
+
+(defun shen-t*-patterns (V898 V899 V900 V901 V902 V903)
+ (let Throwcontrol (shen-catchpoint)
+  (shen-cutpoint Throwcontrol
+   (let Case
+    (let V484 (shen-lazyderef V898 V902)
+     (if (= () V484)
+      (let V485 (shen-lazyderef V900 V902)
+       (if (= () V485) (do (shen-incinfs) (unify! V901 V899 V902 V903))
+        (if (shen-pvar? V485)
+         (do (shen-bindv V485 () V902)
+          (let Result (do (shen-incinfs) (unify! V901 V899 V902 V903))
+           (do (shen-unbindv V485 V902) Result)))
+         false)))
+      false))
+    (if (= Case false)
+     (let V486 (shen-lazyderef V898 V902)
+      (if (cons? V486)
+       (let Pattern478 (hd V486)
+        (let Patterns (tl V486)
+         (let V487 (shen-lazyderef V899 V902)
+          (if (cons? V487)
+           (let A479 (hd V487)
+            (let V488 (shen-lazyderef (tl V487) V902)
+             (if (cons? V488)
+              (let V489 (shen-lazyderef (hd V488) V902)
+               (if (= --> V489)
+                (let V490 (shen-lazyderef (tl V488) V902)
+                 (if (cons? V490)
+                  (let B (hd V490)
+                   (let V491 (shen-lazyderef (tl V490) V902)
+                    (if (= () V491)
+                     (let V492 (shen-lazyderef V900 V902)
+                      (if (cons? V492)
+                       (let V493 (shen-lazyderef (hd V492) V902)
+                        (if (cons? V493)
+                         (let Pattern (hd V493)
+                          (let V494 (shen-lazyderef (tl V493) V902)
+                           (if (cons? V494)
+                            (let V495 (shen-lazyderef (hd V494) V902)
+                             (if (= : V495)
+                              (let V496 (shen-lazyderef (tl V494) V902)
+                               (if (cons? V496)
+                                (let A (hd V496)
+                                 (let V497 (shen-lazyderef (tl V496) V902)
+                                  (if (= () V497)
+                                   (let Hyp (tl V492)
+                                    (let Assume (shen-newpv V902)
+                                     (do (shen-incinfs)
+                                      (unify! A A479 V902
+                                       (freeze
+                                        (unify! Pattern Pattern478 V902
+                                         (freeze
+                                          (shen-t*-assume Pattern Assume V902
+                                           (freeze
+                                            (cut Throwcontrol V902
+                                             (freeze
+                                              (shen-th* Pattern A Assume V902
+                                               (freeze
+                                                (cut Throwcontrol V902
+                                                 (freeze
+                                                  (shen-t*-patterns Patterns B
+                                                   Hyp V901 V902
+                                                   V903))))))))))))))))
+                                   (if (shen-pvar? V497)
+                                    (do (shen-bindv V497 () V902)
+                                     (let Result
+                                      (let Hyp (tl V492)
+                                       (let Assume (shen-newpv V902)
+                                        (do (shen-incinfs)
+                                         (unify! A A479 V902
+                                          (freeze
+                                           (unify! Pattern Pattern478 V902
+                                            (freeze
+                                             (shen-t*-assume Pattern Assume
+                                              V902
+                                              (freeze
+                                               (cut Throwcontrol V902
+                                                (freeze
+                                                 (shen-th* Pattern A Assume
+                                                  V902
+                                                  (freeze
+                                                   (cut Throwcontrol V902
+                                                    (freeze
+                                                     (shen-t*-patterns Patterns
+                                                      B Hyp V901 V902
+                                                      V903))))))))))))))))
+                                      (do (shen-unbindv V497 V902) Result)))
+                                    false))))
+                                (if (shen-pvar? V496)
+                                 (let A (shen-newpv V902)
+                                  (do (shen-bindv V496 (cons A ()) V902)
+                                   (let Result
+                                    (let Hyp (tl V492)
+                                     (let Assume (shen-newpv V902)
+                                      (do (shen-incinfs)
+                                       (unify! A A479 V902
+                                        (freeze
+                                         (unify! Pattern Pattern478 V902
+                                          (freeze
+                                           (shen-t*-assume Pattern Assume V902
+                                            (freeze
+                                             (cut Throwcontrol V902
+                                              (freeze
+                                               (shen-th* Pattern A Assume V902
+                                                (freeze
+                                                 (cut Throwcontrol V902
+                                                  (freeze
+                                                   (shen-t*-patterns Patterns B
+                                                    Hyp V901 V902
+                                                    V903))))))))))))))))
+                                    (do (shen-unbindv V496 V902) Result))))
+                                 false)))
+                              (if (shen-pvar? V495)
+                               (do (shen-bindv V495 : V902)
+                                (let Result
+                                 (let V498 (shen-lazyderef (tl V494) V902)
+                                  (if (cons? V498)
+                                   (let A (hd V498)
+                                    (let V499 (shen-lazyderef (tl V498) V902)
+                                     (if (= () V499)
+                                      (let Hyp (tl V492)
+                                       (let Assume (shen-newpv V902)
+                                        (do (shen-incinfs)
+                                         (unify! A A479 V902
+                                          (freeze
+                                           (unify! Pattern Pattern478 V902
+                                            (freeze
+                                             (shen-t*-assume Pattern Assume
+                                              V902
+                                              (freeze
+                                               (cut Throwcontrol V902
+                                                (freeze
+                                                 (shen-th* Pattern A Assume
+                                                  V902
+                                                  (freeze
+                                                   (cut Throwcontrol V902
+                                                    (freeze
+                                                     (shen-t*-patterns Patterns
+                                                      B Hyp V901 V902
+                                                      V903))))))))))))))))
+                                      (if (shen-pvar? V499)
+                                       (do (shen-bindv V499 () V902)
+                                        (let Result
+                                         (let Hyp (tl V492)
+                                          (let Assume (shen-newpv V902)
+                                           (do (shen-incinfs)
+                                            (unify! A A479 V902
+                                             (freeze
+                                              (unify! Pattern Pattern478 V902
+                                               (freeze
+                                                (shen-t*-assume Pattern Assume
+                                                 V902
+                                                 (freeze
+                                                  (cut Throwcontrol V902
+                                                   (freeze
+                                                    (shen-th* Pattern A Assume
+                                                     V902
+                                                     (freeze
+                                                      (cut Throwcontrol V902
+                                                       (freeze
+                                                        (shen-t*-patterns
+                                                         Patterns B Hyp V901
+                                                         V902
+                                                         V903))))))))))))))))
+                                         (do (shen-unbindv V499 V902) Result)))
+                                       false))))
+                                   (if (shen-pvar? V498)
+                                    (let A (shen-newpv V902)
+                                     (do (shen-bindv V498 (cons A ()) V902)
+                                      (let Result
+                                       (let Hyp (tl V492)
+                                        (let Assume (shen-newpv V902)
+                                         (do (shen-incinfs)
+                                          (unify! A A479 V902
+                                           (freeze
+                                            (unify! Pattern Pattern478 V902
+                                             (freeze
+                                              (shen-t*-assume Pattern Assume
+                                               V902
+                                               (freeze
+                                                (cut Throwcontrol V902
+                                                 (freeze
+                                                  (shen-th* Pattern A Assume
+                                                   V902
+                                                   (freeze
+                                                    (cut Throwcontrol V902
+                                                     (freeze
+                                                      (shen-t*-patterns
+                                                       Patterns B Hyp V901 V902
+                                                       V903))))))))))))))))
+                                       (do (shen-unbindv V498 V902) Result))))
+                                    false)))
+                                 (do (shen-unbindv V495 V902) Result)))
+                               false)))
+                            (if (shen-pvar? V494)
+                             (let A (shen-newpv V902)
+                              (do
+                               (shen-bindv V494 (cons : (cons A ())) V902)
+                               (let Result
+                                (let Hyp (tl V492)
+                                 (let Assume (shen-newpv V902)
+                                  (do (shen-incinfs)
+                                   (unify! A A479 V902
+                                    (freeze
+                                     (unify! Pattern Pattern478 V902
+                                      (freeze
+                                       (shen-t*-assume Pattern Assume V902
+                                        (freeze
+                                         (cut Throwcontrol V902
+                                          (freeze
+                                           (shen-th* Pattern A Assume V902
+                                            (freeze
+                                             (cut Throwcontrol V902
+                                              (freeze
+                                               (shen-t*-patterns Patterns B Hyp
+                                                V901 V902 V903))))))))))))))))
+                                (do (shen-unbindv V494 V902) Result))))
+                             false))))
+                         (if (shen-pvar? V493)
+                          (let Pattern (shen-newpv V902)
+                           (let A (shen-newpv V902)
+                            (do
+                             (shen-bindv V493
+                              (cons Pattern (cons : (cons A ()))) V902)
+                             (let Result
+                              (let Hyp (tl V492)
+                               (let Assume (shen-newpv V902)
+                                (do (shen-incinfs)
+                                 (unify! A A479 V902
+                                  (freeze
+                                   (unify! Pattern Pattern478 V902
+                                    (freeze
+                                     (shen-t*-assume Pattern Assume V902
+                                      (freeze
+                                       (cut Throwcontrol V902
+                                        (freeze
+                                         (shen-th* Pattern A Assume V902
+                                          (freeze
+                                           (cut Throwcontrol V902
+                                            (freeze
+                                             (shen-t*-patterns Patterns B Hyp
+                                              V901 V902 V903))))))))))))))))
+                              (do (shen-unbindv V493 V902) Result)))))
+                          false)))
+                       (if (shen-pvar? V492)
+                        (let Pattern (shen-newpv V902)
+                         (let A (shen-newpv V902)
+                          (let Hyp (shen-newpv V902)
+                           (do
+                            (shen-bindv V492
+                             (cons (cons Pattern (cons : (cons A ()))) Hyp)
+                             V902)
+                            (let Result
+                             (let Assume (shen-newpv V902)
+                              (do (shen-incinfs)
+                               (unify! A A479 V902
+                                (freeze
+                                 (unify! Pattern Pattern478 V902
+                                  (freeze
+                                   (shen-t*-assume Pattern Assume V902
+                                    (freeze
+                                     (cut Throwcontrol V902
+                                      (freeze
+                                       (shen-th* Pattern A Assume V902
+                                        (freeze
+                                         (cut Throwcontrol V902
+                                          (freeze
+                                           (shen-t*-patterns Patterns B Hyp
+                                            V901 V902 V903)))))))))))))))
+                             (do (shen-unbindv V492 V902) Result))))))
+                        false)))
+                     false)))
+                  false))
+                false))
+              false)))
+           false))))
+       false))
+     Case)))))
+
+(defun shen-t*-assume (V904 V905 V906 V907)
+ (let Throwcontrol (shen-catchpoint)
+  (shen-cutpoint Throwcontrol
+   (let Case
+    (let V475 (shen-lazyderef V904 V906)
+     (if (cons? V475)
+      (let X (hd V475)
+       (let Y (tl V475)
+        (let A1 (shen-newpv V906)
+         (let A2 (shen-newpv V906)
+          (do (shen-incinfs)
+           (cut Throwcontrol V906
+            (freeze
+             (shen-t*-assume X A1 V906
+              (freeze
+               (shen-t*-assume Y A2 V906
+                (freeze
+                 (bind V905
+                  (append (shen-lazyderef A1 V906) (shen-lazyderef A2 V906))
+                  V906 V907))))))))))))
+      false))
+    (if (= Case false)
+     (let Case
+      (let A (shen-newpv V906)
+       (do (shen-incinfs)
+        (fwhen (shen-placeholder? (shen-lazyderef V904 V906)) V906
+         (freeze
+          (bind V905
+           (cons
+            (cons (shen-lazyderef V904 V906)
+             (cons : (cons (shen-lazyderef A V906) ())))
+            ())
+           V906 V907)))))
+      (if (= Case false)
+       (let V476 (shen-lazyderef V905 V906)
+        (if (= () V476) (do (shen-incinfs) (thaw V907))
+         (if (shen-pvar? V476)
+          (do (shen-bindv V476 () V906)
+           (let Result (do (shen-incinfs) (thaw V907))
+            (do (shen-unbindv V476 V906) Result)))
+          false)))
+       Case))
+     Case)))))
+
+(defun shen-conc (V908 V909 V910 V911 V912)
+ (let Case
+  (let V471 (shen-lazyderef V908 V911)
+   (if (= () V471)
+    (do (shen-incinfs) (bind V910 (shen-lazyderef V909 V911) V911 V912))
+    false))
+  (if (= Case false)
+   (let V472 (shen-lazyderef V908 V911)
+    (if (cons? V472)
+     (let X (hd V472)
+      (let Y (tl V472)
+       (let Z (shen-newpv V911)
+        (do (shen-incinfs)
+         (bind V910 (cons (shen-lazyderef X V911) (shen-lazyderef Z V911)) V911
+          (freeze (shen-conc Y V909 Z V911 V912)))))))
+     false))
+   Case)))
+
+(defun shen-findallhelp (V913 V914 V915 V916 V917 V918)
+ (let Case
+  (do (shen-incinfs)
+   (call V914 V917
+    (freeze (shen-remember V916 V913 V917 (freeze (fwhen false V917 V918))))))
+  (if (= Case false)
+   (do (shen-incinfs) (bind V915 (value (shen-lazyderef V916 V917)) V917 V918))
+   Case)))
+
+(defun shen-remember (V919 V920 V921 V922)
+ (let B (shen-newpv V921)
+  (do (shen-incinfs)
+   (bind B
+    (set (shen-deref V919 V921)
+     (cons (shen-deref V920 V921) (value (shen-deref V919 V921))))
+    V921 V922))))
+
+(defun findall (V923 V924 V925 V926 V927)
+ (let B (shen-newpv V926)
+  (let A (shen-newpv V926)
+   (do (shen-incinfs)
+    (bind A (gensym a) V926
+     (freeze
+      (bind B (set (shen-lazyderef A V926) ()) V926
+       (freeze (shen-findallhelp V923 V924 V925 A V926 V927)))))))))
+
+(defun shen-findallhelp (V913 V914 V915 V916 V917 V918)
+ (let Case
+  (do (shen-incinfs)
+   (call V914 V917
+    (freeze (shen-remember V916 V913 V917 (freeze (fwhen false V917 V918))))))
+  (if (= Case false)
+   (do (shen-incinfs) (bind V915 (value (shen-lazyderef V916 V917)) V917 V918))
+   Case)))
+
+(defun shen-remember (V919 V920 V921 V922)
+ (let B (shen-newpv V921)
+  (do (shen-incinfs)
+   (bind B
+    (set (shen-deref V919 V921)
+     (cons (shen-deref V920 V921) (value (shen-deref V919 V921))))
+    V921 V922))))
+

@@ -1,0 +1,552 @@
+
+"                                                   The License
+ 
+ The user is free to produce commercial applications with the software, to distribute these applications in source or binary  form, and to charge monies for them as he sees fit and in concordance with the laws of the land subject to the following  license.
+ 
+ 1. The license applies to all the software and all derived software and must appear on such.
+ 2. It is illegal to distribute the software without this license attached to it and use of the software implies agreement 
+    with the license as such. It is illegal for anyone who is not the copyright holder to tamper with or change the license.
+ 3. Neither the names of Lambda Associates or the copyright holder may be used to endorse or promote products built using
+     the software without specific prior written permission from the copyright holder.
+ 4. That possession of this license does not confer on the copyright holder any special contractual obligation towards the    user. That in no event shall the copyright holder be liable for any direct, indirect, incidental, special, exemplary or   consequential damages (including but not limited to procurement of substitute goods or services, loss of use, data, or    profits; or business interruption), however caused and on any theory of liability, whether in contract, strict liability   or tort (including negligence) arising in any way out of the use of the software, even if advised of the possibility of   such damage. 
+5. It is permitted for the user to change the software, for the purpose of improving performance, correcting an error, or    porting to a new platform, and distribute the modified version of Shen (hereafter the modified version) provided the     resulting program conforms in all respects to the Shen standard and is issued under that title. The user must make it clear   with his distribution that he/she is the author of the changes and what these changes are and why. 
+6. Derived versions of this software in whatever form are subject to the same restrictions. In particular it is not          permitted to make derived copies of this software which do not conform to the Shen standard or appear under a different title.
+7. It is permitted to distribute versions of Shen which incorporate libraries, graphics or other facilities which are not    part of the Shen standard.
+
+For an explication of this license see http://www.lambdassociates.org/News/june11/license.htm which explains this license in full."
+
+(defun shen-datatype-error (V1507)
+ (interror "datatype syntax error here:~%~% ~A~%"
+  (@p (shen-next-50 50 V1507) ())))
+
+(defun shen-<datatype-rules> (V1508)
+ (let Result
+  (let Parse_<datatype-rule> (shen-<datatype-rule> V1508)
+   (if (not (= (fail) Parse_<datatype-rule>))
+    (let Parse_<datatype-rules> (shen-<datatype-rules> Parse_<datatype-rule>)
+     (if (not (= (fail) Parse_<datatype-rules>))
+      (shen-reassemble (fst Parse_<datatype-rules>)
+       (cons (snd Parse_<datatype-rule>) (snd Parse_<datatype-rules>)))
+      (fail)))
+    (fail)))
+  (if (= Result (fail))
+   (let Result
+    (let Parse_<e> (<e> V1508)
+     (if (not (= (fail) Parse_<e>)) (shen-reassemble (fst Parse_<e>) ())
+      (fail)))
+    (if (= Result (fail)) (fail) Result))
+   Result)))
+
+(defun shen-<datatype-rule> (V1509)
+ (let Result
+  (let Parse_<side-conditions> (shen-<side-conditions> V1509)
+   (if (not (= (fail) Parse_<side-conditions>))
+    (let Parse_<premises> (shen-<premises> Parse_<side-conditions>)
+     (if (not (= (fail) Parse_<premises>))
+      (let Parse_<singleunderline> (shen-<singleunderline> Parse_<premises>)
+       (if (not (= (fail) Parse_<singleunderline>))
+        (let Parse_<conclusion> (shen-<conclusion> Parse_<singleunderline>)
+         (if (not (= (fail) Parse_<conclusion>))
+          (shen-reassemble (fst Parse_<conclusion>)
+           (@p shen-single
+            (cons (snd Parse_<side-conditions>)
+             (cons (snd Parse_<premises>)
+              (cons (snd Parse_<conclusion>) ())))))
+          (fail)))
+        (fail)))
+      (fail)))
+    (fail)))
+  (if (= Result (fail))
+   (let Result
+    (let Parse_<side-conditions> (shen-<side-conditions> V1509)
+     (if (not (= (fail) Parse_<side-conditions>))
+      (let Parse_<premises> (shen-<premises> Parse_<side-conditions>)
+       (if (not (= (fail) Parse_<premises>))
+        (let Parse_<doubleunderline> (shen-<doubleunderline> Parse_<premises>)
+         (if (not (= (fail) Parse_<doubleunderline>))
+          (let Parse_<conclusion> (shen-<conclusion> Parse_<doubleunderline>)
+           (if (not (= (fail) Parse_<conclusion>))
+            (shen-reassemble (fst Parse_<conclusion>)
+             (@p shen-double
+              (cons (snd Parse_<side-conditions>)
+               (cons (snd Parse_<premises>)
+                (cons (snd Parse_<conclusion>) ())))))
+            (fail)))
+          (fail)))
+        (fail)))
+      (fail)))
+    (if (= Result (fail)) (fail) Result))
+   Result)))
+
+(defun shen-<side-conditions> (V1510)
+ (let Result
+  (let Parse_<side-condition> (shen-<side-condition> V1510)
+   (if (not (= (fail) Parse_<side-condition>))
+    (let Parse_<side-conditions>
+     (shen-<side-conditions> Parse_<side-condition>)
+     (if (not (= (fail) Parse_<side-conditions>))
+      (shen-reassemble (fst Parse_<side-conditions>)
+       (cons (snd Parse_<side-condition>) (snd Parse_<side-conditions>)))
+      (fail)))
+    (fail)))
+  (if (= Result (fail))
+   (let Result
+    (let Parse_<e> (<e> V1510)
+     (if (not (= (fail) Parse_<e>)) (shen-reassemble (fst Parse_<e>) ())
+      (fail)))
+    (if (= Result (fail)) (fail) Result))
+   Result)))
+
+(defun shen-<side-condition> (V1511)
+ (let Result
+  (if (and (cons? (fst V1511)) (= if (hd (fst V1511))))
+   (let Parse_<expr>
+    (shen-<expr> (shen-reassemble (tl (fst V1511)) (snd V1511)))
+    (if (not (= (fail) Parse_<expr>))
+     (shen-reassemble (fst Parse_<expr>)
+      (cons if (cons (snd Parse_<expr>) ())))
+     (fail)))
+   (fail))
+  (if (= Result (fail))
+   (let Result
+    (if (and (cons? (fst V1511)) (= let (hd (fst V1511))))
+     (let Parse_<variable?>
+      (shen-<variable?> (shen-reassemble (tl (fst V1511)) (snd V1511)))
+      (if (not (= (fail) Parse_<variable?>))
+       (let Parse_<expr> (shen-<expr> Parse_<variable?>)
+        (if (not (= (fail) Parse_<expr>))
+         (shen-reassemble (fst Parse_<expr>)
+          (cons let
+           (cons (snd Parse_<variable?>) (cons (snd Parse_<expr>) ()))))
+         (fail)))
+       (fail)))
+     (fail))
+    (if (= Result (fail)) (fail) Result))
+   Result)))
+
+(defun shen-<variable?> (V1512)
+ (let Result
+  (if (cons? (fst V1512))
+   (shen-reassemble (fst (shen-reassemble (tl (fst V1512)) (snd V1512)))
+    (if (not (variable? (hd (fst V1512)))) (fail) (hd (fst V1512))))
+   (fail))
+  (if (= Result (fail)) (fail) Result)))
+
+(defun shen-<expr> (V1513)
+ (let Result
+  (if (cons? (fst V1513))
+   (shen-reassemble (fst (shen-reassemble (tl (fst V1513)) (snd V1513)))
+    (if
+     (or (element? (hd (fst V1513)) (cons >> (cons ; ())))
+      (or (shen-singleunderline? (hd (fst V1513)))
+       (shen-doubleunderline? (hd (fst V1513)))))
+     (fail) (shen-remove-bar (hd (fst V1513)))))
+   (fail))
+  (if (= Result (fail)) (fail) Result)))
+
+(defun shen-remove-bar (V1514)
+ (cond
+  ((and (cons? V1514)
+    (and (cons? (tl V1514))
+     (and (cons? (tl (tl V1514)))
+      (and (= () (tl (tl (tl V1514)))) (= (hd (tl V1514)) bar!)))))
+   (cons (hd V1514) (hd (tl (tl V1514)))))
+  ((cons? V1514)
+   (cons (shen-remove-bar (hd V1514)) (shen-remove-bar (tl V1514))))
+  (true V1514)))
+
+(defun shen-<premises> (V1515)
+ (let Result
+  (let Parse_<premise> (shen-<premise> V1515)
+   (if (not (= (fail) Parse_<premise>))
+    (let Parse_<semicolon-symbol> (shen-<semicolon-symbol> Parse_<premise>)
+     (if (not (= (fail) Parse_<semicolon-symbol>))
+      (let Parse_<premises> (shen-<premises> Parse_<semicolon-symbol>)
+       (if (not (= (fail) Parse_<premises>))
+        (shen-reassemble (fst Parse_<premises>)
+         (cons (snd Parse_<premise>) (snd Parse_<premises>)))
+        (fail)))
+      (fail)))
+    (fail)))
+  (if (= Result (fail))
+   (let Result
+    (let Parse_<e> (<e> V1515)
+     (if (not (= (fail) Parse_<e>)) (shen-reassemble (fst Parse_<e>) ())
+      (fail)))
+    (if (= Result (fail)) (fail) Result))
+   Result)))
+
+(defun shen-<semicolon-symbol> (V1516)
+ (let Result
+  (if (cons? (fst V1516))
+   (shen-reassemble (fst (shen-reassemble (tl (fst V1516)) (snd V1516)))
+    (if (= (hd (fst V1516)) ;) shen-skip (fail)))
+   (fail))
+  (if (= Result (fail)) (fail) Result)))
+
+(defun shen-<premise> (V1517)
+ (let Result
+  (if (and (cons? (fst V1517)) (= ! (hd (fst V1517))))
+   (shen-reassemble (fst (shen-reassemble (tl (fst V1517)) (snd V1517))) !)
+   (fail))
+  (if (= Result (fail))
+   (let Result
+    (let Parse_<formulae> (shen-<formulae> V1517)
+     (if (not (= (fail) Parse_<formulae>))
+      (if
+       (and (cons? (fst Parse_<formulae>))
+        (= >> (hd (fst Parse_<formulae>))))
+       (let Parse_<formula>
+        (shen-<formula>
+         (shen-reassemble (tl (fst Parse_<formulae>)) (snd Parse_<formulae>)))
+        (if (not (= (fail) Parse_<formula>))
+         (shen-reassemble (fst Parse_<formula>)
+          (@p (snd Parse_<formulae>) (snd Parse_<formula>)))
+         (fail)))
+       (fail))
+      (fail)))
+    (if (= Result (fail))
+     (let Result
+      (let Parse_<formula> (shen-<formula> V1517)
+       (if (not (= (fail) Parse_<formula>))
+        (shen-reassemble (fst Parse_<formula>) (@p () (snd Parse_<formula>)))
+        (fail)))
+      (if (= Result (fail)) (fail) Result))
+     Result))
+   Result)))
+
+(defun shen-<conclusion> (V1518)
+ (let Result
+  (let Parse_<formulae> (shen-<formulae> V1518)
+   (if (not (= (fail) Parse_<formulae>))
+    (if
+     (and (cons? (fst Parse_<formulae>)) (= >> (hd (fst Parse_<formulae>))))
+     (let Parse_<formula>
+      (shen-<formula>
+       (shen-reassemble (tl (fst Parse_<formulae>)) (snd Parse_<formulae>)))
+      (if (not (= (fail) Parse_<formula>))
+       (let Parse_<semicolon-symbol> (shen-<semicolon-symbol> Parse_<formula>)
+        (if (not (= (fail) Parse_<semicolon-symbol>))
+         (shen-reassemble (fst Parse_<semicolon-symbol>)
+          (@p (snd Parse_<formulae>) (snd Parse_<formula>)))
+         (fail)))
+       (fail)))
+     (fail))
+    (fail)))
+  (if (= Result (fail))
+   (let Result
+    (let Parse_<formula> (shen-<formula> V1518)
+     (if (not (= (fail) Parse_<formula>))
+      (let Parse_<semicolon-symbol> (shen-<semicolon-symbol> Parse_<formula>)
+       (if (not (= (fail) Parse_<semicolon-symbol>))
+        (shen-reassemble (fst Parse_<semicolon-symbol>)
+         (@p () (snd Parse_<formula>)))
+        (fail)))
+      (fail)))
+    (if (= Result (fail)) (fail) Result))
+   Result)))
+
+(defun shen-<formulae> (V1519)
+ (let Result
+  (let Parse_<formula> (shen-<formula> V1519)
+   (if (not (= (fail) Parse_<formula>))
+    (if
+     (and (cons? (fst Parse_<formula>))
+      (= shen- (hd (fst Parse_<formula>))))
+     (let Parse_<formulae>
+      (shen-<formulae>
+       (shen-reassemble (tl (fst Parse_<formula>)) (snd Parse_<formula>)))
+      (if (not (= (fail) Parse_<formulae>))
+       (shen-reassemble (fst Parse_<formulae>)
+        (cons (snd Parse_<formula>) (snd Parse_<formulae>)))
+       (fail)))
+     (fail))
+    (fail)))
+  (if (= Result (fail))
+   (let Result
+    (let Parse_<formula> (shen-<formula> V1519)
+     (if (not (= (fail) Parse_<formula>))
+      (shen-reassemble (fst Parse_<formula>) (cons (snd Parse_<formula>) ()))
+      (fail)))
+    (if (= Result (fail))
+     (let Result
+      (let Parse_<e> (<e> V1519)
+       (if (not (= (fail) Parse_<e>)) (shen-reassemble (fst Parse_<e>) ())
+        (fail)))
+      (if (= Result (fail)) (fail) Result))
+     Result))
+   Result)))
+
+(defun shen-<formula> (V1520)
+ (let Result
+  (let Parse_<expr> (shen-<expr> V1520)
+   (if (not (= (fail) Parse_<expr>))
+    (if (and (cons? (fst Parse_<expr>)) (= : (hd (fst Parse_<expr>))))
+     (let Parse_<type>
+      (shen-<type>
+       (shen-reassemble (tl (fst Parse_<expr>)) (snd Parse_<expr>)))
+      (if (not (= (fail) Parse_<type>))
+       (shen-reassemble (fst Parse_<type>)
+        (cons (shen-curry (snd Parse_<expr>))
+         (cons : (cons (shen-normalise-type (snd Parse_<type>)) ()))))
+       (fail)))
+     (fail))
+    (fail)))
+  (if (= Result (fail))
+   (let Result
+    (let Parse_<expr> (shen-<expr> V1520)
+     (if (not (= (fail) Parse_<expr>))
+      (shen-reassemble (fst Parse_<expr>) (snd Parse_<expr>)) (fail)))
+    (if (= Result (fail)) (fail) Result))
+   Result)))
+
+(defun shen-<colonsymbol> (V1521)
+ (let Result
+  (if (cons? (fst V1521))
+   (shen-reassemble (fst (shen-reassemble (tl (fst V1521)) (snd V1521)))
+    (if (= (hd (fst V1521)) ;) (hd (fst V1521)) (fail)))
+   (fail))
+  (if (= Result (fail)) (fail) Result)))
+
+(defun shen-<type> (V1522)
+ (let Result
+  (let Parse_<expr> (shen-<expr> V1522)
+   (if (not (= (fail) Parse_<expr>))
+    (shen-reassemble (fst Parse_<expr>) (shen-curry-type (snd Parse_<expr>)))
+    (fail)))
+  (if (= Result (fail)) (fail) Result)))
+
+(defun shen-<doubleunderline> (V1523)
+ (let Result
+  (if (cons? (fst V1523))
+   (shen-reassemble (fst (shen-reassemble (tl (fst V1523)) (snd V1523)))
+    (if (shen-doubleunderline? (hd (fst V1523))) (hd (fst V1523)) (fail)))
+   (fail))
+  (if (= Result (fail)) (fail) Result)))
+
+(defun shen-<singleunderline> (V1524)
+ (let Result
+  (if (cons? (fst V1524))
+   (shen-reassemble (fst (shen-reassemble (tl (fst V1524)) (snd V1524)))
+    (if (shen-singleunderline? (hd (fst V1524))) (hd (fst V1524)) (fail)))
+   (fail))
+  (if (= Result (fail)) (fail) Result)))
+
+(defun shen-singleunderline? (V1525)
+ (and (symbol? V1525) (shen-sh? (str V1525))))
+
+(defun shen-sh? (V1526)
+ (cond ((= "_" V1526) true)
+  (true (and (= (pos V1526 0) "_") (shen-sh? (tlstr V1526))))))
+
+(defun shen-doubleunderline? (V1527)
+ (and (symbol? V1527) (shen-dh? (str V1527))))
+
+(defun shen-dh? (V1528)
+ (cond ((= "=" V1528) true)
+  (true (and (= (pos V1528 0) "=") (shen-dh? (tlstr V1528))))))
+
+(defun shen-process-datatype (V1529 V1530)
+ (shen-remember-datatype
+  (shen-s-prolog (shen-rules->horn-clauses V1529 V1530))))
+
+(defun shen-remember-datatype (V1535)
+ (cond
+  ((cons? V1535)
+   (do (set shen-*datatypes* (adjoin (hd V1535) (value shen-*datatypes*)))
+    (do
+     (set shen-*alldatatypes* (adjoin (hd V1535) (value shen-*alldatatypes*)))
+     (hd V1535))))
+  (true (shen-sys-error shen-remember-datatype))))
+
+(defun shen-rules->horn-clauses (V1538 V1539)
+ (cond ((= () V1539) ())
+  ((and (cons? V1539)
+    (and (tuple? (hd V1539)) (= shen-single (fst (hd V1539)))))
+   (cons (shen-rule->horn-clause V1538 (snd (hd V1539)))
+    (shen-rules->horn-clauses V1538 (tl V1539))))
+  ((and (cons? V1539)
+    (and (tuple? (hd V1539)) (= shen-double (fst (hd V1539)))))
+   (shen-rules->horn-clauses V1538
+    (append (shen-double->singles (snd (hd V1539))) (tl V1539))))
+  (true (shen-sys-error shen-rules->horn-clauses))))
+
+(defun shen-double->singles (V1540)
+ (cons (shen-right-rule V1540) (cons (shen-left-rule V1540) ())))
+
+(defun shen-right-rule (V1541) (@p shen-single V1541))
+
+(defun shen-left-rule (V1542)
+ (cond
+  ((and (cons? V1542)
+    (and (cons? (tl V1542))
+     (and (cons? (tl (tl V1542)))
+      (and (tuple? (hd (tl (tl V1542))))
+       (and (= () (fst (hd (tl (tl V1542)))))
+        (= () (tl (tl (tl V1542)))))))))
+   (let Q (gensym Qv)
+    (let NewConclusion (@p (cons (snd (hd (tl (tl V1542)))) ()) Q)
+     (let NewPremises
+      (cons
+       (@p (map (lambda V1543 (shen-right->left V1543)) (hd (tl V1542))) Q)
+       ())
+      (@p shen-single
+       (cons (hd V1542) (cons NewPremises (cons NewConclusion ()))))))))
+  (true (shen-sys-error shen-left-rule))))
+
+(defun shen-right->left (V1548)
+ (cond ((and (tuple? V1548) (= () (fst V1548))) (snd V1548))
+  (true (interror "syntax error with ==========~%" ()))))
+
+(defun shen-rule->horn-clause (V1549 V1550)
+ (cond
+  ((and (cons? V1550)
+    (and (cons? (tl V1550))
+     (and (cons? (tl (tl V1550)))
+      (and (tuple? (hd (tl (tl V1550)))) (= () (tl (tl (tl V1550))))))))
+   (cons (shen-rule->horn-clause-head V1549 (snd (hd (tl (tl V1550)))))
+    (cons :-
+     (cons
+      (shen-rule->horn-clause-body (hd V1550) (hd (tl V1550))
+       (fst (hd (tl (tl V1550)))))
+      ()))))
+  (true (shen-sys-error shen-rule->horn-clause))))
+
+(defun shen-rule->horn-clause-head (V1551 V1552)
+ (cons V1551 (cons (shen-mode-ify V1552) (cons Context ()))))
+
+(defun shen-mode-ify (V1553)
+ (cond
+  ((and (cons? V1553)
+    (and (cons? (tl V1553))
+     (and (= : (hd (tl V1553)))
+      (and (cons? (tl (tl V1553))) (= () (tl (tl (tl V1553))))))))
+   (cons mode
+    (cons
+     (cons (hd V1553)
+      (cons :
+       (cons (cons mode (cons (hd (tl (tl V1553))) (cons + ()))) ())))
+     (cons - ()))))
+  (true V1553)))
+
+(defun shen-rule->horn-clause-body (V1554 V1555 V1556)
+ (let Variables (map (lambda V1557 (shen-extract_vars V1557)) V1556)
+  (let Predicates (map (lambda X (gensym shen-cl)) V1556)
+   (let SearchLiterals
+    (shen-construct-search-literals Predicates Variables Context Context1)
+    (let SearchClauses
+     (shen-construct-search-clauses Predicates V1556 Variables)
+     (let SideLiterals (shen-construct-side-literals V1554)
+      (let PremissLiterals
+       (map (lambda X (shen-construct-premiss-literal X (empty? V1556))) V1555)
+       (append SearchLiterals (append SideLiterals PremissLiterals)))))))))
+
+(defun shen-construct-search-literals (V1562 V1563 V1564 V1565)
+ (cond ((and (= () V1562) (= () V1563)) ())
+  (true (shen-csl-help V1562 V1563 V1564 V1565))))
+
+(defun shen-csl-help (V1568 V1569 V1570 V1571)
+ (cond
+  ((and (= () V1568) (= () V1569))
+   (cons (cons bind (cons ContextOut (cons V1570 ()))) ()))
+  ((and (cons? V1568) (cons? V1569))
+   (cons (cons (hd V1568) (cons V1570 (cons V1571 (hd V1569))))
+    (shen-csl-help (tl V1568) (tl V1569) V1571 (gensym Context))))
+  (true (shen-sys-error shen-csl-help))))
+
+(defun shen-construct-search-clauses (V1572 V1573 V1574)
+ (cond
+  ((and (= () V1572) (and (= () V1573) (= () V1574))) shen-skip)
+  ((and (cons? V1572) (and (cons? V1573) (cons? V1574)))
+   (do (shen-construct-search-clause (hd V1572) (hd V1573) (hd V1574))
+    (shen-construct-search-clauses (tl V1572) (tl V1573) (tl V1574))))
+  (true (shen-sys-error shen-construct-search-clauses))))
+
+(defun shen-construct-search-clause (V1575 V1576 V1577)
+ (shen-s-prolog
+  (cons (shen-construct-base-search-clause V1575 V1576 V1577)
+   (cons (shen-construct-recursive-search-clause V1575 V1576 V1577) ()))))
+
+(defun shen-construct-base-search-clause (V1578 V1579 V1580)
+ (cons (cons V1578 (cons (cons (shen-mode-ify V1579) In) (cons In V1580)))
+  (cons :- (cons () ()))))
+
+(defun shen-construct-recursive-search-clause (V1581 V1582 V1583)
+ (cons
+  (cons V1581
+   (cons (cons Assumption Assumptions) (cons (cons Assumption Out) V1583)))
+  (cons :-
+   (cons (cons (cons V1581 (cons Assumptions (cons Out V1583))) ()) ()))))
+
+(defun shen-construct-side-literals (V1588)
+ (cond ((= () V1588) ())
+  ((and (cons? V1588)
+    (and (cons? (hd V1588))
+     (and (= if (hd (hd V1588)))
+      (and (cons? (tl (hd V1588))) (= () (tl (tl (hd V1588))))))))
+   (cons (cons when (tl (hd V1588)))
+    (shen-construct-side-literals (tl V1588))))
+  ((and (cons? V1588)
+    (and (cons? (hd V1588))
+     (and (= let (hd (hd V1588)))
+      (and (cons? (tl (hd V1588)))
+       (and (cons? (tl (tl (hd V1588))))
+        (= () (tl (tl (tl (hd V1588))))))))))
+   (cons (cons is (tl (hd V1588))) (shen-construct-side-literals (tl V1588))))
+  ((cons? V1588) (shen-construct-side-literals (tl V1588)))
+  (true (shen-sys-error shen-construct-side-literals))))
+
+(defun shen-construct-premiss-literal (V1593 V1594)
+ (cond
+  ((tuple? V1593)
+   (cons shen-t*
+    (cons (shen-recursive_cons_form (snd V1593))
+     (cons (shen-construct-context V1594 (fst V1593)) ()))))
+  ((= ! V1593) (cons ! ()))
+  (true (shen-sys-error shen-construct-premiss-literal))))
+
+(defun shen-construct-context (V1595 V1596)
+ (cond ((and (= true V1595) (= () V1596)) Context)
+  ((and (= false V1595) (= () V1596)) ContextOut)
+  ((cons? V1596)
+   (cons cons
+    (cons (shen-recursive_cons_form (hd V1596))
+     (cons (shen-construct-context V1595 (tl V1596)) ()))))
+  (true (shen-sys-error shen-construct-context))))
+
+(defun shen-recursive_cons_form (V1597)
+ (cond
+  ((cons? V1597)
+   (cons cons
+    (cons (shen-recursive_cons_form (hd V1597))
+     (cons (shen-recursive_cons_form (tl V1597)) ()))))
+  (true V1597)))
+
+(defun preclude (V1598)
+ (let FilterDatatypes
+  (set shen-*datatypes* (difference (value shen-*datatypes*) V1598))
+  (value shen-*datatypes*)))
+
+(defun include (V1599)
+ (let ValidTypes (intersection V1599 (value shen-*alldatatypes*))
+  (let NewDatatypes
+   (set shen-*datatypes* (union ValidTypes (value shen-*datatypes*)))
+   (value shen-*datatypes*))))
+
+(defun preclude-all-but (V1600)
+ (preclude (difference (value shen-*alldatatypes*) V1600)))
+
+(defun include-all-but (V1601)
+ (include (difference (value shen-*alldatatypes*) V1601)))
+
+(defun shen-synonyms-help (V1606)
+ (cond ((= () V1606) synonyms)
+  ((and (cons? V1606) (cons? (tl V1606)))
+   (do (shen-pushnew (cons (hd V1606) (hd (tl V1606))) shen-*synonyms*)
+    (shen-synonyms-help (tl (tl V1606)))))
+  (true (interror "odd number of synonyms~%" (@p () ())))))
+
+(defun shen-pushnew (V1607 V1608)
+ (if (element? V1607 (value V1608)) (value V1608)
+  (set V1608 (cons V1607 (value V1608)))))
+
