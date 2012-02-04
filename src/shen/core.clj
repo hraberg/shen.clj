@@ -7,8 +7,9 @@
 
 
 (def cleanup-symbols-pattern
-  (re-pattern (str "(\\s+)("
-                   (string/join "|" (map #(Pattern/quote %) [":" ";" "{" "}" "/."]))
+  (re-pattern (str "(\\s+|\\()("
+                   (string/join "|" (map #(Pattern/quote %) [":" ";" "{" "}"
+                                                             "/." "@p" "@s" "@v"]))
                    ")(\\s*\\)|\\s+?)"
                    "(?!~)")))
 
