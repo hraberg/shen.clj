@@ -17,7 +17,6 @@
 ;; (DEFUN set (X Y) (SET X Y))
 
 (defn set [X Y]
-  (println X)
   (clojure.core/intern (if-let [ns (namespace X)]
                           (symbol ns) *ns*)
                        (symbol (name X))
@@ -27,7 +26,6 @@
 ;; (DEFUN value (X) (SYMBOL-VALUE X))
 
 (defn value [X]
-  (println X)
   @(clojure.core/intern (if-let [ns (namespace X)]
                           (symbol ns) *ns*)
                         (symbol (name X))))
