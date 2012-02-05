@@ -7,7 +7,7 @@
 
 (def *language* "Clojure")
 (def *implementation* (str "Clojure " (clojure-version)
-                           " [jvm "(System/getProperty "java.runtime.version")"]"))
+                           " [jvm "(System/getProperty "java.version")"]"))
 (def *port* "0.1.0")
 (def *porters* "Håkan Råberg")
 
