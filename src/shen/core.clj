@@ -30,7 +30,7 @@
 
 (def cleanup-symbols-pattern
   (re-pattern (str "(\\s+|\\()("
-                   (string/join "|" (map #(Pattern/quote %) [":" ";" "{" "}"
+                   (string/join "|" (map #(Pattern/quote %) [":" ";" "{" "}" ":-"
                                                              "/." "@p" "@s" "@v"]))
                    ")(\\s*\\)|\\s+?)"
                    "(?!~)")))
@@ -46,16 +46,17 @@
      (condp some [clj]
        scope clj
        symbol? (list 'quote clj)
-       list? (let [[fst & rst] clj
-                   scope (condp get fst
-                           #{'defun} (into scope (flatten (take 2 rst)))
-                           #{'let 'lambda} (conj scope (first rst))
-                           scope)]
-               (condp = fst
-                 nil '()
-                 'clojure.core/symbol (list 'clojure.core/resolve clj)
+       list? (if (empty? clj)
+               clj
+               (let [[fst & rst] clj
+                     scope (condp get fst
+                             #{'defun} (into scope (flatten (take 2 rst)))
+                             #{'let 'lambda} (conj scope (first rst))
+                             scope)]
                  (cons (if (list? fst)
-                         (cleanup-symbols-after fst scope)
+                         (if (= 'clojure.core/symbol (first fst))
+                           (list 'clojure.core/resolve fst)
+                           (cleanup-symbols-after fst scope))
                          fst)
                        (map #(cleanup-symbols-after % scope) rst))))
        clj)))
