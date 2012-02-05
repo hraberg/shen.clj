@@ -82,10 +82,11 @@
   ([] (read-all-kl-files "shen/klambda"))
   ([dir] (map read-kl-file (kl-files-in dir))))
 
-(defn header [namespace]
+(defn header [namespace used-ns]
   (list 'ns namespace
         (cons :use
-              ['shen.primitives])
+              (map vector (cons 'shen.primitives
+                                (remove #{namespace} used-ns))))
         '(:refer-clojure :only [and or])))
 
 (defn declarations [clj]
@@ -94,9 +95,17 @@
 (defn write-clj-file [dir name forms]
   (with-open [w (writer (file dir (str name ".clj")))]
     (binding [*out* w]
-      (doseq [form (cons (header (symbol name)) forms)]
+      (doseq [form (cons (header (symbol name) []) forms)]
         (pprint form)
         (println)))))
+
+(defn write-all-kl-files-as-clj
+  ([] (write-all-kl-files-as-clj "shen/klambda" "shen/platforms/clj"))
+  ([dir to-dir]
+     (.mkdirs (file to-dir))
+     (doseq [f (kl-files-in dir)]
+       (let [name (string/replace (.getName f) #".kl$" "")]
+         (write-clj-file to-dir name (read-kl-file f))))))
 
 (defn write-all-kl-files-as-single-clj
   ([] (write-all-kl-files-as-single-clj "shen/klambda" "shen/platforms/clj"))
