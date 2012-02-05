@@ -5,6 +5,11 @@
   (:import [java.io StringReader PushbackReader]
            [java.util.regex Pattern]))
 
+(def *language* "Clojure")
+(def *implementation* (str "Clojure " (clojure-version)
+                           " [jvm "(System/getProperty "java.runtime.version")"]"))
+(def *port* "0.1.0")
+(def *porters* "Håkan Råberg")
 
 (def cleanup-symbols-pattern
   (re-pattern (str "(\\s+|\\()("
