@@ -31,8 +31,8 @@
       (println file e))))
 
 (defn kl-files-in [dir]
-             (filter #(re-find #".*.kl$" (str %))
-                     (file-seq (file dir))))
+  (filter #(re-find #".*.kl$" (str %))
+          (file-seq (file dir))))
 
 (defn read-all-kl-files
   ([] (read-all-kl-files "shen/klambda"))
