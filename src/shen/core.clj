@@ -13,22 +13,6 @@
 (def ^:dynamic *porters* "Håkan Råberg")
 
 
-(def shen-namespaces '[core
-                       declarations
-                       load
-                       macros
-                       prolog
-                       reader
-                       sequent
-                       sys
-                       toplevel
-                       track
-                       t-star
-                       types
-                       writer
-                       yacc])
-
-
 (def cleanup-symbols-pattern
   (re-pattern (str "(\\s+|\\()("
                    (string/join "|" (map #(Pattern/quote %) [":" ";" "{" "}" ":-"
