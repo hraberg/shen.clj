@@ -63,7 +63,7 @@
 (defn header [namespace]
   (list 'ns (symbol namespace)
         '(:use [shen.primitives])
-        '(:refer-clojure :exclude [set intern let pr type])))
+        '(:refer-clojure :exclude [set intern let pr type cond])))
 
 (defn write-clj-file [dir name forms]
   (with-open [w (writer (file dir (str name ".clj")))]
