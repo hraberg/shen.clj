@@ -51,7 +51,13 @@
                            #{'defun} (into scope (flatten (take 2 rst)))
                            #{'let 'lambda} (conj scope (first rst))
                            scope)]
-               (cons fst (map #(cleanup-symbols-after % scope) rst)))
+               (condp = fst
+                 nil '()
+                 'clojure.core/symbol (list 'clojure.core/resolve clj)
+                 (cons (if (list? fst)
+                         (cleanup-symbols-after fst scope)
+                         fst)
+                       (map #(cleanup-symbols-after % scope) rst))))
        clj)))
 
 (defn read-kl [kl]
