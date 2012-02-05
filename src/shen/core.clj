@@ -52,13 +52,13 @@
                      scope (condp get fst
                              #{'defun} (into scope (flatten (take 2 rst)))
                              #{'let 'lambda} (conj scope (first rst))
-                             scope)]
-                 (cons (if (list? fst)
-                         (if (= 'clojure.core/symbol (first fst))
-                           (list 'clojure.core/resolve fst)
-                           (cleanup-symbols-after fst scope))
-                         fst)
-                       (map #(cleanup-symbols-after % scope) rst))))
+                             scope)
+                     fst (if (list? fst)
+                           (if (= 'clojure.core/symbol (first fst))
+                             (list 'clojure.core/resolve fst)
+                             (cleanup-symbols-after fst scope))
+                           fst)]
+                 (cons fst (map #(cleanup-symbols-after % scope) rst))))
        clj)))
 
 (defn read-kl [kl]
@@ -85,9 +85,11 @@
 (defn header [namespace]
   (list 'ns namespace
         (cons :use
-              (map vector (cons 'shen.primitives
-                                (remove #{namespace} shen-namespaces))))
-        '(:refer-clojure :exclude [set intern let pr type cond macroexpand])))
+              ['shen.primitives])
+        '(:refer-clojure :only [and or])))
+
+(defn declarations [clj]
+  (map second (filter #(= 'defun (first %)) clj)))
 
 (defn write-clj-file [dir name forms]
   (with-open [w (writer (file dir (str name ".clj")))]
@@ -96,10 +98,11 @@
         (pprint form)
         (println)))))
 
-(defn write-all-kl-files-as-clj
-  ([] (write-all-kl-files-as-clj "shen/klambda" "shen/platforms/clj"))
+(defn write-all-kl-files-as-single-clj
+  ([] (write-all-kl-files-as-single-clj "shen/klambda" "shen/platforms/clj"))
   ([dir to-dir]
-     (.mkdirs (file to-dir))
-     (doseq [f (kl-files-in dir)]
-       (let [name (string/replace (.getName f) #".kl$" "")]
-         (write-clj-file to-dir name (read-kl-file f))))))
+     (doall
+      (.mkdirs (file to-dir))
+      (let [shen (mapcat read-kl-file (kl-files-in dir))
+            dcl (declarations shen)]
+        (write-clj-file to-dir "shen" (cons (cons 'clojure.core/declare dcl) shen))))))
