@@ -6,10 +6,11 @@
 ; Also: Lambda; TCO? And "Kl follows a dual namespace model"
 
 (defmacro defun [F X & Y]
-  `(defn ~F
-     ~@(for [p# (map #(take % X) (range 1 (count X)))]
-         `(~(vec p#) (partial ~F ~@p#)))
-     (~(vec X) (do ~@Y))))
+  (clojure.core/let [F (if (list? F) (eval F) F)]
+    `(defn ~F
+       ~@(for [p# (map #(take % X) (range 1 (count X)))]
+           `(~(vec p#) (partial ~F ~@p#)))
+       (~(vec X) (do ~@Y)))))
 
 (defmacro cond [& CS]
   `(clojure.core/cond ~@(apply concat CS)))

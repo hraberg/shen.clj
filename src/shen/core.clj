@@ -31,7 +31,8 @@
 (def cleanup-symbols-pattern
   (re-pattern (str "(\\s+|\\()("
                    (string/join "|" (map #(Pattern/quote %) [":" ";" "{" "}" ":-"
-                                                             "/." "@p" "@s" "@v"]))
+                                                             "/." "@p" "@s" "@v"
+                                                             "shen-@s-macro"]))
                    ")(\\s*\\)|\\s+?)"
                    "(?!~)")))
 
@@ -90,7 +91,8 @@
         '(:refer-clojure :only [and or])))
 
 (defn declarations [clj]
-  (map second (filter #(= 'defun (first %)) clj)))
+  (filter symbol?
+          (map second (filter #(= 'defun (first %)) clj))))
 
 (defn write-clj-file [dir name forms]
   (with-open [w (writer (file dir (str name ".clj")))]
