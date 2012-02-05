@@ -35,16 +35,32 @@
                    ")(\\s*\\)|\\s+?)"
                    "(?!~)")))
 
-(defn cleanup-symbols
+(defn cleanup-symbols-before
   [kl] (string/replace kl
                        cleanup-symbols-pattern
                        "$1(clojure.core/symbol \"$2\")$3"))
 
+(defn cleanup-symbols-after
+  ([clj] (cleanup-symbols-walk clj #{}))
+  ([clj scope]
+     (cond
+      (scope clj) clj
+      (symbol? clj) (list 'quote clj)
+      (list? clj) (let [[fst & rst] clj
+                        scope (condp get fst
+                                '#{shen.primitives/defun} (into scope (flatten (take 2 rst)))
+                                '#{shen.primitives/let
+                                   shen.primitives/lambda} (conj scope (first rst))
+                                scope)]
+                    (cons fst (map #(cleanup-symbols-walk % scope) rst)))
+      :else clj)))
+
 (defn read-kl [kl]
-  (with-open [r (PushbackReader. (StringReader. (cleanup-symbols kl)))]
+  (with-open [r (PushbackReader. (StringReader. (cleanup-symbols-before kl)))]
     (doall
-     (take-while (complement nil?)
-                 (repeatedly #(read r false nil))))))
+     (map cleanup-symbols-after
+          (take-while (complement nil?)
+                      (repeatedly #(read r false nil)))))))
 
 (defn read-kl-file [file]
   (try
