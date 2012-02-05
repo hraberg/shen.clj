@@ -43,17 +43,16 @@
 (defn cleanup-symbols-after
   ([clj] (cleanup-symbols-after clj #{}))
   ([clj scope]
-     (cond
-      (scope clj) clj
-      (symbol? clj) (list 'quote clj)
-      (list? clj) (let [[fst & rst] clj
-                        scope (condp = fst
-                                'defun (into scope (flatten (take 2 rst)))
-                                'let (conj scope (first rst))
-                                'lambda (conj scope (first rst))
-                                scope)]
-                    (cons fst (map #(cleanup-symbols-after % scope) rst)))
-      :else clj)))
+     (condp some [clj]
+       scope clj
+       symbol? (list 'quote clj)
+       list? (let [[fst & rst] clj
+                   scope (condp get fst
+                           #{'defun} (into scope (flatten (take 2 rst)))
+                           #{'let 'lambda} (conj scope (first rst))
+                           scope)]
+               (cons fst (map #(cleanup-symbols-after % scope) rst)))
+       clj)))
 
 (defn read-kl [kl]
   (with-open [r (PushbackReader. (StringReader. (cleanup-symbols-before kl)))]
