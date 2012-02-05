@@ -1,6 +1,12 @@
 (ns shen.primitives
   (:use [shen.backend :only (shen-kl-to-clojure)])
-  (:refer-clojure :exclude [set intern let pr type]))
+  (:refer-clojure :exclude [set intern let pr type cond]))
+
+(defmacro defun [F X Y]
+  `(defn ~F ~(vec X) ~Y))
+
+(defmacro cond [& CS]
+  `(clojure.core/cond ~@(apply concat CS)))
 
 ;; (SETQ *user-syntax-in* NIL)
 
@@ -207,7 +213,7 @@
 
 (defn open [Type String Direction]
   (clojure.core/let [Path (clojure.java.io/file *home-directory* String)]
-    (cond
+    (clojure.core/cond
      (= 'in Direction) (clojure.java.io/input-stream Path)
      (= 'out Direction) (clojure.java.io/output-stream Path)
      :else (throw (IllegalArgumentException. "invalid direction")))))
