@@ -1,5 +1,5 @@
 (ns shen.core
-  (:use [clojure.java.io :only (file reader)]
+  (:use [clojure.java.io :only (file reader writer)]
        [clojure.pprint :only (pprint)])
   (:require [clojure.string :as string])
   (:import [java.io StringReader PushbackReader]
@@ -30,8 +30,25 @@
     (catch Exception e
       (println file e))))
 
+(defn kl-files-in [dir]
+             (filter #(re-find #".*.kl$" (str %))
+                     (file-seq (file dir))))
+
 (defn read-all-kl-files
   ([] (read-all-kl-files "shen/klambda"))
-  ([dir] (map read-kl-file (filter #(re-find #".*.kl$" (str %))
-                                   (file-seq (file dir))))))
+  ([dir] (map read-kl-file (kl-files-in dir))))
 
+(defn header [namespace]
+  (list 'ns (symbol namespace)
+        '(:use [shen.backend :only (shen-kl-to-clojure)])
+        '(:use [shen.primitives])
+        '(:refer-clojure :exclude [set intern let pr type])))
+
+(defn write-all-kl-files-as-clj
+  ([] (write-all-kl-files-as-clj "shen/klambda" "shen/platforms/clj"))
+  ([dir to-dir]
+     (.mkdirs (file to-dir))
+     (doseq [f (kl-files-in dir)]
+       (let [name (string/replace (.getName f) #".kl$" "")]
+         (with-open [w (writer (file to-dir (str name ".clj")))]
+           (pprint (cons (header name) (read-kl-file f)) w))))))
