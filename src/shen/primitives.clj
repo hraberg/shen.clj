@@ -30,8 +30,7 @@
 ;; (DEFUN set (X Y) (SET X Y))
 
 (defn set [X Y]
-  (clojure.core/intern (if-let [ns (namespace X)]
-                          (symbol ns) *ns*)
+  (clojure.core/intern (find-ns 'shen)
                        (symbol (name X))
                        Y)
   Y)
@@ -39,8 +38,7 @@
 ;; (DEFUN value (X) (SYMBOL-VALUE X))
 
 (defn value [X]
-  @(clojure.core/intern (if-let [ns (namespace X)]
-                          (symbol ns) *ns*)
+  @(clojure.core/intern (find-ns 'shen)
                         (symbol (name X))))
 
 ;; (DEFUN simple-error (String) (ERROR String))
@@ -79,7 +77,7 @@
 
 ;; (DEFUN cons? (X) (IF (CONSP X) 'true 'false))
 
-(defn cons? [X] (if (seq X) true false))
+(defn cons? [X] (and (seq? X) (not (empty? X))))
 
 ;; ;(DEFUN intern (String) (INTERN String))
 

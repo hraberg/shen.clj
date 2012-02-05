@@ -1,6 +1,7 @@
 (ns shen.core
   (:use [clojure.java.io :only (file reader writer)]
-        [clojure.pprint :only (pprint)])
+        [clojure.pprint :only (pprint)]
+        [clojure.set :only (intersection)])
   (:require [clojure.string :as string])
   (:import [java.io StringReader PushbackReader]
            [java.util.regex Pattern]))
@@ -32,7 +33,9 @@
   (re-pattern (str "(\\s+|\\()("
                    (string/join "|" (map #(Pattern/quote %) [":" ";" "{" "}" ":-"
                                                              "/." "@p" "@s" "@v"
-                                                             "shen-@s-macro"]))
+                                                             "shen-@s-macro"
+                                                             "shen-i/o-macro"
+                                                             "shen-put/get-macro"]))
                    ")(\\s*\\)|\\s+?)"
                    "(?!~)")))
 
@@ -83,21 +86,19 @@
   ([] (read-all-kl-files "shen/klambda"))
   ([dir] (map read-kl-file (kl-files-in dir))))
 
-(defn header [namespace used-ns]
+(defn header [namespace exclusions]
   (list 'ns namespace
-        (cons :use
-              (map vector (cons 'shen.primitives
-                                (remove #{namespace} used-ns))))
-        '(:refer-clojure :only [and or])))
+        (cons :use '[shen.primitives])
+        (list :refer-clojure :exclude (vec exclusions))))
 
 (defn declarations [clj]
-  (filter symbol?
-          (map second (filter #(= 'defun (first %)) clj))))
+  (set (filter symbol?
+               (map second (filter #(= 'defun (first %)) clj)))))
 
-(defn write-clj-file [dir name forms]
+(defn write-clj-file [dir name forms exclusions]
   (with-open [w (writer (file dir (str name ".clj")))]
     (binding [*out* w]
-      (doseq [form (cons (header (symbol name) []) forms)]
+      (doseq [form (cons (header (symbol name) exclusions) forms)]
         (pprint form)
         (println)))))
 
@@ -109,11 +110,15 @@
        (let [name (string/replace (.getName f) #".kl$" "")]
          (write-clj-file to-dir name (read-kl-file f))))))
 
+(defn ns-symbols [ns]
+  (set (map first (ns-publics ns))))
+
 (defn write-all-kl-files-as-single-clj
   ([] (write-all-kl-files-as-single-clj "shen/klambda" "shen/platforms/clj"))
   ([dir to-dir]
      (doall
       (.mkdirs (file to-dir))
       (let [shen (mapcat read-kl-file (kl-files-in dir))
-            dcl (declarations shen)]
-        (write-clj-file to-dir "shen" (cons (cons 'clojure.core/declare dcl) shen))))))
+            dcl (declarations shen)
+            exclusions (intersection (into (ns-symbols 'shen.primitives) dcl) (ns-symbols 'clojure.core))]
+        (write-clj-file to-dir "shen" (cons (cons 'clojure.core/declare (sort dcl)) shen) (sort exclusions))))))
