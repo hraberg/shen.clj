@@ -41,18 +41,18 @@
                        "$1(clojure.core/symbol \"$2\")$3"))
 
 (defn cleanup-symbols-after
-  ([clj] (cleanup-symbols-walk clj #{}))
+  ([clj] (cleanup-symbols-after clj #{}))
   ([clj scope]
      (cond
       (scope clj) clj
       (symbol? clj) (list 'quote clj)
       (list? clj) (let [[fst & rst] clj
-                        scope (condp get fst
-                                '#{shen.primitives/defun} (into scope (flatten (take 2 rst)))
-                                '#{shen.primitives/let
-                                   shen.primitives/lambda} (conj scope (first rst))
+                        scope (condp = fst
+                                'defun (into scope (flatten (take 2 rst)))
+                                'let (conj scope (first rst))
+                                'lambda (conj scope (first rst))
                                 scope)]
-                    (cons fst (map #(cleanup-symbols-walk % scope) rst)))
+                    (cons fst (map #(cleanup-symbols-after % scope) rst)))
       :else clj)))
 
 (defn read-kl [kl]
