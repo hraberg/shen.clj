@@ -65,7 +65,7 @@
         (cons :use
               (map vector (cons 'shen.primitives
                                 (remove #{namespace} shen-namespaces))))
-        '(:refer-clojure :exclude [set intern let pr type cond])))
+        '(:refer-clojure :exclude [set intern let pr type cond macroexpand])))
 
 (defn write-clj-file [dir name forms]
   (with-open [w (writer (file dir (str name ".clj")))]
