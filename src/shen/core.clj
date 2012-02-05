@@ -11,6 +11,23 @@
 (def ^:dynamic *port* "0.1.0")
 (def ^:dynamic *porters* "Håkan Råberg")
 
+
+(def shen-namespaces '[core
+                       declarations
+                       load
+                       macros
+                       prolog
+                       reader
+                       sequent
+                       sys
+                       toplevel
+                       track
+                       t-star
+                       types
+                       writer
+                       yacc.kl])
+
+
 (def cleanup-symbols-pattern
   (re-pattern (str "(\\s+|\\()("
                    (string/join "|" (map #(Pattern/quote %) [":" ";" "{" "}"
@@ -48,11 +65,17 @@
         '(:use [shen.primitives])
         '(:refer-clojure :exclude [set intern let pr type])))
 
+(defn write-clj-file [dir name forms]
+  (with-open [w (writer (file dir (str name ".clj")))]
+    (binding [*out* w]
+      (doseq [form (cons (header name) forms)]
+        (pprint form)
+        (println)))))
+
 (defn write-all-kl-files-as-clj
   ([] (write-all-kl-files-as-clj "shen/klambda" "shen/platforms/clj"))
   ([dir to-dir]
      (.mkdirs (file to-dir))
      (doseq [f (kl-files-in dir)]
        (let [name (string/replace (.getName f) #".kl$" "")]
-         (with-open [w (writer (file to-dir (str name ".clj")))]
-           (pprint (cons (header name) (read-kl-file f)) w))))))
+         (write-clj-file to-dir name (read-kl-file f))))))
