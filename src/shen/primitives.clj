@@ -2,6 +2,8 @@
   (:use [shen.backend :only (shen-kl-to-clojure)])
   (:refer-clojure :exclude [set intern let pr type cond]))
 
+; Probably handle dynamic currying in here, and define primitves using it.
+; Also: Lambda; TCO?
 (defmacro defun [F X Y]
   `(defn ~F ~(vec X) ~Y))
 
