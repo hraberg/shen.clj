@@ -7,8 +7,7 @@
 
 (defmacro defun [F X Y]
   `(defn ~F
-     ~@(for [p# (for [i (range 1 (count X))]
-                  (take i X))]
+     ~@(for [p# (map #(take % X) (range 1 (count X)))]
          `(~(vec p#) (partial ~F ~@p#)))
      (~(vec X) ~Y)))
 
