@@ -5,11 +5,11 @@
   (:import [java.io StringReader PushbackReader]
            [java.util.regex Pattern]))
 
-(def *language* "Clojure")
-(def *implementation* (str "Clojure " (clojure-version)
+(def ^:dynamic *language* "Clojure")
+(def ^:dynamic *implementation* (str "Clojure " (clojure-version)
                            " [jvm "(System/getProperty "java.version")"]"))
-(def *port* "0.1.0")
-(def *porters* "Håkan Råberg")
+(def ^:dynamic *port* "0.1.0")
+(def ^:dynamic *porters* "Håkan Råberg")
 
 (def cleanup-symbols-pattern
   (re-pattern (str "(\\s+|\\()("
@@ -45,7 +45,6 @@
 
 (defn header [namespace]
   (list 'ns (symbol namespace)
-        '(:use [shen.backend :only (shen-kl-to-clojure)])
         '(:use [shen.primitives])
         '(:refer-clojure :exclude [set intern let pr type])))
 
