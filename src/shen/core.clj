@@ -1,6 +1,6 @@
 (ns shen.core
   (:use [clojure.java.io :only (file reader writer)]
-       [clojure.pprint :only (pprint)])
+        [clojure.pprint :only (pprint)])
   (:require [clojure.string :as string])
   (:import [java.io StringReader PushbackReader]
            [java.util.regex Pattern]))
@@ -25,7 +25,7 @@
                        t-star
                        types
                        writer
-                       yacc.kl])
+                       yacc])
 
 
 (def cleanup-symbols-pattern
@@ -61,14 +61,16 @@
   ([dir] (map read-kl-file (kl-files-in dir))))
 
 (defn header [namespace]
-  (list 'ns (symbol namespace)
-        '(:use [shen.primitives])
+  (list 'ns namespace
+        (cons :use
+              (map vector (cons 'shen.primitives
+                                (remove #{namespace} shen-namespaces))))
         '(:refer-clojure :exclude [set intern let pr type cond])))
 
 (defn write-clj-file [dir name forms]
   (with-open [w (writer (file dir (str name ".clj")))]
     (binding [*out* w]
-      (doseq [form (cons (header name) forms)]
+      (doseq [form (cons (header (symbol name)) forms)]
         (pprint form)
         (println)))))
 
