@@ -4,8 +4,13 @@
 
 ; Probably handle dynamic currying in here, and define primitves using it.
 ; Also: Lambda; TCO? And "Kl follows a dual namespace model"
+
 (defmacro defun [F X Y]
-  `(defn ~F ~(vec X) ~Y))
+  `(defn ~F
+     ~@(for [p# (for [i (range 1 (count X))]
+                  (take i X))]
+         `(~(vec p#) (partial ~F ~@p#)))
+     (~(vec X) ~Y)))
 
 (defmacro cond [& CS]
   `(clojure.core/cond ~@(apply concat CS)))
