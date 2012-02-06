@@ -14,6 +14,7 @@
 
 (def shen-namespaces '[sys
                        core
+                       writer
                        declarations
                        load
                        macros
@@ -24,7 +25,6 @@
                        track
                        t-star
                        types
-                       writer
                        yacc])
 
 (def cleanup-symbols-pattern

@@ -241,7 +241,7 @@
 ;; (DEFUN pos (X N) (COERCE (LIST (CHAR X N)) 'STRING))
 
 (defn pos [X N]
-  (get X N))
+  (str (get X N)))
 
 ;; (DEFUN tlstr (X) (SUBSEQ X 1))
 
