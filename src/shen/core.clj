@@ -12,12 +12,27 @@
 (def ^:dynamic *port* "0.1.0")
 (def ^:dynamic *porters* "Håkan Råberg")
 
+(def shen-namespaces '[sys
+                       core
+                       declarations
+                       load
+                       macros
+                       prolog
+                       reader
+                       sequent
+                       toplevel
+                       track
+                       t-star
+                       types
+                       writer
+                       yacc])
 
 (def cleanup-symbols-pattern
   (re-pattern (str "(\\s+|\\()("
                    (string/join "|" (map #(Pattern/quote %) [":" ";" "{" "}" ":-"
                                                              "/." "@p" "@s" "@v"
                                                              "shen-@s-macro"
+                                                             "shen-@v-help"
                                                              "shen-i/o-macro"
                                                              "shen-put/get-macro"]))
                    ")(\\s*\\)|\\s+?)"
@@ -58,7 +73,7 @@
 
 (defn read-kl-file [file]
   (try
-    (read-kl (slurp file))
+    (cons (list 'clojure.core/println (str file)) (read-kl (slurp file)))
     (catch Exception e
       (println file e))))
 
@@ -75,8 +90,11 @@
         (cons :use '[shen.primitives])
         (list :refer-clojure :exclude (vec exclusions))))
 
+(def missing-declarations #{'shen-absarray?})
+
 (defn declarations [clj]
-  (set (filter symbol?
+  (into missing-declarations
+        (filter symbol?
                (map second (filter #(= 'defun (first %)) clj)))))
 
 (defn write-clj-file [dir name forms exclusions]
@@ -102,7 +120,7 @@
   ([dir to-dir]
      (doall
       (.mkdirs (file to-dir))
-      (let [shen (mapcat read-kl-file (kl-files-in dir))
+      (let [shen (mapcat read-kl-file (map #(file dir (str % ".kl")) shen-namespaces))
             dcl (declarations shen)
             exclusions (intersection (into (ns-symbols 'shen.primitives) dcl) (ns-symbols 'clojure.core))]
-        (write-clj-file to-dir "shen" (cons (cons 'clojure.core/declare (sort dcl)) shen) (sort exclusions))))))
+        (write-clj-file to-dir "shen" (cons (cons 'clojure.core/declare dcl) (remove string? shen)) (sort exclusions))))))

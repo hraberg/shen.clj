@@ -7,6 +7,7 @@
 
 (defmacro defun [F X & Y]
   (clojure.core/let [F (if (list? F) (eval F) F)]
+                    (println (str F))
     `(defn ~F
        ~@(for [p# (map #(take % X) (range 1 (count X)))]
            `(~(vec p#) (partial ~F ~@p#)))
@@ -164,22 +165,23 @@
 ;; (DEFUN absvector (N) (MAKE-ARRAY N :INITIAL-ELEMENT 'fail!))
 
 (defn absvector [N]
-  [])
+  (object-array N))
 
 ;; (DEFUN absvector? (X) (IF (ARRAYP X) 'true 'false))
 
 (defn absvector? [X]
-  (vector? X))
+  (-> X type .isArray))
 
 ;; (DEFUN address-> (Vector N Value) (SETF (AREF Vector N) Value) Vector)
 
 (defn address-> [Vector N Value]
-  (assoc Vector N Value))
+  (aset Vector N Value)
+  Vector)
 
 ;; (DEFUN <-address (Vector N) (AREF Vector N))
 
 (defn <-address [Vector N]
-  (Vector N))
+  (aget Vector N))
 
 ;; (DEFUN n->string (N) (FORMAT NIL "~C" (CODE-CHAR N)))
 
@@ -214,10 +216,8 @@
 ;;         (COND ((EQ Type 'file) (file-stream Path Direction))
 ;;               (T (ERROR "invalid stream type")))))
 
-(def ^:dynamic *home-directory* (System/getProperty "user.dir"))
-
 (defn open [Type String Direction]
-  (clojure.core/let [Path (clojure.java.io/file *home-directory* String)]
+  (clojure.core/let [Path (clojure.java.io/file (resolve 'shen/*home-directory*) String)]
     (clojure.core/cond
      (= 'in Direction) (clojure.java.io/input-stream Path)
      (= 'out Direction) (clojure.java.io/output-stream Path)
