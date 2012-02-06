@@ -23,9 +23,9 @@
                        toplevel
                        track
                        t-star
-                       types
                        yacc
-                       declarations])
+                       declarations
+                       types])
 
 (def cleanup-symbols-pattern
   (re-pattern (str "(\\s+|\\()("
@@ -91,7 +91,7 @@
         (cons :use '[shen.primitives])
         (list :refer-clojure :exclude (vec exclusions))))
 
-(def missing-declarations '#{shen-absarray? shen-kl-to-lisp FORMAT READ-CHAR})
+(def missing-declarations '#{shen-absarray? shen-kl-to-lisp byte->string FORMAT READ-CHAR})
 
 (defn declarations [clj]
   (into missing-declarations

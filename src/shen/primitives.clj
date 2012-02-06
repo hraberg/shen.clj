@@ -1,7 +1,6 @@
 (ns shen.primitives
-  (:use [shen.backend :only (shen-kl-to-clojure)])
   (:require [clojure.string :as string])
-  (:refer-clojure :exclude [set intern let pr type cond]))
+  (:refer-clojure :exclude [set intern let pr type cond cons]))
 
 ; Probably handle dynamic currying in here, and define primitves using it.
 ; Also: Lambda; TCO? And "Kl follows a dual namespace model"
@@ -56,7 +55,7 @@
   `(try
      ~X
      (catch Throwable _#
-       (println "TRAPPED!" _#)
+       (.printStackTrace _#)
        (~F _#))))
 
 ;; (DEFUN error-to-string (E)
@@ -71,6 +70,13 @@
 
 ;; (DEFUN cons (X Y) (CONS X Y))
 
+(declare absvector?)
+
+(defn cons [X Y]
+  (condp some [Y]
+    seq? (clojure.core/cons X Y)
+    absvector? (clojure.core/to-array (clojure.core/cons X Y))))
+
 ;; (DEFUN hd (X) (CAR X))
 
 (defn hd [X] (first X))
@@ -82,12 +88,12 @@
 ;; (DEFUN cons? (X) (IF (CONSP X) 'true 'false))
 
 (defn cons? [X]
-  (and (seq? X) (not (empty? X))))
+  (or (absvector? X)
+      (and (seq? X) (not (empty? X)))))
 
 ;; ;(DEFUN intern (String) (INTERN String))
 
 (defn intern [String]
-  (println String)
   (clojure.core/intern (find-ns 'shen)
                        (shen-symbol String))
   (shen-symbol String))
@@ -110,7 +116,7 @@
 ;;   (EVAL (shen-kl-to-lisp NIL (shen-elim-define X))))
 
 (defn eval-without-macros [X]
-  (eval (shen-kl-to-clojure X)))
+  (eval X))
 
 ;; ;(DEFUN shen-elim-define (X)
 ;;  ; (COND ((AND (CONSP X) (EQ (CAR X) 'define))
@@ -181,7 +187,7 @@
 ;; (DEFUN absvector? (X) (IF (ARRAYP X) 'true 'false))
 
 (defn absvector? [X]
-  (-> X type .isArray))
+  (-> X clojure.core/type .isArray))
 
 ;; (DEFUN address-> (Vector N Value) (SETF (AREF Vector N) Value) Vector)
 
