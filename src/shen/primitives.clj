@@ -1,5 +1,6 @@
 (ns shen.primitives
   (:use [shen.backend :only (shen-kl-to-clojure)])
+  (:require [clojure.string :as string])
   (:refer-clojure :exclude [set intern let pr type cond]))
 
 ; Probably handle dynamic currying in here, and define primitves using it.
@@ -7,7 +8,6 @@
 
 (defmacro defun [F X & Y]
   (clojure.core/let [F (if (list? F) (eval F) F)]
-                    (println (str F))
     `(defn ~F
        ~@(for [p# (map #(take % X) (range 1 (count X)))]
            `(~(vec p#) (partial ~F ~@p#)))
@@ -30,17 +30,19 @@
 
 ;; (DEFUN set (X Y) (SET X Y))
 
+(defn- shen-symbol [X]
+  (symbol (string/replace (name X) "/" "-slash-")))
+
 (defn set [X Y]
   (clojure.core/intern (find-ns 'shen)
-                       (symbol (name X))
+                       (shen-symbol X)
                        Y)
   Y)
 
 ;; (DEFUN value (X) (SYMBOL-VALUE X))
 
 (defn value [X]
-  @(clojure.core/intern (find-ns 'shen)
-                        (symbol (name X))))
+  @(clojure.core/intern (find-ns 'shen) (shen-symbol X)))
 
 ;; (DEFUN simple-error (String) (ERROR String))
 
@@ -54,6 +56,7 @@
   `(try
      ~X
      (catch Throwable _#
+       (println "TRAPPED!" _#)
        (~F _#))))
 
 ;; (DEFUN error-to-string (E)
@@ -78,11 +81,16 @@
 
 ;; (DEFUN cons? (X) (IF (CONSP X) 'true 'false))
 
-(defn cons? [X] (and (seq? X) (not (empty? X))))
+(defn cons? [X]
+  (and (seq? X) (not (empty? X))))
 
 ;; ;(DEFUN intern (String) (INTERN String))
 
-(defn intern [String] (symbol String))
+(defn intern [String]
+  (println String)
+  (clojure.core/intern (find-ns 'shen)
+                       (shen-symbol String))
+  (shen-symbol String))
 
 ;; (DEFUN intern (String) (INTERN (shen-process-intern String)))
 
@@ -129,7 +137,10 @@
 ;; (DEFMACRO let (X Y Z) `(LET ((,X ,Y)) ,Z))
 
 (defmacro let [X Y Z]
-  `(clojure.core/let [~X ~Y] ~Z))
+  (clojure.core/let [X-safe (if (list? X) (gensym (eval X)) X)
+                     Z (if (list? X) (clojure.walk/postwalk
+                                      #(if (= X %) X-safe %) Z) Z)]
+                    `(clojure.core/let [~X-safe ~Y] ~Z)))
 
 ;; (DEFUN equal? (X Y) (IF (shen-ABSEQUAL X Y) 'true 'false))
 

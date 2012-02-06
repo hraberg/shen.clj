@@ -15,7 +15,6 @@
 (def shen-namespaces '[sys
                        core
                        writer
-                       declarations
                        load
                        macros
                        prolog
@@ -25,7 +24,8 @@
                        track
                        t-star
                        types
-                       yacc])
+                       yacc
+                       declarations])
 
 (def cleanup-symbols-pattern
   (re-pattern (str "(\\s+|\\()("
@@ -34,14 +34,15 @@
                                                              "shen-@s-macro"
                                                              "shen-@v-help"
                                                              "shen-i/o-macro"
-                                                             "shen-put/get-macro"]))
+                                                             "shen-put/get-macro"
+                                                             "XV/Y"]))
                    ")(\\s*\\)|\\s+?)"
                    "(?!~)")))
 
 (defn cleanup-symbols-before
   [kl] (string/replace kl
                        cleanup-symbols-pattern
-                       "$1(clojure.core/symbol \"$2\")$3"))
+                       "$1(intern \"$2\")$3"))
 
 (defn cleanup-symbols-after
   ([clj] (cleanup-symbols-after clj #{}))
@@ -57,7 +58,7 @@
                              #{'let 'lambda} (conj scope (first rst))
                              scope)
                      fst (if (list? fst)
-                           (if (= 'clojure.core/symbol (first fst))
+                           (if (= 'intern (first fst))
                              (list 'clojure.core/resolve fst)
                              (cleanup-symbols-after fst scope))
                            fst)]
@@ -90,7 +91,7 @@
         (cons :use '[shen.primitives])
         (list :refer-clojure :exclude (vec exclusions))))
 
-(def missing-declarations #{'shen-absarray?})
+(def missing-declarations '#{shen-absarray? shen-kl-to-lisp FORMAT READ-CHAR})
 
 (defn declarations [clj]
   (into missing-declarations
