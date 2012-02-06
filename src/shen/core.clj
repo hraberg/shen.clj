@@ -23,7 +23,7 @@
 
 (def cleanup-symbols-pattern
   (re-pattern (str "(\\s+|\\()("
-                   (string/join "|" (map #(Pattern/quote %) [":" ";" "{" "}" ":-"
+                   (string/join "|" (map #(Pattern/quote %) [":" ";" "{" "}" ":-" ":="
                                                              "/." "@p" "@s" "@v"
                                                              "shen-@s-macro"
                                                              "shen-@v-help"
