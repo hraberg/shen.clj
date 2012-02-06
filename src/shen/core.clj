@@ -6,12 +6,6 @@
   (:import [java.io StringReader PushbackReader]
            [java.util.regex Pattern]))
 
-(def ^:dynamic *language* "Clojure")
-(def ^:dynamic *implementation* (str "Clojure " (clojure-version)
-                           " [jvm "(System/getProperty "java.version")"]"))
-(def ^:dynamic *port* "0.1.0")
-(def ^:dynamic *porters* "Håkan Råberg")
-
 (def shen-namespaces '[sys
                        core
                        writer
@@ -88,7 +82,7 @@
 
 (defn header [namespace exclusions]
   (list 'ns namespace
-        (cons :use '[shen.primitives])
+        '(:use [shen.primitives])
         (list :refer-clojure :exclude (vec exclusions))))
 
 (def missing-declarations '#{shen-absarray? shen-kl-to-lisp byte->string FORMAT READ-CHAR})
@@ -116,6 +110,13 @@
 (defn ns-symbols [ns]
   (set (map first (ns-publics ns))))
 
+(defn port-info []
+  '((def ^:dynamic *language* "Clojure")
+    (def ^:dynamic *implementation* (str "Clojure " (clojure-version)
+                                         " [jvm "(System/getProperty "java.version")"]"))
+    (def ^:dynamic *port* "0.1.0")
+    (def ^:dynamic *porters* "Håkan Råberg")))
+
 (defn write-all-kl-files-as-single-clj
   ([] (write-all-kl-files-as-single-clj "shen/klambda" "shen/platforms/clj"))
   ([dir to-dir]
@@ -124,4 +125,6 @@
       (let [shen (mapcat read-kl-file (map #(file dir (str % ".kl")) shen-namespaces))
             dcl (declarations shen)
             exclusions (intersection (into (ns-symbols 'shen.primitives) dcl) (ns-symbols 'clojure.core))]
-        (write-clj-file to-dir "shen" (cons (cons 'clojure.core/declare dcl) (remove string? shen)) (sort exclusions))))))
+        (write-clj-file to-dir "shen" (cons (cons 'clojure.core/declare dcl)
+                                            (concat (port-info) (remove string? shen)))
+                        (sort exclusions))))))
