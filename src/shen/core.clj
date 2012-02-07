@@ -3,6 +3,7 @@
         [clojure.pprint :only (pprint)]
         [clojure.set :only (intersection)])
   (:require [clojure.string :as string])
+  (:require [shen.primitives])
   (:import [java.io StringReader PushbackReader]
            [java.util.regex Pattern]))
 
@@ -111,11 +112,10 @@
   (set (map first (ns-publics ns))))
 
 (defn port-info []
-  '((def ^:dynamic *language* "Clojure")
-    (def ^:dynamic *implementation* (str "Clojure " (clojure-version)
-                                         " [jvm "(System/getProperty "java.version")"]"))
-    (def ^:dynamic *port* "0.1.0")
-    (def ^:dynamic *porters* "Håkan Råberg")))
+  (for [[k v] '{*language* "Clojure" *implementation* (str "Clojure " (clojure.core/clojure-version)
+                                                           " [jvm "(System/getProperty "java.version")"]")
+                *port* "0.1.0" *porters* "Håkan Råberg"}]
+        `(clojure.core/intern *ns* (with-meta '~k {:dynamic true}) ~v)))
 
 (defn write-all-kl-files-as-single-clj
   ([] (write-all-kl-files-as-single-clj "shen/klambda" "shen/platforms/clj"))

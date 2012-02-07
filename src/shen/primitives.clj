@@ -2,9 +2,6 @@
   (:require [clojure.string :as string])
   (:refer-clojure :exclude [set intern let pr type cond cons]))
 
-; Probably handle dynamic currying in here, and define primitves using it.
-; Also: Lambda; TCO? And "Kl follows a dual namespace model"
-
 (defmacro defun [F X & Y]
   (clojure.core/let [F (if (list? F) (eval F) F)]
     `(defn ~F
@@ -32,7 +29,7 @@
 
 (defmacro trap-error [X F]
   `(try
-     ~X
+     ~@X
      (catch Throwable _#
        (.printStackTrace _#)
        (~F _#))))
@@ -62,11 +59,20 @@
                        (shen-symbol String))
   (shen-symbol String))
 
+(defn- shen-elim-define [X]
+  (clojure.core/cond
+   (and (list? X) (= (first X) 'define)) (clojure.core/let [F (eval ((value 'shen-shen->kl)
+                                                                     (second X)
+                                                                     (drop 2 X)))]
+                                                           F)
+   (list? X) (doall (map shen-elim-define X))
+   :else X))
+
 (defn eval-without-macros [X]
-  (eval X))
+  (eval (shen-elim-define X)))
 
 (defmacro lambda [X Y]
-  `(fn [~X] ~Y))
+  `(fn [~X] ~@Y))
 
 (defmacro let [X Y Z]
   (clojure.core/let [X-safe (if (list? X) (gensym (eval X)) X)
@@ -86,7 +92,9 @@
   (object-array N))
 
 (defn absvector? [X]
-  (-> X clojure.core/type .isArray))
+  (if (nil? X)
+    false
+    (-> X clojure.core/type .isArray)))
 
 (defn address-> [Vector N Value]
   (aset Vector N Value)
