@@ -29,7 +29,7 @@
 
 (defmacro trap-error [X F]
   `(try
-     ~@X
+     ~X
      (catch Throwable _#
        (.printStackTrace _#)
        (~F _#))))
@@ -72,7 +72,7 @@
   (eval (shen-elim-define X)))
 
 (defmacro lambda [X Y]
-  `(fn [~X] ~@Y))
+  `(fn [~X] ~Y))
 
 (defmacro let [X Y Z]
   (clojure.core/let [X-safe (if (list? X) (gensym (eval X)) X)
