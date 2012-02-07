@@ -1,5 +1,6 @@
 (ns shen.primitives
   (:require [clojure.string :as string])
+  (:require [clojure.walk])
   (:refer-clojure :exclude [set intern let pr type cond cons]))
 
 (defmacro defun [F X & Y]
@@ -7,7 +8,7 @@
     `(defn ~F
        ~@(for [p# (map #(take % X) (range 1 (count X)))]
            `(~(vec p#) (partial ~F ~@p#)))
-       (~(vec X) (do ~@Y)))))
+       (~(vec X) ~@Y))))
 
 (defmacro cond [& CS]
   `(clojure.core/cond ~@(apply concat CS)))
@@ -39,19 +40,17 @@
     (str E)
     (throw (IllegalArgumentException. (str E " is not an exception")))))
 
-(declare absvector?)
+(declare absvector? cons?)
 
 (defn cons [X Y]
-  (condp some [Y]
-    seq? (clojure.core/cons X Y)
-    absvector? (clojure.core/to-array (clojure.core/cons X Y))))
+  (clojure.core/cons X (if (or (cons? Y) (list? Y)) Y (list Y))))
 
 (defn hd [X] (first X))
 
 (defn tl [X] (rest X))
 
 (defn cons? [X]
-  (or (absvector? X)
+  (or (and (absvector? X) (not (empty? X)))
       (and (seq? X) (not (empty? X)))))
 
 (defn intern [String]
@@ -61,14 +60,17 @@
 
 (defn- shen-elim-define [X]
   (clojure.core/cond
-   (and (list? X) (= (first X) 'define)) (clojure.core/let [F (eval ((value 'shen-shen->kl)
-                                                                     (second X)
-                                                                     (drop 2 X)))]
-                                                           F)
-   (list? X) (doall (map shen-elim-define X))
-   :else X))
+   (and (seq? X)
+        (= (first X) 'define)) (clojure.core/let [F ((value 'shen-shen->kl)
+                                                     (second X)
+                                                     (drop 2 X))]
+                                                 (println F)
+                                                 F)
+        (seq? X) (doall (map shen-elim-define X))
+        :else X))
 
 (defn eval-without-macros [X]
+  (println X)
   (eval (shen-elim-define X)))
 
 (defmacro lambda [X Y]
@@ -89,12 +91,14 @@
   (X))
 
 (defn absvector [N]
-  (object-array N))
+  (doto (object-array N) (java.util.Arrays/fill ())))
 
 (defn absvector? [X]
   (if (nil? X)
     false
     (-> X clojure.core/type .isArray)))
+
+(def shen-absarray? absvector?)
 
 (defn address-> [Vector N Value]
   (aset Vector N Value)
@@ -106,9 +110,12 @@
 (defn n->string [N]
   (str (char N)))
 
+(def byte->string n->string)
+
 (defn pr [X S]
-  (binding [*out* S]
-    (clojure.core/println X)))
+  (binding [*out* (if (= S *in*) *out* S)]
+    (print X))
+  X)
 
 (defn read-byte [S]
   (.read S))
@@ -167,5 +174,3 @@
 
 (defn less-than-or-equal-to? [X Y]
   (<= X Y))
-
-(def ^:dynamic *stinput* *in*)

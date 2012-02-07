@@ -54,7 +54,7 @@
                              scope)
                      fst (if (list? fst)
                            (if (= 'intern (first fst))
-                             (list 'clojure.core/resolve fst)
+                             (list 'clojure.core/ns-resolve '(clojure.core/symbol "shen") fst)
                              (cleanup-symbols-after fst scope))
                            fst)]
                  (cons fst (map #(cleanup-symbols-after % scope) rst))))
@@ -86,7 +86,7 @@
         '(:use [shen.primitives])
         (list :refer-clojure :exclude (vec exclusions))))
 
-(def missing-declarations '#{shen-absarray? shen-kl-to-lisp byte->string FORMAT READ-CHAR})
+(def missing-declarations '#{shen-kl-to-lisp FORMAT READ-CHAR})
 
 (defn declarations [clj]
   (into missing-declarations
@@ -111,10 +111,10 @@
 (defn ns-symbols [ns]
   (set (map first (ns-publics ns))))
 
-(defn port-info []
+(defn env []
   (for [[k v] '{*language* "Clojure" *implementation* (str "Clojure " (clojure.core/clojure-version)
                                                            " [jvm "(System/getProperty "java.version")"]")
-                *port* "0.1.0" *porters* "Håkan Råberg"}]
+                *port* "0.1.0" *porters* "Håkan Råberg" *stinput* *in*}]
         `(clojure.core/intern *ns* (with-meta '~k {:dynamic true}) ~v)))
 
 (defn write-all-kl-files-as-single-clj
@@ -126,5 +126,5 @@
             dcl (declarations shen)
             exclusions (intersection (into (ns-symbols 'shen.primitives) dcl) (ns-symbols 'clojure.core))]
         (write-clj-file to-dir "shen" (cons (cons 'clojure.core/declare dcl)
-                                            (concat (port-info) (remove string? shen)))
+                                            (concat (env) (remove string? shen)))
                         (sort exclusions))))))
