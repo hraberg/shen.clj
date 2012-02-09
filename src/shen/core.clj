@@ -94,7 +94,7 @@
 
 (defn kl-to-clj
   ([] (kl-to-clj "shen/klambda"
-                 "shen/platforms/clj"))
+                 "classes"))
   ([dir to-dir]
      (doall
       (.mkdirs (file to-dir))
@@ -116,10 +116,11 @@
   (println "compiling: ")
   (time (compile 'shen)))
 
+(try
+  (require 'shen)
+  (catch Exception _
+    (install)))
+
 (defn -main []
-  (try
-    (require 'shen)
-    (catch Exception _
-      (install)))
   (binding [*ns* (find-ns 'shen)]
     (eval '(shen-shen))))
