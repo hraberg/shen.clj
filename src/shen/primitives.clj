@@ -43,7 +43,9 @@
 (declare absvector? cons?)
 
 (defn cons [X Y]
-  (clojure.core/cons X (if (or (cons? Y) (list? Y)) Y (list Y))))
+  (if (or (cons? Y) (list? Y))
+    (clojure.core/cons X Y)
+    (list X Y)))
 
 (defn hd [X] (first X))
 
@@ -64,14 +66,16 @@
         (= (first X) 'define)) (clojure.core/let [F ((value 'shen-shen->kl)
                                                      (second X)
                                                      (drop 2 X))]
-                                                 (println F)
+                                                 (prn F)
                                                  F)
         (seq? X) (doall (map shen-elim-define X))
         :else X))
 
 (defn eval-without-macros [X]
-  (println X)
-  (eval (shen-elim-define X)))
+  (prn X)
+  (clojure.core/let [kl (shen-elim-define X)]
+                     (prn kl)
+                     (eval kl)))
 
 (defmacro lambda [X Y]
   `(fn [~X] ~Y))
@@ -81,8 +85,6 @@
                      Z (if (list? X) (clojure.walk/postwalk
                                       #(if (= X %) X-safe %) Z) Z)]
                     `(clojure.core/let [~X-safe ~Y] ~Z)))
-
-(defn equal? [X Y] (= X Y))
 
 (defmacro freeze [X]
   `(fn [] ~X))
@@ -113,9 +115,12 @@
 (def byte->string n->string)
 
 (defn pr [X S]
-  (binding [*out* (if (= S *in*) *out* S)]
-    (print X))
-  X)
+  (binding [*out* (if (or (= *in* S)
+                          (instance? clojure.lang.LineNumberingPushbackReader S))
+                    *out* S)]
+    (print X)
+    (flush)
+    X))
 
 (defn read-byte [S]
   (.read S))
@@ -150,27 +155,3 @@
                  1000))
        (throw (IllegalArgumentException.
                (str "get-time does not understand the parameter " Time)))))
-
-(defn multiply [X Y]
-  (* (double X) (double Y)))
-
-(defn add [X Y]
-  (+ (double X) (double Y)))
-
-(defn subtract [X Y]
-  (- (double X) (double Y)))
-
-(defn divide [X Y]
-  (/ (double X) (double Y)))
-
-(defn greater? [X Y]
-  (> X Y))
-
-(defn less? [X Y]
-  (< X Y))
-
-(defn less? [X Y]
-  (>= X Y))
-
-(defn less-than-or-equal-to? [X Y]
-  (<= X Y))
