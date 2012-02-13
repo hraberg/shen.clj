@@ -3,7 +3,7 @@
   :license {:name "Shen License"
             :url "http://www.shenlanguage.org/license.html"}
   :dependencies [[org.clojure/clojure "1.4.0-beta1"]]
-  :main shen.core
-  :aot [shen.core
-        shen.primitives
-        shen])
+  :extra-classpath-dirs ["shen/platforms/clj"]
+  :main shen
+  :aot [shen.primitives
+        shen] )

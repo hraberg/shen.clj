@@ -1,7 +1,38 @@
 (ns shen.primitives
   (:require [clojure.string :as string])
   (:require [clojure.walk])
-  (:refer-clojure :exclude [set intern let pr type cond cons]))
+  (:refer-clojure :exclude [set intern let pr type cond cons])
+  (:gen-class))
+
+(defn- interned? [X]
+  (and (list? X) (= 'intern (first X))))
+
+(defn cleanup-symbols-after
+  ([clj] (cleanup-symbols-after clj #{}))
+  ([clj scope]
+     (condp some [clj]
+       scope (if (interned? clj) (list 'value clj)
+                 clj)
+       symbol? (list 'quote clj)
+       list? (if (empty? clj)
+               clj
+               (clojure.core/let [[fst snd & rst] clj
+                                  scope (condp get fst
+                                          '#{defun} (into (conj scope snd) (first rst))
+                                          '#{let lambda} (conj scope snd)
+                                          scope)
+                                  fst (condp some [fst]
+                                        interned? (list 'value fst)
+                                        list? (cleanup-symbols-after fst scope)
+                                        fst)
+                                  snd (if ('#{defun let lambda} fst) snd
+                                          (cleanup-symbols-after snd scope))]
+                                 (clojure.core/cons fst
+                                                    (when-not (nil? snd)
+                                                      (clojure.core/cons
+                                                       snd
+                                                       (clojure.core/map #(cleanup-symbols-after % scope) rst))))))
+       clj)))
 
 (defmacro defun [F X & Y]
   (clojure.core/let [F (if (list? F) (eval F) F)]
@@ -73,9 +104,10 @@
 
 (defn eval-without-macros [X]
   (prn X)
-  (clojure.core/let [kl (shen-elim-define X)]
-                     (prn kl)
-                     (eval kl)))
+  (clojure.core/let [kl (cleanup-symbols-after (shen-elim-define X))]
+                    (prn kl)
+                    (binding [*ns* 'shen]
+                      (eval kl))))
 
 (defmacro lambda [X Y]
   `(fn [~X] ~Y))
