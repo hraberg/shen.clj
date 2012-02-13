@@ -17,21 +17,21 @@
        symbol? (list 'quote clj)
        list? (if (empty? clj) clj
                (core/let [[fst snd & rst] clj
-                                  scope (condp get fst
-                                          '#{defun} (into (conj scope snd) (first rst))
-                                          '#{let lambda} (conj scope snd)
-                                          scope)
-                                  fst (condp some [fst]
-                                        interned? (list 'value fst)
-                                        list? (cleanup-symbols-after fst scope)
-                                        fst)
-                                  snd (if ('#{defun let lambda} fst) snd
-                                          (cleanup-symbols-after snd scope))]
-                                 (core/cons fst
-                                            (when-not (nil? snd)
-                                              (core/cons
-                                               snd
-                                               (core/map #(cleanup-symbols-after % scope) rst))))))
+                          scope (condp get fst
+                                  '#{defun} (into (conj scope snd) (first rst))
+                                  '#{let lambda} (conj scope snd)
+                                  scope)
+                          fst (condp some [fst]
+                                interned? (list 'value fst)
+                                list? (cleanup-symbols-after fst scope)
+                                fst)
+                          snd (if ('#{defun let lambda} fst) snd
+                                  (cleanup-symbols-after snd scope))]
+                         (core/cons fst
+                                    (when-not (nil? snd)
+                                      (core/cons
+                                       snd
+                                       (core/map #(cleanup-symbols-after % scope) rst))))))
        clj)))
 
 (defmacro defun [F X & Y]
