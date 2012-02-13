@@ -1,4 +1,5 @@
 (ns shen.primitives
+  (:require [clojure.core :as core])
   (:require [clojure.string :as string])
   (:require [clojure.walk])
   (:refer-clojure :exclude [set intern let pr type cond cons])
@@ -14,9 +15,8 @@
        scope (if (interned? clj) (list 'value clj)
                  clj)
        symbol? (list 'quote clj)
-       list? (if (empty? clj)
-               clj
-               (clojure.core/let [[fst snd & rst] clj
+       list? (if (empty? clj) clj
+               (core/let [[fst snd & rst] clj
                                   scope (condp get fst
                                           '#{defun} (into (conj scope snd) (first rst))
                                           '#{let lambda} (conj scope snd)
@@ -27,34 +27,34 @@
                                         fst)
                                   snd (if ('#{defun let lambda} fst) snd
                                           (cleanup-symbols-after snd scope))]
-                                 (clojure.core/cons fst
-                                                    (when-not (nil? snd)
-                                                      (clojure.core/cons
-                                                       snd
-                                                       (clojure.core/map #(cleanup-symbols-after % scope) rst))))))
+                                 (core/cons fst
+                                            (when-not (nil? snd)
+                                              (core/cons
+                                               snd
+                                               (core/map #(cleanup-symbols-after % scope) rst))))))
        clj)))
 
 (defmacro defun [F X & Y]
-  (clojure.core/let [F (if (list? F) (eval F) F)]
+  (core/let [F (if (list? F) (eval F) F)]
     `(defn ~F
        ~@(for [p# (map #(take % X) (range 1 (count X)))]
            `(~(vec p#) (partial ~F ~@p#)))
        (~(vec X) ~@Y))))
 
 (defmacro cond [& CS]
-  `(clojure.core/cond ~@(apply concat CS)))
+  `(core/cond ~@(apply concat CS)))
 
 (defn- shen-symbol [X]
   (symbol (string/replace (name X) "/" "-slash-")))
 
 (defn set [X Y]
-  (clojure.core/intern (find-ns 'shen)
+  (core/intern (find-ns 'shen)
                        (shen-symbol X)
                        Y)
   Y)
 
 (defn value [X]
-  @(clojure.core/intern (find-ns 'shen) (shen-symbol X)))
+  @(core/intern (find-ns 'shen) (shen-symbol X)))
 
 (defn simple-error [String]
   (throw (RuntimeException. String)))
@@ -75,7 +75,7 @@
 
 (defn cons [X Y]
   (if (or (cons? Y) (list? Y))
-    (clojure.core/cons X Y)
+    (core/cons X Y)
     (list X Y)))
 
 (defn hd [X] (first X))
@@ -87,14 +87,14 @@
       (and (seq? X) (not (empty? X)))))
 
 (defn intern [String]
-  (clojure.core/intern (find-ns 'shen)
+  (core/intern (find-ns 'shen)
                        (shen-symbol String))
   (shen-symbol String))
 
 (defn- shen-elim-define [X]
-  (clojure.core/cond
+  (core/cond
    (and (seq? X)
-        (= (first X) 'define)) (clojure.core/let [F ((value 'shen-shen->kl)
+        (= (first X) 'define)) (core/let [F ((value 'shen-shen->kl)
                                                      (second X)
                                                      (drop 2 X))]
                                                  (prn F)
@@ -104,7 +104,7 @@
 
 (defn eval-without-macros [X]
   (prn X)
-  (clojure.core/let [kl (cleanup-symbols-after (shen-elim-define X))]
+  (core/let [kl (cleanup-symbols-after (shen-elim-define X))]
                     (prn kl)
                     (binding [*ns* 'shen]
                       (eval kl))))
@@ -113,10 +113,10 @@
   `(fn [~X] ~Y))
 
 (defmacro let [X Y Z]
-  (clojure.core/let [X-safe (if (list? X) (gensym (eval X)) X)
+  (core/let [X-safe (if (list? X) (gensym (eval X)) X)
                      Z (if (list? X) (clojure.walk/postwalk
                                       #(if (= X %) X-safe %) Z) Z)]
-                    `(clojure.core/let [~X-safe ~Y] ~Z)))
+                    `(core/let [~X-safe ~Y] ~Z)))
 
 (defmacro freeze [X]
   `(fn [] ~X))
@@ -130,7 +130,7 @@
 (defn absvector? [X]
   (if (nil? X)
     false
-    (-> X clojure.core/type .isArray)))
+    (-> X core/type .isArray)))
 
 (def shen-absarray? absvector?)
 
@@ -158,8 +158,8 @@
   (.read S))
 
 (defn open [Type String Direction]
-  (clojure.core/let [Path (clojure.java.io/file (resolve 'shen/*home-directory*) String)]
-    (clojure.core/cond
+  (core/let [Path (clojure.java.io/file (resolve 'shen/*home-directory*) String)]
+    (core/cond
      (= 'in Direction) (clojure.java.io/input-stream Path)
      (= 'out Direction) (clojure.java.io/output-stream Path)
      :else (throw (IllegalArgumentException. "invalid direction")))))
