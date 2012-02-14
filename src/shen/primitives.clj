@@ -144,9 +144,8 @@
 (def byte->string n->string)
 
 (defn pr [X S]
-  (binding [*out* (if (or (= *in* S)
-                          (instance? clojure.lang.LineNumberingPushbackReader S))
-                    *out* S)]
+  (binding [*out* (if (= *in* S) *out*
+                      S)]
     (print X)
     (flush)
     X))
