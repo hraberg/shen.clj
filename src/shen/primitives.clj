@@ -94,10 +94,9 @@
 
 (defn- shen-elim-define [[fst & _ :as X]]
   (core/cond
-   (= fst 'define) (core/let [F ((value 'shen-shen->kl)
-                                 (second X)
-                                 (drop 2 X))]
-                             F)
+   (= fst 'define) ((value 'shen-shen->kl)
+                    (second X)
+                    (drop 2 X))
    (seq? X) (doall (map shen-elim-define X))
    :else X))
 
