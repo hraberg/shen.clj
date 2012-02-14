@@ -15,23 +15,24 @@
        scope (if (interned? clj) (list 'value clj)
                  clj)
        symbol? (list 'quote clj)
-       list? (if (empty? clj) clj
-               (core/let [[fst snd & rst] clj
-                          scope (condp get fst
-                                  '#{defun} (into (conj scope snd) (first rst))
-                                  '#{let lambda} (conj scope snd)
-                                  scope)
-                          fst (condp some [fst]
-                                interned? (list 'value fst)
-                                list? (cleanup-symbols-after fst scope)
-                                fst)
-                          snd (if ('#{defun let lambda} fst) snd
-                                  (cleanup-symbols-after snd scope))]
-                         (core/cons fst
-                                    (when-not (nil? snd)
-                                      (core/cons
-                                       snd
-                                       (core/map #(cleanup-symbols-after % scope) rst))))))
+       (every-pred
+        list?
+        not-empty) (core/let [[fst snd & rst] clj
+                              scope (condp get fst
+                                      '#{defun} (into (conj scope snd) (first rst))
+                                      '#{let lambda} (conj scope snd)
+                                      scope)
+                              fst (condp some [fst]
+                                    interned? (list 'value fst)
+                                    list? (cleanup-symbols-after fst scope)
+                                    fst)
+                              snd (if ('#{defun let lambda} fst) snd
+                                      (cleanup-symbols-after snd scope))]
+                             (core/cons fst
+                                        (when-not (nil? snd)
+                                          (core/cons
+                                           snd
+                                           (core/map #(cleanup-symbols-after % scope) rst)))))
        clj)))
 
 (defmacro defun [F X & Y]
@@ -88,26 +89,23 @@
 
 (defn intern [String]
   (core/intern (find-ns 'shen)
-                       (shen-symbol String))
+               (shen-symbol String))
   (shen-symbol String))
 
-(defn- shen-elim-define [X]
+(defn- shen-elim-define [[fst & _ :as X]]
   (core/cond
-   (and (seq? X)
-        (= (first X) 'define)) (core/let [F ((value 'shen-shen->kl)
-                                                     (second X)
-                                                     (drop 2 X))]
-                                                 (prn F)
-                                                 F)
-        (seq? X) (doall (map shen-elim-define X))
-        :else X))
+   (= fst 'define) (core/let [F ((value 'shen-shen->kl)
+                                 (second X)
+                                 (drop 2 X))]
+                             F)
+   (seq? X) (doall (map shen-elim-define X))
+   :else X))
+
 
 (defn eval-without-macros [X]
-  (prn X)
   (core/let [kl (cleanup-symbols-after (shen-elim-define X))]
-                    (prn kl)
-                    (binding [*ns* 'shen]
-                      (eval kl))))
+            (binding [*ns* 'shen]
+              (eval kl))))
 
 (defmacro lambda [X Y]
   `(fn [~X] ~Y))
