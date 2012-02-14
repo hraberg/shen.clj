@@ -155,10 +155,10 @@
 
 (defn open [Type String Direction]
   (core/let [Path (clojure.java.io/file (resolve 'shen/*home-directory*) String)]
-    (core/cond
-     (= 'in Direction) (clojure.java.io/input-stream Path)
-     (= 'out Direction) (clojure.java.io/output-stream Path)
-     :else (throw (IllegalArgumentException. "invalid direction")))))
+    (core/condp = Direction
+     'in (clojure.java.io/input-stream Path)
+     'out (clojure.java.io/output-stream Path)
+     (throw (IllegalArgumentException. "invalid direction")))))
 
 (defn type [X MyType]
   (cast MyType X))
