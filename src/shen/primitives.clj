@@ -94,9 +94,9 @@
 
 (defn- shen-elim-define [[fst & _ :as X]]
   (core/cond
-   (= fst 'define) ((value 'shen-shen->kl)
-                    (second X)
-                    (drop 2 X))
+   (= fst 'define) (eval (value 'shen-shen->kl)
+                         (second X)
+                         (drop 2 X))
    (seq? X) (doall (map shen-elim-define X))
    :else X))
 
@@ -111,8 +111,8 @@
 
 (defmacro let [X Y Z]
   (core/let [X-safe (if (list? X) (gensym (eval X)) X)
-                     Z (if (list? X) (clojure.walk/postwalk
-                                      #(if (= X %) X-safe %) Z) Z)]
+             Z (if (list? X) (clojure.walk/postwalk
+                              #(if (= X %) X-safe %) Z) Z)]
                     `(core/let [~X-safe ~Y] ~Z)))
 
 (defmacro freeze [X]
