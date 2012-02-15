@@ -37,7 +37,7 @@
 
 (defmacro defun [F X & Y]
   (core/let [F (if (list? F) (eval F) F)]
-    `(defn ~F
+    `(defn ^:dynamic ~F
        ~@(for [p# (map #(take % X) (range 1 (count X)))]
            `(~(vec p#) (partial ~F ~@p#)))
        (~(vec X) ~@Y))))
@@ -92,18 +92,19 @@
                (shen-symbol String))
   (shen-symbol String))
 
-(defn- shen-elim-define [[fst & _ :as X]]
-  (core/cond
-   (= fst 'define) (eval (value 'shen-shen->kl)
-                         (second X)
-                         (drop 2 X))
-   (seq? X) (doall (map shen-elim-define X))
-   :else X))
+(defn- shen-elim-define [X]
+  (if (list? X)
+    (if (= (first X) 'define) (eval (value 'shen-shen->kl)
+                                    (second X)
+                                    (drop 2 X))
+        (doall (map shen-elim-define X)))
+   X))
 
 
 (defn eval-without-macros [X]
   (core/let [kl (cleanup-symbols-after (shen-elim-define X))]
-            (binding [*ns* 'shen]
+            (binding [*ns* (find-ns 'shen)]
+              (println kl (core/type kl))
               (eval kl))))
 
 (defmacro lambda [X Y]
@@ -132,7 +133,7 @@
 (def shen-absarray? absvector?)
 
 (defn address-> [Vector N Value]
-  (aset Vector N Value)
+  (core/aset Vector N Value)
   Vector)
 
 (defn <-address [Vector N]

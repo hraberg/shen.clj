@@ -7,7 +7,7 @@
   (:import [java.io StringReader PushbackReader]
            [java.util.regex Pattern]))
 
-(def shen-namespaces '[sys core writer load macros prolog reader sequent
+(def shen-namespaces '[sys core writer load macros macros prolog reader sequent
                        toplevel track t-star yacc declarations])
 
 (def cleanup-symbols-pattern
