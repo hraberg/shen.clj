@@ -5,7 +5,8 @@
   (:require [clojure.string :as string])
   (:require [shen.primitives :reload true])
   (:import [java.io StringReader PushbackReader FileNotFoundException]
-           [java.util.regex Pattern]))
+           [java.util.regex Pattern])
+  (:gen-class))
 
 ;; Contains duplications so globals gets built again once everything is defined properly.
 (def shen-namespaces '[sys core writer load macros macros prolog reader sequent
@@ -104,3 +105,6 @@
     (catch FileNotFoundException _
       (install)
       (-main))))
+
+(when *compile-files*
+  (install))
