@@ -35,14 +35,9 @@
                                       (cleanup-symbols-after snd scope))
                               trd (if ('#{defun} fst) trd
                                       (cleanup-symbols-after trd scope))]
-                             (core/cons fst
-                                        (when-not (nil? snd)
-                                          (core/cons
-                                           snd
-                                           (when-not (nil? trd)
-                                             (core/cons
-                                              trd
-                                              (core/map #(cleanup-symbols-after % scope) rst)))))))
+                             (take-while (complement nil?)
+                                         (concat [fst snd trd]
+                                                 (core/map #(cleanup-symbols-after % scope) rst))))
        clj)))
 
 (defmacro defun [F X & Y]
