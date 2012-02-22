@@ -99,11 +99,11 @@
   (shen-symbol String))
 
 (defn- shen-elim-define [X]
-  (if (list? X)
-    (if ('#{define} (first X)) (eval (cleanup-symbols-after ((value 'shen-shen->kl)
-                                                             (second X)
-                                                             (drop 2 X))))
-        (doall (map shen-elim-define X)))
+  (if (seq? X)
+    (if ('#{define} (first X)) ((value 'shen-shen->kl)
+                                (second X)
+                                (drop 2 X))
+        (map shen-elim-define X))
    X))
 
 (defn eval-without-macros [X]
