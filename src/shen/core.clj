@@ -58,7 +58,7 @@
   (for [[k v] '{*language* "Clojure"
                 *implementation* (str "Clojure " (clojure.core/clojure-version)
                                       " [jvm "(System/getProperty "java.version")"]")
-                *port* "0.1.0"
+                *port* "3.0-SNAPSHOT"
                 *porters* "Håkan Råberg"
                 *stinput* clojure.core/*in*}]
     `(clojure.core/intern *ns* (with-meta '~k {:dynamic true}) ~v)))
@@ -96,3 +96,5 @@
   (time (kl-to-clj))
   (println "compiling: ")
   (time (compile 'shen)))
+
+(kl-to-clj)

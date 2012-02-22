@@ -6,7 +6,7 @@
   (:gen-class))
 
 (defn- interned? [X]
-  (and (list? X) (= 'intern (first X))))
+  (and (list? X) (= 'shen-symbol (first X))))
 
 (defn cleanup-symbols-after
   ([clj] (cleanup-symbols-after clj #{}))
