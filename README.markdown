@@ -25,4 +25,7 @@ To run the REPL:
 
 http://shenlanguage.org/license.html
 
-Copyright © 2012 Håkan Råberg
+Shen, copyright © 2010-2012 Mark Tarver
+
+
+Shen.clj, Copyright © 2012 Håkan Råberg
