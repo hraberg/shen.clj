@@ -25,5 +25,4 @@ To run the REPL:
 
 http://shenlanguage.org/license.html
 
----
 Copyright © 2012 Håkan Råberg
