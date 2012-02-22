@@ -19,7 +19,7 @@ Is a work in progress. **It doesn't work**. Uses [Leiningen](https://github.com/
 
 To run the REPL:
 
-    lein compile; java -cp lib/*:classes shen
+    lein compile; lein trampoline run
 
 ## License
 
