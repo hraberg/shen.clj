@@ -36,7 +36,7 @@
 
 (defn read-kl-file [file]
   (try
-    (cons (list 'clojure.core/println (str file)) (read-kl (slurp file)))
+    (cons `(clojure.core/println ~(str file)) (read-kl (slurp file)))
     (catch Exception e
       (println file e))))
 
@@ -59,7 +59,7 @@
   (for [[k v] '{*language* "Clojure"
                 *implementation* (str "Clojure " (clojure.core/clojure-version)
                                       " [jvm "(System/getProperty "java.version")"]")
-                *port* "3.0-SNAPSHOT"
+                *port* "0.1.0-SNAPSHOT"
                 *porters* "Håkan Råberg"
                 *stinput* clojure.core/*in*}]
     `(clojure.core/intern *ns* (with-meta '~k {:dynamic true}) ~v)))
