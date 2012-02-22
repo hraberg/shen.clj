@@ -7,6 +7,7 @@
   (:import [java.io StringReader PushbackReader]
            [java.util.regex Pattern]))
 
+;; Contains duplications so globals gets built again once everything is defined properly.
 (def shen-namespaces '[sys core writer load macros macros prolog reader sequent
                        toplevel track t-star yacc declarations declarations])
 
