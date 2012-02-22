@@ -86,7 +86,7 @@
 (declare absvector? cons?)
 
 (defn cons [X Y]
-  (if (or (cons? Y) (list? Y))
+  (if (or (cons? Y) (seq? Y))
     (core/cons X Y)
     (list X Y)))
 
@@ -95,7 +95,7 @@
 (defn tl [X] (rest X))
 
 (defn cons? [X]
-  (and (list? X) (not-empty X)))
+  (and (seq? X) (not-empty X)))
 
 (defn intern [String]
   (core/intern (find-ns 'shen)
@@ -146,7 +146,7 @@
   Vector)
 
 (defn <-address [Vector N]
-  (aget Vector N))
+  (core/aget Vector N))
 
 (defn n->string [N]
   (str (char N)))
