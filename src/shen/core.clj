@@ -88,7 +88,7 @@
                        (concat [(header 'shen (sort exclusions))]
                                [(cons 'clojure.core/declare (filter symbol? dcl))]
                                (env)
-                               (map #(shen.primitives/cleanup-symbols-after %)
+                               (map #(shen.primitives/shen-kl-to-clj %)
                                     (remove string? shen))
                                [(main-fn)])))))
 

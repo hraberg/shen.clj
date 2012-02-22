@@ -8,8 +8,8 @@
 (defn- interned? [X]
   (and (list? X) (= 'shen-symbol (first X))))
 
-(defn cleanup-symbols-after
-  ([clj] (cleanup-symbols-after clj #{}))
+(defn shen-kl-to-clj
+  ([clj] (shen-kl-to-clj clj #{}))
   ([clj scope]
      (condp some [clj]
        scope (if (interned? clj) (list 'value clj)
@@ -29,15 +29,15 @@
                                     (some-fn
                                      interned?
                                      scope) (list 'value fst)
-                                     list? (cleanup-symbols-after fst scope)
+                                     list? (shen-kl-to-clj fst scope)
                                      fst)
                               snd (if ('#{defun let lambda} fst) snd
-                                      (cleanup-symbols-after snd scope))
+                                      (shen-kl-to-clj snd scope))
                               trd (if ('#{defun} fst) trd
-                                      (cleanup-symbols-after trd scope))]
+                                      (shen-kl-to-clj trd scope))]
                              (take-while (complement nil?)
                                          (concat [fst snd trd]
-                                                 (core/map #(cleanup-symbols-after % scope) rst))))
+                                                 (core/map #(shen-kl-to-clj % scope) rst))))
        clj)))
 
 (defmacro defun [F X & Y]
@@ -107,7 +107,7 @@
    X))
 
 (defn eval-without-macros [X]
-  (core/let [kl (cleanup-symbols-after (shen-elim-define X))]
+  (core/let [kl (shen-kl-to-clj (shen-elim-define X))]
             (binding [*ns* (find-ns 'shen)]
               (println kl (core/type kl))
               (eval kl))))
