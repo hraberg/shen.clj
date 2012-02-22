@@ -1,7 +1,7 @@
 (ns shen.primitives
   (:require [clojure.core :as core])
   (:require [clojure.string :as string])
-  (:require [clojure.walk])
+  (:require [clojure.walk :as walk])
   (:refer-clojure :exclude [set intern let pr type cond cons])
   (:gen-class))
 
@@ -14,25 +14,34 @@
      (condp some [clj]
        scope (if (interned? clj) (list 'value clj)
                  clj)
-       symbol? (list 'quote clj)
+       symbol? (condp = (name clj)
+                 "true" true
+                 "false" false
+                 (list 'quote clj))
        (every-pred
         list?
-        not-empty) (core/let [[fst snd & rst] clj
+        not-empty) (core/let [[fst snd trd & rst] clj
                               scope (condp get fst
-                                      '#{defun} (into (conj scope snd) (first rst))
+                                      '#{defun} (into (conj scope snd) trd)
                                       '#{let lambda} (conj scope snd)
                                       scope)
                               fst (condp some [fst]
                                     interned? (list 'value fst)
+                                    scope (list 'value fst)
                                     list? (cleanup-symbols-after fst scope)
                                     fst)
                               snd (if ('#{defun let lambda} fst) snd
-                                      (cleanup-symbols-after snd scope))]
+                                      (cleanup-symbols-after snd scope))
+                              trd (if ('#{defun} fst) trd
+                                      (cleanup-symbols-after trd scope))]
                              (core/cons fst
                                         (when-not (nil? snd)
                                           (core/cons
                                            snd
-                                           (core/map #(cleanup-symbols-after % scope) rst)))))
+                                           (when-not (nil? trd)
+                                             (core/cons
+                                              trd
+                                              (core/map #(cleanup-symbols-after % scope) rst)))))))
        clj)))
 
 (defmacro defun [F X & Y]
@@ -45,7 +54,7 @@
 (defmacro cond [& CS]
   `(core/cond ~@(apply concat CS)))
 
-(defn- shen-symbol [X]
+(defn shen-symbol [X]
   (symbol (string/replace (name X) "/" "-slash-")))
 
 (defn set [X Y]
@@ -55,7 +64,9 @@
   Y)
 
 (defn value [X]
-  @(core/intern (find-ns 'shen) (shen-symbol X)))
+  (if (symbol? X)
+    @(core/ns-resolve (find-ns 'shen) (shen-symbol X))
+    X))
 
 (defn simple-error [String]
   (throw (RuntimeException. String)))
@@ -84,8 +95,7 @@
 (defn tl [X] (rest X))
 
 (defn cons? [X]
-  (or (and (absvector? X) (not (empty? X)))
-      (and (seq? X) (not (empty? X)))))
+  (and (list? X) (not-empty X)))
 
 (defn intern [String]
   (core/intern (find-ns 'shen)
@@ -94,12 +104,11 @@
 
 (defn- shen-elim-define [X]
   (if (list? X)
-    (if (= (first X) 'define) (eval (value 'shen-shen->kl)
-                                    (second X)
-                                    (drop 2 X))
+    (if ('#{define} (first X)) (eval (cleanup-symbols-after ((value 'shen-shen->kl)
+                                                             (second X)
+                                                             (drop 2 X))))
         (doall (map shen-elim-define X)))
    X))
-
 
 (defn eval-without-macros [X]
   (core/let [kl (cleanup-symbols-after (shen-elim-define X))]
@@ -112,7 +121,7 @@
 
 (defmacro let [X Y Z]
   (core/let [X-safe (if (list? X) (gensym (eval X)) X)
-             Z (if (list? X) (clojure.walk/postwalk
+             Z (if (list? X) (walk/postwalk
                               #(if (= X %) X-safe %) Z) Z)]
                     `(core/let [~X-safe ~Y] ~Z)))
 
@@ -147,7 +156,7 @@
 (defn pr [X S]
   (binding [*out* (if (= *in* S) *out*
                       S)]
-    (print X)
+    (core/print X)
     (flush)
     X))
 
@@ -174,7 +183,9 @@
   (subs X 1))
 
 (defn cn [Str1 Str2]
-  (str Str1 Str2))
+  (if (string? Str1)
+    (str Str1 Str2)
+    (concat Str1 Str2)))
 
 (def internal-start-time (System/currentTimeMillis))
 
