@@ -23,13 +23,13 @@
                    ")(\\s*\\)|\\s+?)"
                    "(?!~)")))
 
-(defn cleanup-symbols-before
+(defn cleanup-symbols
   [kl] (string/replace kl
                        cleanup-symbols-pattern
                        "$1(shen-symbol \"$2\")$3"))
 
 (defn read-kl [kl]
-  (with-open [r (PushbackReader. (StringReader. (cleanup-symbols-before kl)))]
+  (with-open [r (PushbackReader. (StringReader. (cleanup-symbols kl)))]
     (doall
      (take-while (complement nil?)
                  (repeatedly #(read r false nil))))))
