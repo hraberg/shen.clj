@@ -100,9 +100,12 @@
 
 (defn- shen-elim-define [X]
   (if (seq? X)
-    (if ('#{define} (first X)) ((value 'shen-shen->kl)
-                                (second X)
-                                (drop 2 X))
+    (if ('#{define} (first X)) (core/let [F (shen-kl-to-clj ((value 'shen-shen->kl)
+                                                             (second X)
+                                                             (drop 2 X)))]
+                                          (binding [*ns* (find-ns 'shen)]
+                                            (println F (core/type F))
+                                            (eval F)))
         (map shen-elim-define X))
    X))
 

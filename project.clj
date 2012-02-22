@@ -4,7 +4,4 @@
             :url "http://www.shenlanguage.org/license.html"}
   :dependencies [[org.clojure/clojure "1.4.0-beta1"]]
   :extra-classpath-dirs ["shen/platforms/clj"]
-  :main shen
-  :aot [shen.core
-        shen.primitives
-        shen])
+  :main shen.core)

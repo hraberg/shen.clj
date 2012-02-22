@@ -4,7 +4,7 @@
         [clojure.set :only (intersection)])
   (:require [clojure.string :as string])
   (:require [shen.primitives :reload true])
-  (:import [java.io StringReader PushbackReader]
+  (:import [java.io StringReader PushbackReader FileNotFoundException]
            [java.util.regex Pattern]))
 
 ;; Contains duplications so globals gets built again once everything is defined properly.
@@ -19,7 +19,7 @@
                                                              "shen-@v-help"
                                                              "shen-i/o-macro"
                                                              "shen-put/get-macro"
-                                                             "XV/Y" "-->"]))
+                                                             "XV/Y"]))
                    ")(\\s*\\)|\\s+?)"
                    "(?!~)")))
 
@@ -36,7 +36,7 @@
 
 (defn read-kl-file [file]
   (try
-    (cons `(clojure.core/println ~(str file)) (read-kl (slurp file)))
+    (cons `(clojure.core/comment ~(str file)) (read-kl (slurp file)))
     (catch Exception e
       (println file e))))
 
@@ -77,7 +77,7 @@
 
 (defn kl-to-clj
   ([] (kl-to-clj "shen/klambda"
-                 "shen/platforms/clj"))
+                 *compile-path*))
   ([dir to-dir]
      (.mkdirs (file to-dir))
      (let [shen (mapcat read-kl-file
@@ -94,8 +94,13 @@
 
 (defn install []
   (println "creating shen.clj")
-  (time (kl-to-clj))
-  (println "compiling: ")
-  (time (compile 'shen)))
+  (time (kl-to-clj)))
 
-(kl-to-clj)
+(defn -main []
+  (try
+    (require 'shen)
+    (binding [*ns* (the-ns 'shen)]
+      ((resolve 'shen/-main)))
+    (catch FileNotFoundException _
+      (install)
+      (-main))))
