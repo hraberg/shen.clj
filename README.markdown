@@ -1,4 +1,4 @@
-# 神.clj is Shen for Clojure
+# 神.clj | Shen for Clojure
 
 http://shenlanguage.org/
 
