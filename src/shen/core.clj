@@ -86,7 +86,7 @@
            exclusions (intersection (into (ns-symbols 'shen.primitives) dcl) (ns-symbols 'clojure.core))]
        (write-clj-file to-dir "shen"
                        (concat [(header 'shen (sort exclusions))]
-                               [(cons 'clojure.core/declare (filter symbol? dcl))]
+                               [`(clojure.core/declare ~@(filter symbol? dcl))]
                                (env)
                                (map #(shen.primitives/shen-kl-to-clj %)
                                     (remove string? shen))
