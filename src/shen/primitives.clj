@@ -26,10 +26,11 @@
                                       '#{let lambda} (conj scope snd)
                                       scope)
                               fst (condp some [fst]
-                                    interned? (list 'value fst)
-                                    scope (list 'value fst)
-                                    list? (cleanup-symbols-after fst scope)
-                                    fst)
+                                    (some-fn
+                                     interned?
+                                     scope) (list 'value fst)
+                                     list? (cleanup-symbols-after fst scope)
+                                     fst)
                               snd (if ('#{defun let lambda} fst) snd
                                       (cleanup-symbols-after snd scope))
                               trd (if ('#{defun} fst) trd
