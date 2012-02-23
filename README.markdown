@@ -19,7 +19,7 @@ Is a work in progress. **It doesn't work**. Uses [Leiningen](https://github.com/
 
 To run the REPL:
 
-    lein trampoline run
+    lein repl
 
 ## License
 

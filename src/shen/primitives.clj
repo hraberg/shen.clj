@@ -96,9 +96,9 @@
   (and (seq? X) (not (empty? X))))
 
 (defn intern [String]
-  (core/intern (find-ns 'shen)
-               (shen-symbol String))
-  (shen-symbol String))
+  (core/let [s (shen-symbol String)]
+            (core/intern (find-ns 'shen) s)
+            s))
 
 (defn- shen-elim-define [X]
   (if (seq? X)

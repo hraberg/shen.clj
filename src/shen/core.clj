@@ -109,3 +109,7 @@
 
 (when *compile-files*
   (install))
+
+(when (->> (Thread/currentThread) .getStackTrace seq
+           (map str) (some (partial re-find #"clojure.main.repl")))
+  (-main))
