@@ -19,6 +19,9 @@ Is a work in progress. **It doesn't work**. Uses [Leiningen](https://github.com/
 
 To run the REPL:
 
+    lein trampoline run
+
+    # If shen.clj already exists, for readline support:
     lein repl
 
 ## License
