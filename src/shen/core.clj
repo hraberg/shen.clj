@@ -94,17 +94,17 @@
                                [(main-fn)])))))
 
 (defn install []
-  (println "creating shen.clj")
-  (time (kl-to-clj)))
-
-(defn -main []
   (try
     (require 'shen)
-    (binding [*ns* (the-ns 'shen)]
-      ((resolve 'shen/-main)))
     (catch FileNotFoundException _
-      (install)
-      (-main))))
+      (println "Creating shen.clj")
+      (kl-to-clj))))
+
+(defn -main []
+  (install)
+  (require 'shen)
+  (binding [*ns* (the-ns 'shen)]
+    ((resolve 'shen/-main))))
 
 (when *compile-files*
   (install))
