@@ -5,7 +5,7 @@
   (:refer-clojure :exclude [set intern let pr type cond cons])
   (:gen-class))
 
-(defn- interned? [X]
+(defn interned? [X]
   (and (list? X) (= 'shen-symbol (first X))))
 
 (defn shen-kl-to-clj
@@ -54,14 +54,13 @@
   (symbol (string/replace (name X) "/" "-slash-")))
 
 (defn set [X Y]
-  (core/intern (find-ns 'shen)
-                       (shen-symbol X)
-                       Y)
-  Y)
+  @(core/intern (find-ns 'shen)
+                (shen-symbol X)
+                Y))
 
 (defn value [X]
-  (if (symbol? X)
-    @(core/ns-resolve (find-ns 'shen) (shen-symbol X))
+  (if-let [v (and (symbol? X) ((core/ns-publics 'shen) (shen-symbol X)))]
+    @v
     X))
 
 (defn simple-error [String]
@@ -86,12 +85,15 @@
     (core/cons X Y)
     (list X Y)))
 
-(defn hd [X] (first X))
+;; Horrendous temoorary hack to keep symbols symbols while still potentially resolve to vars
+(defn hd [X] (core/let [fst (first X)
+                        v (value fst)]
+                       (if (fn? v) v fst)))
 
 (defn tl [X] (rest X))
 
 (defn cons? [X]
-  (and (seq? X) (not-empty X)))
+  (and (seq? X) (not (empty? X))))
 
 (defn intern [String]
   (core/intern (find-ns 'shen)
@@ -122,7 +124,8 @@
   (core/let [X-safe (if (list? X) (gensym (eval X)) X)
              Z (if (list? X) (walk/postwalk
                               #(if (= X %) X-safe %) Z) Z)]
-                    `(core/let [~X-safe ~Y] ~Z)))
+            `(core/let [~X-safe ~Y]
+                       ~Z)))
 
 (defmacro freeze [X]
   `(fn [] ~X))
@@ -163,7 +166,7 @@
   (.read S))
 
 (defn open [Type String Direction]
-  (core/let [Path (clojure.java.io/file (resolve 'shen/*home-directory*) String)]
+  (core/let [Path (clojure.java.io/file (value '*home-directory*) String)]
     (core/condp = Direction
      'in (clojure.java.io/input-stream Path)
      'out (clojure.java.io/output-stream Path)

@@ -62,7 +62,8 @@
                                       " [jvm "(System/getProperty "java.version")"]")
                 *port* "0.1.0-SNAPSHOT"
                 *porters* "Håkan Råberg"
-                *stinput* clojure.core/*in*}]
+                *stinput* clojure.core/*in*
+                *home-directory* (System/getProperty "user.dir")}]
     `(clojure.core/intern *ns* (with-meta '~k {:dynamic true}) ~v)))
 
 (defn main-fn []
@@ -88,9 +89,9 @@
        (write-clj-file to-dir "shen"
                        (concat [(header 'shen (sort exclusions))]
                                [`(clojure.core/declare ~@(filter symbol? dcl))]
-                               (env)
                                (map #(shen.primitives/shen-kl-to-clj %)
                                     (remove string? shen))
+                               (env)
                                [(main-fn)])))))
 
 (defn install []
