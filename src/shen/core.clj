@@ -9,7 +9,7 @@
   (:gen-class))
 
 (def shen-namespaces '[sys core writer load macros prolog reader sequent
-                       toplevel track t-star yacc declarations])
+                       toplevel track t-star yacc declarations #_ types])
 
 (def cleanup-symbols-pattern
   (re-pattern (str "(\\s+|\\()("

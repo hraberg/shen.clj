@@ -6,7 +6,7 @@
   (:gen-class))
 
 (defn interned? [X]
-  (and (list? X) (= 'shen-symbol (first X))))
+  (and (seq? X) (= 'shen-symbol (first X))))
 
 (defn shen-kl-to-clj
   ([clj] (shen-kl-to-clj clj #{}))
@@ -19,7 +19,7 @@
                  "false" false
                  (list 'quote clj))
        (every-pred
-        list?
+        seq?
         not-empty) (core/let [[fst snd trd & rst] clj
                               scope (condp get fst
                                       '#{defun} (into (conj scope snd) trd)
@@ -29,7 +29,7 @@
                                     (some-fn
                                      interned?
                                      scope) (list 'value fst)
-                                     list? (shen-kl-to-clj fst scope)
+                                     seq? (shen-kl-to-clj fst scope)
                                      fst)
                               snd (condp get fst
                                     '#{defun let lambda} snd
@@ -42,7 +42,7 @@
        clj)))
 
 (defmacro defun [F X & Y]
-  (core/let [F (if (list? F) (eval F) F)]
+  (core/let [F (if (seq? F) (eval F) F)]
     `(defn ^:dynamic ~F
        ~@(for [p# (map #(take % X) (range 1 (count X)))]
            `(~(vec p#) (partial ~F ~@p#)))
@@ -101,14 +101,14 @@
 
 (defn- shen-elim-define [X]
   (if (seq? X)
-    (if ('#{define} (first X)) (core/let [F (shen-kl-to-clj ((value 'shen-shen->kl)
-                                                             (second X)
-                                                             (drop 2 X)))]
-                                          (binding [*ns* (find-ns 'shen)]
-                                            (println F (core/type F))
-                                            (eval F)))
+    (if ('#{define} (first X)) (core/let [KL ((value 'shen-shen->kl)
+                                              (second X)
+                                              (drop 2 X))
+                                          F (shen-kl-to-clj KL)]
+                                         (binding [*ns* (find-ns 'shen)]
+                                           (eval F)))
         (map shen-elim-define X))
-   X))
+    X))
 
 (defn eval-without-macros [X]
   (core/let [kl (shen-kl-to-clj (shen-elim-define X))]
@@ -120,9 +120,9 @@
   `(fn [~X] ~Y))
 
 (defmacro let [X Y Z]
-  (core/let [X-safe (if (list? X) (gensym (eval X)) X)
-             Z (if (list? X) (walk/postwalk
-                              #(if (= X %) X-safe %) Z) Z)]
+  (core/let [X-safe (if (seq? X) (gensym (eval X)) X)
+             Z (if (seq? X) (walk/postwalk
+                             #(if (= X %) X-safe %) Z) Z)]
             `(core/let [~X-safe ~Y]
                        ~Z)))
 
