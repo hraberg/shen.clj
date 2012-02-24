@@ -8,9 +8,8 @@
            [java.util.regex Pattern])
   (:gen-class))
 
-;; Contains duplications so globals gets built again once everything is defined properly.
-(def shen-namespaces '[sys core writer load macros macros prolog reader sequent
-                       toplevel track t-star yacc declarations declarations])
+(def shen-namespaces '[sys core writer load macros prolog reader sequent
+                       toplevel track t-star yacc declarations])
 
 (def cleanup-symbols-pattern
   (re-pattern (str "(\\s+|\\()("
@@ -92,6 +91,7 @@
                                (map #(shen.primitives/shen-kl-to-clj %)
                                     (remove string? shen))
                                (env)
+                               ['(set '*macros* (clojure.core/map value *macros*))]
                                [(main-fn)])))))
 
 (defn install []
