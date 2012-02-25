@@ -42,7 +42,7 @@
 
 (defn header [namespace exclusions]
   `(ns ~namespace
-     (:use [shen.primitives])
+     (:require [shen.primitives])
      (:refer-clojure :exclude ~(vec exclusions))
      (:gen-class)))
 
@@ -63,11 +63,17 @@
                 *porters* "Håkan Råberg"
                 *stinput* clojure.core/*in*
                 *home-directory* (System/getProperty "user.dir")}]
-    `(clojure.core/intern *ns* (with-meta '~k {:dynamic true}) ~v)))
+    `(clojure.core/intern (find-ns '~'shen) (with-meta '~k {:dynamic true}) ~v)))
 
 (defn main-fn []
   '(defn -main []
      (shen-shen)))
+
+(defn alias-vars []
+  '(doseq [[k v] (ns-publics 'shen.primitives)]
+     (do
+       (shen.primitives/set k v)
+       (alter-meta! (find-var (symbol "shen" (name k))) merge (meta v)))))
 
 (defn write-clj-file [dir name forms]
   (with-open [w (writer (file dir (str name ".clj")))]
@@ -88,6 +94,7 @@
        (write-clj-file to-dir "shen"
                        (concat [(header 'shen (sort exclusions))]
                                [`(clojure.core/declare ~@(filter symbol? dcl))]
+                               [(alias-vars)]
                                (map #(shen.primitives/shen-kl-to-clj %)
                                     (remove string? shen))
                                (env)

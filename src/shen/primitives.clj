@@ -2,10 +2,10 @@
   (:require [clojure.core :as core])
   (:require [clojure.string :as string])
   (:require [clojure.walk :as walk])
-  (:refer-clojure :exclude [set intern let pr type cond cons])
+  (:refer-clojure :exclude [set intern let pr type cond cons number? + - * / > < >= <=])
   (:gen-class))
 
-(defn interned? [X]
+(defn ^:private interned? [X]
   (and (seq? X) (= 'shen-symbol (first X))))
 
 (defn shen-kl-to-clj
@@ -190,11 +190,17 @@
     (str Str1 Str2)
     (concat Str1 Str2)))
 
-(def internal-start-time (System/currentTimeMillis))
+(def ^:private internal-start-time (System/currentTimeMillis))
 
 (defn get-time [Time]
    (if (= Time 'run)
-       (* 1.0 (/ (- (System/currentTimeMillis) internal-start-time)
+       (core/* 1.0 (clojure.core// (core/- (System/currentTimeMillis) internal-start-time)
                  1000))
        (throw (IllegalArgumentException.
                (str "get-time does not understand the parameter " Time)))))
+
+(def number? core/number?)
+
+(doseq [op '[+ - * / > < >= <=]
+        :let [real-op (symbol "clojure.core" (name op))]]
+  (eval `(defun ~op ~'[X Y] (~real-op ~'X ~'Y))))
