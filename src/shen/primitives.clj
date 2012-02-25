@@ -135,7 +135,7 @@
   (X))
 
 (defn absvector [N]
-  (doto (object-array N) (java.util.Arrays/fill ())))
+  (doto (make-array Object N) (java.util.Arrays/fill 'fail!)))
 
 (defn absvector? [X]
   (if (nil? X)

@@ -3,5 +3,6 @@
   :license {:name "Shen License"
             :url "http://www.shenlanguage.org/license.html"}
   :dependencies [[org.clojure/clojure "1.4.0-beta1"]]
+;  :dev-dependencies [[org.clojure/tools.trace "0.7.2-SNAPSHOT"]]
   :main shen.core
   :aot [shen.primitives shen.core shen])
