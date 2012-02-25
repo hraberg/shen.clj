@@ -5,4 +5,4 @@
 
 (deftest README.shen
   (shen/read-file "shen/test-programs/README.shen")
-  (is (= 0 (shen.primitives/value '*failed*))))
+  (is (zero? (shen.primitives/value '*failed*))))
