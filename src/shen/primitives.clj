@@ -52,8 +52,9 @@
   `(core/cond ~@(apply concat CS)))
 
 (defn shen-symbol [X]
-  (if (= "/" X) (symbol X)
-      (symbol (string/replace (name X) "/" "-slash-"))))
+  (core/let [s (name X)]
+    (symbol (if (= "/" s) s
+                (string/replace s "/" "-slash-")))))
 
 (defn set [X Y]
   @(core/intern (find-ns 'shen)
