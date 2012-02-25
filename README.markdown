@@ -24,6 +24,10 @@ To run the REPL:
     # If shen.clj already exists, for readline support:
     lein repl
 
+### The other port, Shen to Clojure:
+
+http://code.google.com/p/shen-to-clojure/
+
 ## License
 
 http://shenlanguage.org/license.html
