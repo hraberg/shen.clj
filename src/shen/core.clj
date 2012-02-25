@@ -43,13 +43,13 @@
 (defn header [namespace exclusions]
   `(ns ~namespace
      (:require [shen.primitives])
-     (:refer-clojure :exclude ~(vec exclusions))
+     (:refer-clojure :only [])
      (:gen-class)))
 
 (defn ns-symbols [ns]
   (set (map first (ns-publics ns))))
 
-(def missing-declarations '#{shen-kl-to-lisp FORMAT READ-CHAR declare})
+(def missing-declarations '#{shen-kl-to-lisp FORMAT READ-CHAR declare ->})
 
 (defn declarations [clj]
   (into missing-declarations
@@ -66,14 +66,16 @@
     `(clojure.core/intern (find-ns '~'shen) (with-meta '~k {:dynamic true}) ~v)))
 
 (defn main-fn []
-  '(defn -main []
+  '(clojure.core/defn -main []
      (shen-shen)))
 
 (defn alias-vars []
-  '(doseq [[k v] (ns-publics 'shen.primitives)]
-     (do
-       (shen.primitives/set k v)
-       (alter-meta! (find-var (symbol "shen" (name k))) merge (meta v)))))
+  '(clojure.core/doseq [[k v] (clojure.core/merge (clojure.core/ns-publics 'shen.primitives)
+                                                  (clojure.core/select-keys (clojure.core/ns-publics 'clojure.core) '[and or]))]
+                       (do
+                         (shen.primitives/set k v)
+                         (clojure.core/alter-meta! (clojure.core/find-var (clojure.core/symbol "shen" (clojure.core/name k)))
+                                                   clojure.core/merge (clojure.core/meta v)))))
 
 (defn write-clj-file [dir name forms]
   (with-open [w (writer (file dir (str name ".clj")))]

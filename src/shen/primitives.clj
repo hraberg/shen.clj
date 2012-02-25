@@ -2,8 +2,23 @@
   (:require [clojure.core :as core])
   (:require [clojure.string :as string])
   (:require [clojure.walk :as walk])
-  (:refer-clojure :exclude [set intern let pr type cond cons number? + - * / > < >= <=])
+  (:refer-clojure :exclude [set intern let pr type cond cons number? string? str + - * / > < >= <= =])
   (:gen-class))
+
+(defmacro defun [F X & Y]
+  (core/let [F (if (seq? F) (eval F) F)]
+    `(defn ^:dynamic ~F
+       ~@(for [p# (map #(take % X) (range 1 (count X)))]
+           `(~(vec p#) (partial ~F ~@p#)))
+       (~(vec X) ~@Y))))
+
+(def number? core/number?)
+(def string? core/string?)
+(def str core/str)
+
+(doseq [op '[+ - * / > < >= <= =]
+        :let [real-op (symbol "clojure.core" (name op))]]
+  (eval `(defun ~op ~'[X Y] (~real-op ~'X ~'Y))))
 
 (defn ^:private interned? [X]
   (and (seq? X) (= 'shen-symbol (first X))))
@@ -42,13 +57,6 @@
                                                  (core/map #(shen-kl-to-clj % scope) rst))))
        clj)))
 
-(defmacro defun [F X & Y]
-  (core/let [F (if (seq? F) (eval F) F)]
-    `(defn ^:dynamic ~F
-       ~@(for [p# (map #(take % X) (range 1 (count X)))]
-           `(~(vec p#) (partial ~F ~@p#)))
-       (~(vec X) ~@Y))))
-
 (defmacro cond [& CS]
   `(core/cond ~@(apply concat CS)))
 
@@ -58,9 +66,10 @@
                 (string/replace s "/" "-slash-")))))
 
 (defn set [X Y]
-  @(core/intern (find-ns 'shen)
-                (shen-symbol X)
-                Y))
+  (core/let [s (shen-symbol X)]
+            @(core/intern (find-ns 'shen)
+                          (shen-symbol X)
+                          Y)))
 
 (defn value [X]
   (if-let [v (and (symbol? X) (ns-resolve 'shen (shen-symbol X)))]
@@ -98,7 +107,7 @@
 
 (defn intern [String]
   (core/let [s (shen-symbol String)]
-            (core/intern (find-ns 'shen) s)
+;            (core/intern (find-ns 'shen) s)
             s))
 
 (defn- shen-elim-define [X]
@@ -194,13 +203,7 @@
 
 (defn get-time [Time]
    (if (= Time 'run)
-       (core/* 1.0 (clojure.core// (core/- (System/currentTimeMillis) internal-start-time)
+       (* 1.0 (/ (- (System/currentTimeMillis) internal-start-time)
                  1000))
        (throw (IllegalArgumentException.
                (str "get-time does not understand the parameter " Time)))))
-
-(def number? core/number?)
-
-(doseq [op '[+ - * / > < >= <=]
-        :let [real-op (symbol "clojure.core" (name op))]]
-  (eval `(defun ~op ~'[X Y] (~real-op ~'X ~'Y))))
