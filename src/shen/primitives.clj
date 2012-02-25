@@ -61,7 +61,7 @@
                 Y))
 
 (defn value [X]
-  (if-let [v (and (symbol? X) ((core/ns-publics 'shen) (shen-symbol X)))]
+  (if-let [v (and (symbol? X) (resolve (shen-symbol X)))]
     @v
     X))
 
