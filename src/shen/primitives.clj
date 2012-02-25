@@ -17,6 +17,7 @@
        symbol? (condp = (name clj)
                  "true" true
                  "false" false
+                 "nil" nil
                  (list 'quote clj))
        (every-pred
         seq?
