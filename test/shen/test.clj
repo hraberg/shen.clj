@@ -1,8 +1,11 @@
 (ns shen.test
   (:use [clojure.test])
   (:require [shen]
-            [shen.primitives]))
+            [shen.primitives :as primitives]))
 
-(deftest README.shen
+(defn parse [s]
+  ((intern 'shen (symbol "@p")) (map int s) ()))
+
+(deftest  README.shen
   (is (shen/read-file "shen/test-programs/README.shen"))
-  (is (zero? (shen.primitives/value '*failed*))))
+  (is (= 0 (shen.primitives/value '*failed*))))
