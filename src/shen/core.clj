@@ -3,13 +3,13 @@
         [clojure.pprint :only (pprint)]
         [clojure.set :only (intersection)])
   (:require [clojure.string :as string])
-  (:require [shen.primitives :reload true])
+  (:require [shen.primitives])
   (:import [java.io StringReader PushbackReader FileNotFoundException]
            [java.util.regex Pattern])
   (:gen-class))
 
 (def shen-namespaces '[sys core writer load macros prolog reader sequent
-                       toplevel track t-star printer yacc declarations #_ types])
+                       toplevel track t-star printer yacc declarations types])
 
 (def cleanup-symbols-pattern
   (re-pattern (str "(\\s+|\\()("

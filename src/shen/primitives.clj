@@ -72,12 +72,12 @@
   `(try
      ~X
      (catch Throwable _#
-       (.printStackTrace _#)
        (~F _#))))
 
 (defn error-to-string [E]
   (if (instance? Throwable E)
-    (str E)
+    (with-out-str
+      (.printStackTrace E))
     (throw (IllegalArgumentException. (str E " is not an exception")))))
 
 (declare absvector? cons?)
@@ -113,7 +113,7 @@
 (defn eval-without-macros [X]
   (core/let [kl (shen-kl-to-clj (shen-elim-define X))]
             (binding [*ns* (find-ns 'shen)]
-              (println kl (core/type kl))
+;              (println kl (core/type kl))
               (eval kl))))
 
 (defmacro lambda [X Y]
