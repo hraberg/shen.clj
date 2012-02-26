@@ -19,24 +19,6 @@ Is a work in progress. The example on the Shen homepage now works. The test suit
 
 Uses [Leiningen](https://github.com/technomancy/leiningen) to build.
 
-## Roadmap
-
-This port, while aiming to conform closely (and hopefully fully) to the (Shen specification)[http://shenlanguage.org/Documentation/shendoc.htm], has its primiary goal to enable Shen's power in real world Clojure code.
-
-* Test suite running properly. (day/s)
-* Test suite passing. (days to week/s)
-* Shen / Clojure interop:
-** define macro to embed Shen in Clojure (if needed: https://github.com/klutometis/reader-macros)
-** Shen packages as namespaces?
-** Hiding KLambda and its names a bit.
-** Bringing smaller parts of Shen goodness back into Clojure: predicate dispatch, pattern matching, prolog. Maybe even the type system.
-** Ensuring Shen can call Clojure/Java properly.
-* Future / Questions
-** Some implicit recur, but not too much focus on premature-TCO.
-** Revist using STM (refs/atoms) instead of inten for set/value.
-* Exisiting Shen libraries and portability?
-** overrides.clj - rewriting parts of Shen into Clojure if interop or performance requires it.
-
 ### To run the REPL:
 
     lein trampoline run
@@ -78,6 +60,24 @@ This port, while aiming to conform closely (and hopefully fully) to the (Shen sp
                  (/. X (integer? (/ X 3))))
     [0 3 6 9 12 15 18 21 24 27 30 33 36 39 42 45 48 51 54 57 60... etc]
 
+
+## Roadmap
+
+This port, while aiming to conform closely (and hopefully fully) to the (Shen specification)[http://shenlanguage.org/Documentation/shendoc.htm], has its primiary goal to enable Shen's power in real world Clojure code.
+
+* Test suite running properly. (day/s)
+* Test suite passing. (days to week/s)
+* Shen / Clojure interop:
+    * define macro to embed Shen in Clojure (if needed: https://github.com/klutometis/reader-macros)
+    * Shen packages as namespaces?
+    * Hiding KLambda and its names a bit.
+    * Bringing smaller parts of Shen goodness back into Clojure: predicate dispatch, pattern matching, prolog. Maybe even the type system.
+    * Ensuring Shen can call Clojure/Java properly.
+* Future / Questions
+    * Some implicit recur, but not too much focus on premature-TCO.
+    * Revist using STM (refs/atoms) instead of inten for set/value.
+* Exisiting Shen libraries and portability?
+    * overrides.clj - rewriting parts of Shen into Clojure if interop or performance requires it.
 
 
 #### The other port, Shen to Clojure
