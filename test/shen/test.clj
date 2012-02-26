@@ -5,15 +5,6 @@
             [shen.primitives :as primitives]))
 
 (defn toggle-trace [tfn]
-  (defmethod print-method Object [o ^java.io.Writer w]
-    (if (-> o class .isArray) (print-method (vec o) w)
-        (do
-          (.write w "#<")
-          (.write w (.getSimpleName (class o)))
-          (.write w " ")
-          (.write w (str o))
-          (.write w ">"))))
-
   (require 'clojure.tools.trace)
   (doseq [ns '[shen shen.primitives]]
     ((ns-resolve 'clojure.tools.trace tfn) ns)))
@@ -35,8 +26,14 @@
        true "true"
        false "false"
        "String" "\"String\""
-       () "()"))
+       () "()"
+       '(+ 1 1) "(+ 1 1)"))
 
-;; (deftest README.shen
-;;   (is (shen/read-file "shen/test-programs/README.shen"))
-;;   (is (= 0 (shen.primitives/value '*failed*))))
+(defn test-programs []
+  (shen/cd "shen/test-programs")
+  (shen/load "README.shen")
+  (shen/load "tests.shen"))
+
+(deftest README.shen
+  (is (test-programs))
+  (is (= 0 (shen.primitives/value '*failed*))))

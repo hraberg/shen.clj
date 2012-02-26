@@ -14,7 +14,9 @@
 
 (def number? core/number?)
 (def string? core/string?)
-(def str core/str)
+(defn str [& X]
+  (when (= (last X) ()) (throw (RuntimeException.)))
+  (apply core/str X))
 
 (doseq [op '[+ - * / > < >= <= =]
         :let [real-op (symbol "clojure.core" (name op))]]
@@ -32,6 +34,8 @@
 
 (defn ^:private interned? [X]
   (and (seq? X) (= 'shen-symbol (first X))))
+
+(def safe-tail-call '#{shen-reverse_help shen-read-file-as-bytelist-help})
 
 (defn shen-kl-to-clj
   ([clj] (shen-kl-to-clj clj #{}))
@@ -54,7 +58,9 @@
                               fst (condp some [fst]
                                     (some-fn
                                      interned?
-                                     scope) (list 'value fst)
+                                     scope) (if (safe-tail-call fst)
+                                              'recur
+                                              (list 'value fst))
                                      seq? (shen-kl-to-clj fst scope)
                                      fst)
                               snd (condp get fst
@@ -134,7 +140,7 @@
 (defn eval-without-macros [X]
   (core/let [kl (shen-kl-to-clj (shen-elim-define X))]
             (binding [*ns* (find-ns 'shen)]
-;              (println kl (core/type kl))
+              (println kl (core/type kl))
               (eval kl))))
 
 (defmacro lambda [X Y]
@@ -217,3 +223,7 @@
                  1000))
        (throw (IllegalArgumentException.
                (str "get-time does not understand the parameter " Time)))))
+
+(defmethod print-method (core/type (object-array 1)) [o ^java.io.Writer w]
+  (print-method (vec o) w))
+
