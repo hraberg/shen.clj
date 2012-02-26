@@ -45,10 +45,7 @@
      (:refer-clojure :only [])
      (:gen-class)))
 
-(defn ns-symbols [ns]
-  (set (map first (ns-publics ns))))
-
-(def missing-declarations '#{shen-kl-to-lisp FORMAT READ-CHAR declare ->})
+(def missing-declarations '#{shen-kl-to-lisp FORMAT READ-CHAR})
 
 (defn declarations [clj]
   (into missing-declarations
