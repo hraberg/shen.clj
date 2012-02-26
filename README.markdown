@@ -26,7 +26,7 @@ This port, while aiming to conform closely (and hopefully fully) to the (Shen sp
 # Test suite running properly. (day/s)
 # Test suite passing. (days to week/s)
 # Shen / Clojure interop:
-    # define and /. macros to embed Shen in Clojure (if needed: https://github.com/klutometis/reader-macros)
+    # define macro to embed Shen in Clojure (if needed: https://github.com/klutometis/reader-macros)
     # Shen packages as namespaces?
     # Hiding KLambda and its names a bit.
     # Bringing smaller parts of Shen goodness back into Clojure: predicate dispatch, pattern matching, prolog. Maybe even the type system.
