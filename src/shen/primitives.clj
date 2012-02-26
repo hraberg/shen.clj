@@ -126,11 +126,6 @@
 (defn cons? [X]
   (and (coll? X) (not (empty? X))))
 
-
-(defn ^:private with-shen* [body]
-  (binding [*ns* (the-ns 'shen)]
-    `'~(last (doall (map eval body)))))
-
 (defn ^:private vec-to-cons [[fst & rst]]
   (if fst (list 'cons fst (vec-to-cons rst))
       ()))
@@ -145,7 +140,8 @@
   (core/let [body (walk/postwalk cleanup-clj body)
              kl ((value 'shen-shen->kl) name body)
              clj (shen-kl-to-clj kl)]
-            (with-shen* [clj])))
+            (binding [*ns* (the-ns 'shen)]
+              (eval clj))))
 
 (defn ^:private shen-elim-define [X]
   (if (seq? X)
