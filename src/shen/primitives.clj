@@ -2,7 +2,11 @@
   (:require [clojure.core :as core])
   (:require [clojure.string :as string])
   (:require [clojure.walk :as walk])
-  (:refer-clojure :exclude [set intern let pr type cond cons number? string? str + - * / > < >= <= = or and])
+  (:require [clojure.java.io :as io])
+  (:refer-clojure :exclude [set intern let pr type cond cons number? string? str
+                            + - * / > < >= <= = or and])
+  (:import [java.io Writer]
+           [java.util Arrays])
   (:gen-class))
 
 (defmacro defun [F X & Y]
@@ -154,7 +158,7 @@
   (X))
 
 (defn absvector [N]
-  (doto (make-array Object N) (java.util.Arrays/fill 'fail!)))
+  (doto (make-array Object N) (Arrays/fill 'fail!)))
 
 (defn absvector? [X]
   (if (nil? X)
@@ -186,10 +190,10 @@
   (.read S))
 
 (defn open [Type String Direction]
-  (core/let [Path (clojure.java.io/file (value '*home-directory*) String)]
+  (core/let [Path (io/file (value '*home-directory*) String)]
     (core/condp = Direction
-     'in (clojure.java.io/input-stream Path)
-     'out (clojure.java.io/output-stream Path)
+     'in (io/input-stream Path)
+     'out (io/output-stream Path)
      (throw (IllegalArgumentException. "invalid direction")))))
 
 (defn type [X MyType]
@@ -218,5 +222,5 @@
        (throw (IllegalArgumentException.
                (str "get-time does not understand the parameter " Time)))))
 
-(defmethod print-method (core/type (object-array 1)) [o ^java.io.Writer w]
+(defmethod print-method (class (object-array 1)) [o ^Writer w]
   (print-method (vec o) w))
