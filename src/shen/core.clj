@@ -1,7 +1,6 @@
 (ns shen.core
   (:use [clojure.java.io :only (file reader writer)]
-        [clojure.pprint :only (pprint)]
-        [clojure.set :only (intersection)])
+        [clojure.pprint :only (pprint)])
   (:require [clojure.string :as string])
   (:require [shen.primitives])
   (:import [java.io StringReader PushbackReader FileNotFoundException]
@@ -40,7 +39,7 @@
     (catch Exception e
       (println file e))))
 
-(defn header [namespace exclusions]
+(defn header [namespace]
   `(ns ~namespace
      (:require [shen.primitives])
      (:refer-clojure :only [])
@@ -86,10 +85,9 @@
      (.mkdirs (file to-dir))
      (let [shen (mapcat read-kl-file
                         (map #(file dir (str % ".kl")) shen-namespaces))
-           dcl (declarations shen)
-           exclusions (intersection (into (ns-symbols 'shen.primitives) dcl) (ns-symbols 'clojure.core))]
+           dcl (declarations shen)]
        (write-clj-file to-dir "shen"
-                       (concat [(header 'shen (sort exclusions))]
+                       (concat [(header 'shen)]
                                [`(clojure.core/declare ~@(filter symbol? dcl))]
                                [(alias-vars)]
                                (map #(shen.primitives/shen-kl-to-clj %)
