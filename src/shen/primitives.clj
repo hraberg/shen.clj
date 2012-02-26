@@ -83,7 +83,7 @@
   `(core/cond ~@(apply concat CS)))
 
 (defn set [X Y]
-  @(core/intern (find-ns 'shen)
+  @(core/intern (the-ns 'shen)
                 (intern X)
                 Y))
 
@@ -110,7 +110,7 @@
 (declare absvector? cons?)
 
 (defn cons [X Y]
-  (if (or (cons? Y) (seq? Y))
+  (if (coll? Y)
     (core/cons X Y)
     (list X Y)))
 
@@ -119,26 +119,28 @@
 (defn tl [X] (rest X))
 
 (defn cons? [X]
-  (and (seq? X) (not (empty? X))))
+  (and (coll? X) (not (empty? X))))
 
 (defn ^:private shen-elim-define [X]
   (if (seq? X)
-    (if ('#{define} (first X)) (core/let [KL ((value 'shen-shen->kl)
+    (if ('#{define} (first X)) (core/let [kl ((value 'shen-shen->kl)
                                               (second X)
                                               (drop 2 X))
-                                          F (shen-kl-to-clj KL)]
-                                         (binding [*ns* (find-ns 'shen)]
-                                           (eval F)))
+                                          clj (shen-kl-to-clj kl)]
+                                         (binding [*ns* (the-ns 'shen)]
+                                           (eval clj)))
         (map shen-elim-define X))
     X))
 
 (defn eval-without-macros [X]
-  (core/let [KL (shen-kl-to-clj (shen-elim-define X))]
-            (binding [*ns* (find-ns 'shen)]
-              (eval KL))))
+  (core/let [kl (shen-kl-to-clj (shen-elim-define X))]
+            (binding [*ns* (the-ns 'shen)]
+              (eval kl))))
 
 (defmacro lambda [X Y]
   `(fn [~X] ~Y))
+
+(def ^{:macro true} λ #'shen.primitives/lambda)
 
 (defmacro let [X Y Z]
   (core/let [X-safe (if (seq? X) (gensym (eval X)) X)
@@ -218,3 +220,21 @@
 
 (defmethod print-method (class (object-array 1)) [o ^Writer w]
   (print-method (vec o) w))
+
+(defn vec-to-cons [v]
+  (if (seq v) (list 'cons (first v)
+                    (vec-to-cons (rest v)))
+      ()))
+
+(defmacro define [name & body]
+  (binding [*ns* (the-ns 'shen)]
+    (core/let [body (walk/postwalk (fn [x] (condp some [x]
+                                             vector? (vec-to-cons x)
+                                             #{'λ} 'lambda
+                                             x)) body)
+               kl ((value 'shen-shen->kl)
+                   name
+                   body)
+               clj (shen-kl-to-clj kl)]
+      (eval clj))))
+
