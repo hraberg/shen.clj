@@ -153,12 +153,11 @@
         (map shen-elim-define X))
     X))
 
-(defmacro with-shen [& body]
-  `'~((resolve 'shen/shen-toplevel)
-      (walk/postwalk cleanup-clj body)))
+(defmacro eval-shen [& body]
+  `((resolve 'shen/eval) '~@(walk/postwalk cleanup-clj body)))
 
 (defmacro 神 [& body]
-  `(with-shen ~@body))
+  `(eval-shen ~@body))
 
 (defmacro define [name & body]
   (define* name body))
