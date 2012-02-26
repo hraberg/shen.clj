@@ -34,7 +34,7 @@
 (alias-vars (select-keys (ns-map 'clojure.core) '[and or]) 'shen.primitives)
 
 (defn ^:private interned? [X]
-  (and (seq? X) (= 'shen-symbol (first X))))
+  (and (seq? X) (= 'intern (first X))))
 
 (def safe-tail-call '#{shen-reverse_help shen-read-file-as-bytelist-help})
 
@@ -74,21 +74,21 @@
                                                  (core/map #(shen-kl-to-clj % scope) rst))))
        clj)))
 
-(defmacro cond [& CS]
-  `(core/cond ~@(apply concat CS)))
-
-(defn shen-symbol [X]
-  (core/let [s (name X)]
+(defn intern [String]
+  (core/let [s (name String)]
     (symbol (if (= "/" s) s
                 (string/replace s "/" "-slash-")))))
 
+(defmacro cond [& CS]
+  `(core/cond ~@(apply concat CS)))
+
 (defn set [X Y]
   @(core/intern (find-ns 'shen)
-                (shen-symbol X)
+                (intern X)
                 Y))
 
 (defn value [X]
-  (if-let [v (and (symbol? X) (ns-resolve 'shen (shen-symbol X)))]
+  (if-let [v (and (symbol? X) (ns-resolve 'shen (intern X)))]
     @v
     X))
 
@@ -120,9 +120,6 @@
 
 (defn cons? [X]
   (and (seq? X) (not (empty? X))))
-
-(defn intern [String]
-  (shen-symbol String))
 
 (defn ^:private shen-elim-define [X]
   (if (seq? X)

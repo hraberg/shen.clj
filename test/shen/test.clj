@@ -1,6 +1,6 @@
 (ns shen.test
   (:use [clojure.test]
-        [shen.primitives :only (value shen-symbol shen-kl-to-clj)])
+        [shen.primitives :only (value intern shen-kl-to-clj)])
   (:require [shen]
             [shen.primitives :as primitives]))
 
@@ -10,7 +10,7 @@
     ((ns-resolve 'clojure.tools.trace tfn) ns)))
 
 (defn read-bytes [s]
-  ((value (shen-symbol "@p")) (map int s) ()))
+  ((value (intern "@p")) (map int s) ()))
 
 (defn parse-shen [s]
   (-> s read-bytes shen/shen-<st_input> shen/snd first))
