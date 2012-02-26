@@ -63,7 +63,7 @@ Uses [Leiningen](https://github.com/technomancy/leiningen) to build.
 
 ## Roadmap
 
-This port, while aiming to conform closely (and hopefully fully) to the (Shen specification)[http://shenlanguage.org/Documentation/shendoc.htm], has its primiary goal to enable Shen's power in real world Clojure code.
+This port, while aiming to conform closely (and hopefully fully) to the [Shen specification](http://shenlanguage.org/Documentation/shendoc.htm), has its primiary goal to enable Shen's power in real world Clojure code.
 
 * Test suite running properly. (day/s)
 * Test suite passing. (days to week/s)
