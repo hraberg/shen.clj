@@ -70,12 +70,7 @@
      (shen-shen)))
 
 (defn alias-vars []
-  '(clojure.core/doseq [[k v] (clojure.core/merge (clojure.core/ns-publics 'shen.primitives)
-                                                  (clojure.core/select-keys (clojure.core/ns-publics 'clojure.core) '[and or]))]
-                       (do
-                         (shen.primitives/set k v)
-                         (clojure.core/alter-meta! (clojure.core/find-var (clojure.core/symbol "shen" (clojure.core/name k)))
-                                                   clojure.core/merge (clojure.core/meta v)))))
+  '(shen.primitives/alias-vars (clojure.core/ns-publics 'shen.primitives) 'shen))
 
 (defn write-clj-file [dir name forms]
   (with-open [w (writer (file dir (str name ".clj")))]

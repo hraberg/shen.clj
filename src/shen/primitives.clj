@@ -2,7 +2,7 @@
   (:require [clojure.core :as core])
   (:require [clojure.string :as string])
   (:require [clojure.walk :as walk])
-  (:refer-clojure :exclude [set intern let pr type cond cons number? string? str + - * / > < >= <= =])
+  (:refer-clojure :exclude [set intern let pr type cond cons number? string? str + - * / > < >= <= = or and])
   (:gen-class))
 
 (defmacro defun [F X & Y]
@@ -19,6 +19,16 @@
 (doseq [op '[+ - * / > < >= <= =]
         :let [real-op (symbol "clojure.core" (name op))]]
   (eval `(defun ~op ~'[X Y] (~real-op ~'X ~'Y))))
+
+
+(defn alias-vars [ns-map target-ns]
+  (doseq [[k v] ns-map]
+    (do
+      (core/intern target-ns k v)
+      (alter-meta! (find-var (symbol (name target-ns) (name k)))
+                   merge (meta v)))))
+
+(alias-vars (select-keys (ns-map 'clojure.core) '[and or]) 'shen.primitives)
 
 (defn ^:private interned? [X]
   (and (seq? X) (= 'shen-symbol (first X))))
