@@ -76,8 +76,10 @@
 
 (defn intern [String]
   (core/let [s (name String)]
-    (symbol (if (= "/" s) s
-                (string/replace s "/" "-slash-")))))
+            (symbol (condp = s
+                      "/" s
+                      "/." "λ"
+                      (string/replace s "/" "-slash-")))))
 
 (defmacro cond [& CS]
   `(core/cond ~@(apply concat CS)))
