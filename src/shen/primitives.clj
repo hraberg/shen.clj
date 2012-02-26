@@ -130,20 +130,32 @@
   (if fst (list 'cons fst (vec-to-cons rst))
       ()))
 
+(defn ^:private cleanup-clj [clj]
+  (condp some [clj]
+    vector? (vec-to-cons clj)
+    #{'λ} 'lambda
+    clj))
+
 (defn ^:private define* [name body]
-  (core/let [body (walk/postwalk (fn [x] (condp some [x]
-                                           vector? (vec-to-cons x)
-                                           #{'λ} 'lambda
-                                           x)) body)
+  (core/let [body (walk/postwalk cleanup-clj body)
              kl ((value 'shen-shen->kl) name body)
-             c (shen-kl-to-clj kl)]
-            (with-shen* [c])))
+             clj (shen-kl-to-clj kl)]
+            (with-shen* [clj])))
 
 (defn ^:private shen-elim-define [X]
   (if (seq? X)
     (if ('#{define} (first X)) (define* (second X) (drop 2 X))
         (map shen-elim-define X))
     X))
+
+(defmacro with-shen [& body]
+  (with-shen* body))
+
+(defmacro 神 [& body]
+  (with-shen* body))
+
+(defmacro define [name & body]
+  (define* name body))
 
 (defn eval-without-macros [X]
   (core/let [kl (shen-kl-to-clj (shen-elim-define X))]
@@ -234,13 +246,3 @@
 
 (defmethod print-method (class (object-array 1)) [o ^Writer w]
   (print-method (vec o) w))
-
-(defmacro with-shen [& body]
-  (with-shen* body))
-
-(defmacro 神 [& body]
-  (with-shen* body))
-
-(defmacro define [name & body]
-  (define* name body))
-
