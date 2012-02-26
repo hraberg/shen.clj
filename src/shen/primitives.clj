@@ -99,8 +99,8 @@
 (defmacro trap-error [X F]
   `(try
      ~X
-     (catch Throwable _#
-       (~F _#))))
+     (catch Throwable T#
+       (~F T#))))
 
 (defn error-to-string [E]
   (if (instance? Throwable E)

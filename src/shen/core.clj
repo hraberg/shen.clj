@@ -109,13 +109,13 @@
     (with-out-str
       ((resolve 'swank.swank/start-repl) port))
     (println "Swank connection opened on" port)
-  (catch FileNotFoundException _)))
+    (catch FileNotFoundException _)))
 
 (defn -main []
   (install)
   (require 'shen)
   (binding [*ns* (the-ns 'shen)]
-;    (swank 4005)
+    (swank 4005)
     ((resolve 'shen/-main))))
 
 (when *compile-files*
