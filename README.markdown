@@ -74,9 +74,9 @@ This port, while aiming to conform closely (and hopefully fully) to the [Shen sp
     * Bringing smaller parts of Shen goodness back into Clojure: predicate dispatch, pattern matching, prolog. Maybe even the type system.
     * Ensuring Shen can call Clojure/Java properly.
 * Future / Questions
-    * Some implicit recur, but not too much focus on premature-TCO.
+    * Some implicit recur, but not too much focus on premature TCO.
     * Revist using STM (refs/atoms) instead of inten for set/value.
-* Exisiting Shen libraries and portability?
+    * Exisiting Shen libraries and portability?
     * overrides.clj - rewriting parts of Shen into Clojure if interop or performance requires it.
 
 
