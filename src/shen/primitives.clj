@@ -121,14 +121,27 @@
 (defn cons? [X]
   (and (coll? X) (not (empty? X))))
 
+
+(defn ^:private with-shen* [body]
+  (binding [*ns* (the-ns 'shen)]
+    `'~(last (doall (map eval body)))))
+
+(defn ^:private vec-to-cons [[fst & rst]]
+  (if fst (list 'cons fst (vec-to-cons rst))
+      ()))
+
+(defn ^:private define* [name body]
+  (core/let [body (walk/postwalk (fn [x] (condp some [x]
+                                           vector? (vec-to-cons x)
+                                           #{'λ} 'lambda
+                                           x)) body)
+             kl ((value 'shen-shen->kl) name body)
+             c (shen-kl-to-clj kl)]
+            (with-shen* [c])))
+
 (defn ^:private shen-elim-define [X]
   (if (seq? X)
-    (if ('#{define} (first X)) (core/let [kl ((value 'shen-shen->kl)
-                                              (second X)
-                                              (drop 2 X))
-                                          clj (shen-kl-to-clj kl)]
-                                         (binding [*ns* (the-ns 'shen)]
-                                           (eval clj)))
+    (if ('#{define} (first X)) (define* (second X) (drop 2 X))
         (map shen-elim-define X))
     X))
 
@@ -222,14 +235,6 @@
 (defmethod print-method (class (object-array 1)) [o ^Writer w]
   (print-method (vec o) w))
 
-(defn ^:private vec-to-cons [[fst & rst]]
-  (if fst (list 'cons fst (vec-to-cons rst))
-      ()))
-
-(defn ^:private with-shen* [body]
-  (binding [*ns* (the-ns 'shen)]
-    `'~(last (doall (map eval body)))))
-
 (defmacro with-shen [& body]
   (with-shen* body))
 
@@ -237,11 +242,5 @@
   (with-shen* body))
 
 (defmacro define [name & body]
-  (core/let [body (walk/postwalk (fn [x] (condp some [x]
-                                           vector? (vec-to-cons x)
-                                           #{'λ} 'lambda
-                                           x)) body)
-             kl ((value 'shen-shen->kl) name body)
-             c (shen-kl-to-clj kl)]
-            (with-shen* [c])))
+  (define* name body))
 
