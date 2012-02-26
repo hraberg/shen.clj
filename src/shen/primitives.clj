@@ -222,31 +222,26 @@
 (defmethod print-method (class (object-array 1)) [o ^Writer w]
   (print-method (vec o) w))
 
-(defn vec-to-cons [v]
-  (if (seq v) (list 'cons (first v)
-                    (vec-to-cons (rest v)))
+(defn ^:private vec-to-cons [[fst & rst]]
+  (if fst (list 'cons fst (vec-to-cons rst))
       ()))
-
-(defmacro define [name & body]
-  (binding [*ns* (the-ns 'shen)]
-    (core/let [body (walk/postwalk (fn [x] (condp some [x]
-                                             vector? (vec-to-cons x)
-                                             #{'λ} 'lambda
-                                             x)) body)
-               kl ((value 'shen-shen->kl)
-                   name
-                   body)
-               clj (shen-kl-to-clj kl)]
-      (eval clj))))
 
 (defn ^:private with-shen* [body]
   (binding [*ns* (the-ns 'shen)]
-    (core/let [r (core/last (doall (core/map core/eval body)))]
-              `'~r)))
-
+    `'~(last (doall (map eval body)))))
 
 (defmacro with-shen [& body]
   (with-shen* body))
 
 (defmacro 神 [& body]
   (with-shen* body))
+
+(defmacro define [name & body]
+  (core/let [body (walk/postwalk (fn [x] (condp some [x]
+                                           vector? (vec-to-cons x)
+                                           #{'λ} 'lambda
+                                           x)) body)
+             kl ((value 'shen-shen->kl) name body)
+             c (shen-kl-to-clj kl)]
+            (with-shen* [c])))
+

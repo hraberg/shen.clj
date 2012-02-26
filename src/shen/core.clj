@@ -119,6 +119,9 @@
 (when *compile-files*
   (install))
 
-(when (->> (Thread/currentThread) .getStackTrace seq
-           (map str) (some (partial re-find #"clojure.main.repl")))
+(defn repl? []
+  (->> (Thread/currentThread) .getStackTrace seq
+       (map str) (some (partial re-find #"clojure.main.repl"))))
+
+(when (repl?)
   (-main))
