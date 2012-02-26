@@ -12,16 +12,15 @@
            `(~(vec p#) (partial ~F ~@p#)))
        (~(vec X) ~@Y))))
 
+(doseq [op '[+ - * / > < >= <= =]
+        :let [real-op (symbol "clojure.core" (name op))]]
+  (eval `(defun ~op ~'[X Y] (~real-op ~'X ~'Y))))
+
 (def number? core/number?)
 (def string? core/string?)
 (defn str [& X]
   (when (= (last X) ()) (throw (RuntimeException.)))
   (apply core/str X))
-
-(doseq [op '[+ - * / > < >= <= =]
-        :let [real-op (symbol "clojure.core" (name op))]]
-  (eval `(defun ~op ~'[X Y] (~real-op ~'X ~'Y))))
-
 
 (defn alias-vars [ns-map target-ns]
   (doseq [[k v] ns-map]
