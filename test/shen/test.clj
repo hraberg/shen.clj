@@ -34,6 +34,7 @@
   (shen/load "README.shen")
   (shen/load "tests.shen"))
 
+
 (deftest README.shen
   (is (test-programs))
   (is (= 0 (shen.primitives/value '*failed*))))

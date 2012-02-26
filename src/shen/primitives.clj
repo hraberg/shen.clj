@@ -19,7 +19,6 @@
 (def number? core/number?)
 (def string? core/string?)
 (defn str [& X]
-  (when (= (last X) ()) (throw (RuntimeException.)))
   (apply core/str X))
 
 (defn alias-vars [ns-map target-ns]
@@ -81,10 +80,9 @@
                 (string/replace s "/" "-slash-")))))
 
 (defn set [X Y]
-  (core/let [s (shen-symbol X)]
-            @(core/intern (find-ns 'shen)
-                          (shen-symbol X)
-                          Y)))
+  @(core/intern (find-ns 'shen)
+                (shen-symbol X)
+                Y))
 
 (defn value [X]
   (if-let [v (and (symbol? X) (ns-resolve 'shen (shen-symbol X)))]
@@ -121,11 +119,9 @@
   (and (seq? X) (not (empty? X))))
 
 (defn intern [String]
-  (core/let [s (shen-symbol String)]
-;            (core/intern (find-ns 'shen) s)
-            s))
+  (shen-symbol String))
 
-(defn- shen-elim-define [X]
+(defn ^:private shen-elim-define [X]
   (if (seq? X)
     (if ('#{define} (first X)) (core/let [KL ((value 'shen-shen->kl)
                                               (second X)
@@ -137,10 +133,9 @@
     X))
 
 (defn eval-without-macros [X]
-  (core/let [kl (shen-kl-to-clj (shen-elim-define X))]
+  (core/let [KL (shen-kl-to-clj (shen-elim-define X))]
             (binding [*ns* (find-ns 'shen)]
-              (println kl (core/type kl))
-              (eval kl))))
+              (eval KL))))
 
 (defmacro lambda [X Y]
   `(fn [~X] ~Y))
@@ -225,4 +220,3 @@
 
 (defmethod print-method (core/type (object-array 1)) [o ^java.io.Writer w]
   (print-method (vec o) w))
-
