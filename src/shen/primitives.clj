@@ -22,8 +22,7 @@
 
 (def number? core/number?)
 (def string? core/string?)
-(defn str [& X]
-  (apply core/str X))
+(defn str [X] (core/str X))
 
 (defn alias-vars [ns-map target-ns]
   (doseq [[k v] ns-map]
@@ -209,9 +208,7 @@
   (subs X 1))
 
 (defn cn [Str1 Str2]
-  (if (string? Str1)
-    (str Str1 Str2)
-    (concat Str1 Str2)))
+  (core/str Str1 Str2))
 
 (def ^:private internal-start-time (System/currentTimeMillis))
 

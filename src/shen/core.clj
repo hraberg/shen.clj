@@ -53,8 +53,8 @@
 
 (defn env []
   (for [[k v] '{*language* "Clojure"
-                *implementation* (str "Clojure " (clojure.core/clojure-version)
-                                      " [jvm "(System/getProperty "java.version")"]")
+                *implementation* (clojure.core/str "Clojure " (clojure.core/clojure-version)
+                                                   " [jvm "(System/getProperty "java.version")"]")
                 *port* "0.1.0-SNAPSHOT"
                 *porters* "Håkan Råberg"
                 *stinput* clojure.core/*in*
