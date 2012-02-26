@@ -149,10 +149,11 @@
     X))
 
 (defmacro with-shen [& body]
-  (with-shen* body))
+  `'~((resolve 'shen/shen-toplevel)
+      (walk/postwalk cleanup-clj body)))
 
 (defmacro 神 [& body]
-  (with-shen* body))
+  `(with-shen ~@body))
 
 (defmacro define [name & body]
   (define* name body))
@@ -166,7 +167,7 @@
   `(fn [~X] ~Y))
 
 (defmacro λ [X Y]
-  `(fn [~X] ~Y))
+  `(lambda ~X ~Y))
 
 (defmacro let [X Y Z]
   (core/let [X-safe (if (seq? X) (gensym (eval X)) X)
