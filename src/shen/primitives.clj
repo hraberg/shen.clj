@@ -9,11 +9,14 @@
            [java.util Arrays])
   (:gen-class))
 
+(defn ^:private partials [name parameters]
+  (for [p# (map #(take % parameters) (range 1 (count parameters)))]
+    `(~(vec p#) (partial ~name ~@p#))))
+
 (defmacro defun [F X & Y]
   (core/let [F (if (seq? F) (eval F) F)]
     `(defn ^:dynamic ~F
-       ~@(for [p# (map #(take % X) (range 1 (count X)))]
-           `(~(vec p#) (partial ~F ~@p#)))
+       ~@(partials F X)
        (~(vec X) ~@Y))))
 
 (doseq [op '[+ - * / > < >= <= =]
@@ -165,11 +168,15 @@
             (binding [*ns* (the-ns 'shen)]
               (eval kl))))
 
-(defmacro lambda [X Y]
-  `(fn [~X] ~Y))
+(defmacro lambda [X & Y]
+  (core/let [body (last Y)
+             parameters (cons X (or (butlast Y) ()))]
+            `(fn this
+               ~@(partials 'this parameters)
+               (~(vec parameters) ~body))))
 
-(defmacro λ [X Y]
-  `(lambda ~X ~Y))
+(defmacro λ [X & Y]
+  `(lambda ~X ~@Y))
 
 (defmacro let [X Y Z]
   (core/let [X-safe (if (seq? X) (gensym (eval X)) X)
