@@ -39,10 +39,11 @@
     (catch Exception e
       (println file e))))
 
-(defn header [namespace]
-  `(ns ~namespace
+(defn header [ns]
+  `(ns ~ns
      (:require [shen.primitives])
      (:refer-clojure :only [])
+     (:require [clojure.core :as ~'clj])
      (:gen-class)))
 
 (def missing-declarations '#{shen-kl-to-lisp FORMAT READ-CHAR})

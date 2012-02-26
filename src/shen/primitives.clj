@@ -140,7 +140,8 @@
 (defmacro lambda [X Y]
   `(fn [~X] ~Y))
 
-(def ^{:macro true} λ #'shen.primitives/lambda)
+(defmacro λ [X Y]
+  `(fn [~X] ~Y))
 
 (defmacro let [X Y Z]
   (core/let [X-safe (if (seq? X) (gensym (eval X)) X)
@@ -238,3 +239,14 @@
                clj (shen-kl-to-clj kl)]
       (eval clj))))
 
+(defn ^:private with-shen* [body]
+  (binding [*ns* (the-ns 'shen)]
+    (core/let [r (core/last (doall (core/map core/eval body)))]
+              `'~r)))
+
+
+(defmacro with-shen [& body]
+  (with-shen* body))
+
+(defmacro 神 [& body]
+  (with-shen* body))
