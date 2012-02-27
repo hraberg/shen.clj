@@ -133,7 +133,7 @@
 (defn ^:private cleanup-clj [clj]
   (condp some [clj]
     vector? (vec-to-cons clj)
-    #{'λ} 'lambda
+    '#{λ} 'lambda
     clj))
 
 (defn ^:private define* [name body]
@@ -163,15 +163,13 @@
             (binding [*ns* (the-ns 'shen)]
               (eval kl))))
 
-(defmacro lambda [X & Y]
-  (core/let [body (last Y)
-             parameters (cons X (or (butlast Y) ()))]
-            `(fn this
-               ~@(partials 'this parameters)
-               (~(vec parameters) ~body))))
+(defmacro lambda [X Y]
+  `(fn [~X & XS#] (core/let [result# ~Y]
+                            (if XS# (apply result# XS#)
+                              result#))))
 
-(defmacro λ [X & Y]
-  `(lambda ~X ~@Y))
+(defmacro λ [X Y]
+  `(lambda ~X ~Y))
 
 (defmacro let [X Y Z]
   (core/let [X-safe (if (seq? X) (gensym (eval X)) X)
