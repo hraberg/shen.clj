@@ -10,8 +10,8 @@
   (:gen-class))
 
 (defn ^:private partials [name parameters]
-  (for [p# (map #(take % parameters) (range 1 (count parameters)))]
-    `(~(vec p#) (partial ~name ~@p#))))
+  (for [p (map #(take % parameters) (range 1 (count parameters)))]
+    `(~(vec p) (partial ~name ~@p))))
 
 (defmacro defun [F X & Y]
   (core/let [F (if (seq? F) (eval F) F)]
