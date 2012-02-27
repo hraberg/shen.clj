@@ -77,6 +77,7 @@ This port, while aiming to conform closely (and hopefully fully) to the [Shen sp
     * Some implicit recur, but not too much focus on premature TCO.
     * Revist using STM (refs/atoms) instead of inten for set/value.
     * Exisiting Shen libraries and portability?
+    * ClojureScript.
     * overrides.clj - rewriting parts of Shen into Clojure if interop or performance requires it.
 
 
