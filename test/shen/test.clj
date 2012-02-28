@@ -79,7 +79,7 @@
                                shen-kl-to-clj))
        1 "1"
        1.0 "1.0"
-       ''a-symbol "a-symbol"
+       ''symbol "symbol"
        nil ""
        nil "nil"
        true "true"
