@@ -54,6 +54,7 @@
        true
 
        ))
+
 (deftest eval
   (are [shen result] ((if (fn? result) result #{result})
                       (-> shen parse-shen shen/eval))
