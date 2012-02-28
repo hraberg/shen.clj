@@ -202,6 +202,9 @@
 (defn n->string [N]
   (core/str (char N)))
 
+(defn string->n [S]
+  (core/int (first S)))
+
 (def byte->string n->string)
 
 (defn pr [X S]
@@ -233,8 +236,9 @@
 (defn tlstr [X]
   (subs X 1))
 
-(defn cn [Str1 Str2]
-  (core/str Str1 Str2))
+(defn cn
+  ([Str1] (partial cn Str1))
+  ([Str1 Str2] (core/str Str1 Str2)))
 
 (def ^:private internal-start-time (System/currentTimeMillis))
 
