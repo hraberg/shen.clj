@@ -67,9 +67,8 @@
                                        (list 'value fst))
                               seq? (shen-kl-to-clj fst scope)
                               fst)
-                       snd (condp get fst
-                             '#{defun let lambda} snd
-                             (shen-kl-to-clj snd scope))
+                       snd (if ('#{defun let lambda} fst) snd
+                               (shen-kl-to-clj snd scope))
                        trd (if ('#{defun} fst) trd
                                (shen-kl-to-clj trd scope))]
                       (take-while (complement nil?)
