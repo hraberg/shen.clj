@@ -29,10 +29,9 @@
 
 (defn alias-vars [ns-map target-ns]
   (doseq [[k v] ns-map]
-    (do
       (core/intern target-ns k v)
       (alter-meta! (find-var (symbol (name target-ns) (name k)))
-                   merge (meta v)))))
+                   merge (meta v))))
 
 (alias-vars (select-keys (ns-map 'clojure.core) '[and or]) 'shen.primitives)
 
