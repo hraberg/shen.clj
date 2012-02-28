@@ -23,17 +23,13 @@
         :let [real-op (symbol "clojure.core" (name op))]]
   (eval `(defun ~op ~'[X Y] (~real-op ~'X ~'Y))))
 
-(def number? core/number?)
-(def string? core/string?)
-(defn str [X] (core/str X))
-
 (defn alias-vars [ns-map target-ns]
   (doseq [[k v] ns-map]
       (core/intern target-ns k v)
       (alter-meta! (find-var (symbol (name target-ns) (name k)))
                    merge (meta v))))
 
-(alias-vars (select-keys (ns-map 'clojure.core) '[and or]) 'shen.primitives)
+(alias-vars (select-keys (ns-map 'clojure.core) '[and or string? number?]) 'shen.primitives)
 
 (defn ^:private interned? [X]
   (and (seq? X) (= 'intern (first X))))
@@ -108,7 +104,7 @@
   (if (instance? Throwable E)
     (with-out-str
       (.printStackTrace E))
-    (throw (IllegalArgumentException. (str E " is not an exception")))))
+    (throw (IllegalArgumentException. (core/str E " is not an exception")))))
 
 (declare absvector? cons?)
 
@@ -123,6 +119,10 @@
 
 (defn cons? [X]
   (and (coll? X) (not (empty? X))))
+
+(defn str [X] (if-not (coll? X) (core/str X)
+                      (throw (IllegalArgumentException.
+                              (core/str X " is not an atom; str cannot convert it to a string.")))))
 
 (defn ^:private vec-to-cons [[fst & rst]]
   (if fst (list 'cons fst (vec-to-cons rst))
@@ -200,7 +200,7 @@
   (aget Vector N))
 
 (defn n->string [N]
-  (str (char N)))
+  (core/str (char N)))
 
 (def byte->string n->string)
 
@@ -228,7 +228,7 @@
   (.close Stream))
 
 (defn pos [X N]
-  (str (get X N)))
+  (core/str (get X N)))
 
 (defn tlstr [X]
   (subs X 1))
@@ -243,7 +243,7 @@
        (* 1.0 (/ (- (System/currentTimeMillis) internal-start-time)
                  1000))
        (throw (IllegalArgumentException.
-               (str "get-time does not understand the parameter " Time)))))
+               (core/str "get-time does not understand the parameter " Time)))))
 
 (defmethod print-method (class (object-array 1)) [o ^Writer w]
   (print-method (vec o) w))
