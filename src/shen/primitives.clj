@@ -73,7 +73,7 @@
                                (shen-kl-to-clj trd scope))]
                       (take-while (complement nil?)
                                   (concat [fst snd trd]
-                                          (core/map #(shen-kl-to-clj % scope) rst))))
+                                          (map #(shen-kl-to-clj % scope) rst))))
        clj)))
 
 (defn intern [String]
@@ -194,11 +194,11 @@
 (def shen-absarray? absvector?)
 
 (defn address-> [Vector N Value]
-  (core/aset Vector N Value)
+  (aset Vector N Value)
   Vector)
 
 (defn <-address [Vector N]
-  (core/aget Vector N))
+  (aget Vector N))
 
 (defn n->string [N]
   (str (char N)))
@@ -208,7 +208,7 @@
 (defn pr [X S]
   (binding [*out* (if (= *in* S) *out*
                       S)]
-    (core/print X)
+    (print X)
     (flush)
     X))
 
@@ -217,10 +217,10 @@
 
 (defn open [Type String Direction]
   (core/let [Path (io/file (value '*home-directory*) String)]
-    (core/condp = Direction
-     'in (io/input-stream Path)
-     'out (io/output-stream Path)
-     (throw (IllegalArgumentException. "invalid direction")))))
+    (condp = Direction
+      'in (io/input-stream Path)
+      'out (io/output-stream Path)
+      (throw (IllegalArgumentException. "invalid direction")))))
 
 (defn type [X MyType]
   (cast MyType X))
