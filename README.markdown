@@ -27,7 +27,7 @@ Uses [Leiningen](https://github.com/technomancy/leiningen) to build.
     lein repl
 
     Shen 2010, copyright (C) 2010 Mark Tarver
-    www.lambdassociates.org, version 3.0
+    www.lambdassociates.org, version 3.1
     running under Clojure, implementation: Clojure 1.4.0-beta1 [jvm 1.8.0-ea]
     port 0.1.0-SNAPSHOT ported by Håkan Råberg
 
