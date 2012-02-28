@@ -41,6 +41,8 @@
 
 (def safe-tail-call '#{shen-reverse_help shen-read-file-as-bytelist-help})
 
+(def ^:private slash-dot (symbol "/."))
+
 (defn shen-kl-to-clj
   ([clj] (shen-kl-to-clj clj #{}))
   ([clj scope]
@@ -81,7 +83,7 @@
   (core/let [s (name String)]
             (symbol (condp = s
                       "/" s
-                      "/." "/."
+                      "/." slash-dot
                       (string/replace s "/" "-slash-")))))
 
 (defmacro cond [& CS]
@@ -133,21 +135,21 @@
 (defn ^:private cleanup-clj [clj]
   (condp some [clj]
     vector? (vec-to-cons clj)
-    '#{λ} 'lambda
+    '#{λ} slash-dot
     clj))
 
 (defn ^:private define* [name body]
   (core/let [body (walk/postwalk cleanup-clj body)
-             kl ((value 'shen-shen->kl) name body)
-             clj (shen-kl-to-clj kl)]
+             kl ((value 'shen-shen->kl) name body)]
             (binding [*ns* (the-ns 'shen)]
-              (eval clj))))
+              ((resolve 'shen/eval) kl))))
 
 (defn ^:private shen-elim-define [X]
   (if (seq? X)
     (if ('#{define} (first X)) (define* (second X) (drop 2 X))
         (map shen-elim-define X))
     X))
+
 
 (defmacro eval-shen [& body]
   (core/let [body (walk/postwalk cleanup-clj body)]
