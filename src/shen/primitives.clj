@@ -54,29 +54,27 @@
                  "false" false
                  "nil" nil
                  (list 'quote clj))
-       (every-pred
-        seq?
-        not-empty) (core/let [[fst snd trd & rst] clj
-                              scope (condp get fst
-                                      '#{defun} (into (conj scope snd) trd)
-                                      '#{let lambda} (conj scope snd)
-                                      scope)
-                              fst (condp some [fst]
-                                    (some-fn
-                                     interned?
-                                     scope) (if (safe-tail-call fst)
-                                              'recur
-                                              (list 'value fst))
-                                     seq? (shen-kl-to-clj fst scope)
-                                     fst)
-                              snd (condp get fst
-                                    '#{defun let lambda} snd
-                                    (shen-kl-to-clj snd scope))
-                              trd (if ('#{defun} fst) trd
-                                      (shen-kl-to-clj trd scope))]
-                             (take-while (complement nil?)
-                                         (concat [fst snd trd]
-                                                 (core/map #(shen-kl-to-clj % scope) rst))))
+       seq? (core/let [[fst snd trd & rst] clj
+                       scope (condp get fst
+                               '#{defun} (into (conj scope snd) trd)
+                               '#{let lambda} (conj scope snd)
+                               scope)
+                       fst (condp some [fst]
+                             (some-fn
+                              interned?
+                              scope) (if (safe-tail-call fst)
+                                       'recur
+                                       (list 'value fst))
+                              seq? (shen-kl-to-clj fst scope)
+                              fst)
+                       snd (condp get fst
+                             '#{defun let lambda} snd
+                             (shen-kl-to-clj snd scope))
+                       trd (if ('#{defun} fst) trd
+                               (shen-kl-to-clj trd scope))]
+                      (take-while (complement nil?)
+                                  (concat [fst snd trd]
+                                          (core/map #(shen-kl-to-clj % scope) rst))))
        clj)))
 
 (defn intern [String]
