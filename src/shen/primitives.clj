@@ -150,7 +150,6 @@
         (map shen-elim-define X))
     X))
 
-
 (defmacro eval-shen [& body]
   (core/let [body (walk/postwalk cleanup-clj body)]
             `((resolve 'shen/eval) '~@body)))
