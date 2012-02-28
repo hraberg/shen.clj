@@ -118,6 +118,7 @@
 (declare string? [A --> boolean])
 (declare sum [[list number] --> number])
 (declare str [A --> string])
+(declare string->n [string --> number])
 (declare symbol? [A --> boolean])
 (declare systemf [symbol --> [list symbol]])   
 (declare tail [[list A] --> [list A]]) 

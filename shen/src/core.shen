@@ -227,7 +227,7 @@
                (reduce_help Application)))
    [[/. [@s X Y] Z] A] 
    -> (do (add_test [+string? A]) 
-          (let Abstraction [/. X [/. Y (ebr A [@v X Y] Z)]]
+          (let Abstraction [/. X [/. Y (ebr A [@s X Y] Z)]]
                Application [[Abstraction [pos A 0]] [tlstr A]]
                (reduce_help Application)))
    [[/. X Z] A] -> (do (add_test [= X A])

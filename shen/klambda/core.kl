@@ -765,7 +765,7 @@ For an explication of this license see http://www.lambdassociates.org/News/june1
         (cons /.
          (cons (hd (tl (tl (hd (tl (hd V473))))))
           (cons
-           (shen-ebr (hd (tl V473)) (cons @v (tl (hd (tl (hd V473)))))
+           (shen-ebr (hd (tl V473)) (cons @s (tl (hd (tl (hd V473)))))
             (hd (tl (tl (hd V473)))))
            ())))
         ())))

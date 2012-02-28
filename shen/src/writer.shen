@@ -34,7 +34,7 @@
                                  (if (= C "R") [")"] ["]"]) ))
   C X -> (let L (vector->list X 1)
               E (tlstr (cn-all (xmapcan (- (value *maximum-print-sequence-size*) 1)
-                                        (/. Z [" " (ob->str C Z)]) L)))
+                                        (/. Z [" " (ob->str C (blank-fail Z))]) L)))
               V (cn "<" (cn E ">"))
               V)   				where (vector? X)
   C X -> (trap-error (ob->str "A" ((<-address X 0) X))
@@ -42,10 +42,15 @@
                                      E (tlstr (cn-all (xmapcan (- (value *maximum-print-sequence-size*) 1) 
                                                                (/. Z [" " (ob->str C Z)]) L)))
                                      V (cn "<" (cn E ">"))
-                                     V)))       where (and (not (string? X)) (absvector? X))             
+                                     V)))       where (and (not (string? X)) (absvector? X)) 
+  _ vector-failure-object -> "..."            
   C X -> (if (and (= C "A") (string? X))
               X
               (str X)))
+
+(define blank-fail
+  X -> vector-failure-object  where (= X (fail))
+  X -> X)
               
 (define tuple
   X -> (make-string "(@p ~S ~S)" (fst X) (snd X)))              

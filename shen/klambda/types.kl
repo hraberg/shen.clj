@@ -15,12 +15,12 @@
 
 For an explication of this license see http://www.lambdassociates.org/News/june11/license.htm which explains this license in full."
 
-(defun declare (V1656 V1657)
- (let Record (set shen-*signedfuncs* (adjoin V1656 (value shen-*signedfuncs*)))
+(defun declare (V1651 V1652)
+ (let Record (set shen-*signedfuncs* (adjoin V1651 (value shen-*signedfuncs*)))
   (let Variancy
-   (trap-error (shen-variancy-test V1656 V1657) (lambda E shen-skip))
-   (let Type (shen-rcons_form V1657)
-    (let F* (concat shen-type-signature-of- V1656)
+   (trap-error (shen-variancy-test V1651 V1652) (lambda E shen-skip))
+   (let Type (shen-rcons_form V1652)
+    (let F* (concat shen-type-signature-of- V1651)
      (let Parameters (shen-parameters 1)
       (let Clause
        (cons (cons F* (cons X ()))
@@ -33,29 +33,29 @@ For an explication of this license see http://www.lambdassociates.org/News/june1
             (append Parameters
              (append (cons ProcessN (cons Continuation ()))
               (cons -> (cons Code ()))))))
-          (let Eval (eval-without-macros ShenDef) V1656)))))))))))
+          (let Eval (eval-without-macros ShenDef) V1651)))))))))))
 
-(defun shen-variancy-test (V1658 V1659)
- (let TypeF (shen-typecheck V1658 B)
+(defun shen-variancy-test (V1653 V1654)
+ (let TypeF (shen-typecheck V1653 B)
   (let Check
    (if (= symbol TypeF) shen-skip
-    (if (shen-variant? TypeF V1659) shen-skip
+    (if (shen-variant? TypeF V1654) shen-skip
      (intoutput "warning: changing the type of ~A may create errors~%"
-      (@p V1658 ()))))
+      (@p V1653 ()))))
    shen-skip)))
 
-(defun shen-variant? (V1668 V1669)
- (cond ((= V1669 V1668) true)
-  ((and (cons? V1668) (and (cons? V1669) (= (hd V1669) (hd V1668))))
-   (shen-variant? (tl V1668) (tl V1669)))
-  ((and (cons? V1668)
-    (and (cons? V1669) (and (shen-pvar? (hd V1668)) (variable? (hd V1669)))))
-   (shen-variant? (subst shen-a (hd V1668) (tl V1668))
-    (subst shen-a (hd V1669) (tl V1669))))
-  ((and (cons? V1668)
-    (and (cons? (hd V1668)) (and (cons? V1669) (cons? (hd V1669)))))
-   (shen-variant? (append (hd V1668) (tl V1668))
-    (append (hd V1669) (tl V1669))))
+(defun shen-variant? (V1663 V1664)
+ (cond ((= V1664 V1663) true)
+  ((and (cons? V1663) (and (cons? V1664) (= (hd V1664) (hd V1663))))
+   (shen-variant? (tl V1663) (tl V1664)))
+  ((and (cons? V1663)
+    (and (cons? V1664) (and (shen-pvar? (hd V1663)) (variable? (hd V1664)))))
+   (shen-variant? (subst shen-a (hd V1663) (tl V1663))
+    (subst shen-a (hd V1664) (tl V1664))))
+  ((and (cons? V1663)
+    (and (cons? (hd V1663)) (and (cons? V1664) (cons? (hd V1664)))))
+   (shen-variant? (append (hd V1663) (tl V1663))
+    (append (hd V1664) (tl V1664))))
   (true false)))
 
 (declare absvector? (cons A (cons --> (cons boolean ()))))
@@ -328,6 +328,8 @@ For an explication of this license see http://www.lambdassociates.org/News/june1
 (declare sum (cons (cons list (cons number ())) (cons --> (cons number ()))))
 
 (declare str (cons A (cons --> (cons string ()))))
+
+(declare string->n (cons string (cons --> (cons number ()))))
 
 (declare symbol? (cons A (cons --> (cons boolean ()))))
 

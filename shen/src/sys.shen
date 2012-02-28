@@ -132,7 +132,7 @@
   X -> (<-address X 2))
 
 (define tuple? 
-  X -> (trap-error (and (absarray? X) (= tuple (<-address X 0))) (/. E false)))
+  X -> (trap-error (and (absvector? X) (= tuple (<-address X 0))) (/. E false)))
 
 (define append
   [] X -> X
@@ -152,7 +152,7 @@
                                      (copyfromvector OldVector NewVector N (+ N 1))))
 
 (define copyfromvector
-  OldVector NewVector From To -> (vector-> NewVector To (<-vector OldVector From))) 
+  OldVector NewVector From To -> (trap-error (vector-> NewVector To (<-vector OldVector From)) (/. E NewVector))) 
 
 (define hdv
   Vector -> (trap-error (<-vector Vector 1) (/. E (error "hdv needs a non-empty vector as an argument; not ~S~%" Vector))))
@@ -225,62 +225,11 @@
                            (if (empty? Result) (error "value not found~%") (tl Result)))) 
 
 (define hash
-  S Limit -> (let Hash (mod (sum (map (function unit-string->byte) (explode S))) Limit)
+  S Limit -> (let Hash (mod (sum (map (function string->n) (explode S))) Limit)
                   (if (= 0 Hash)
                       1
                       Hash)))
                       
-(define unit-string->byte 
-   "e" -> 101	"E" -> 69
-   "t" -> 116	"T" -> 84
-   "a" -> 97	"A" -> 65
-   "o" -> 111	"O" -> 79
-   "n" -> 110	"N" -> 78
-   "i" -> 105	"I" -> 73
-   "r" -> 114	"R" -> 82
-   "s" -> 115	"S" -> 83
-   "h" -> 104	"H" -> 72
-   "d" -> 100	"D" -> 68
-   "+" -> 43	"-" -> 45
-   "0" -> 48	"1" -> 49
-   "2" -> 50	"3" -> 51
-   "4" -> 52	"5" -> 53
-   "6" -> 54	"7" -> 55
-   "8" -> 56	"9" -> 57
-   "l" -> 108	"L" -> 76
-   "f" -> 102	"F" -> 70
-   "m" -> 109	"M" -> 77
-   "c" -> 99	"C" -> 67
-   "(" -> 40	")" -> 41
-   "u" -> 117	"U" -> 85
-   "g" -> 103	"G" -> 71
-   "y" -> 121	"Y" -> 89
-   "p" -> 112   "P" -> 80
-   "w" -> 119	"W" -> 87
-   "b" -> 98	"B" -> 66
-   "v" -> 118	"V" -> 86	
-   "k" -> 107	"K" -> 75
-   "x" -> 120	"X" -> 88
-   "j" -> 106	"J" -> 74
-   "q" -> 113	"Q" -> 81
-   "z" -> 122	"Z" -> 90  
-   "[" -> 91	"]" -> 93
-   "{" -> 123	"}" -> 125
-   "=" -> 61	"_" -> 95
-   "!" -> 33	"?" -> 63
-   "#" -> 35     
-    X -> 13	where (= X (n->string 13))
-   "$" -> 36	"&" -> 38   
-   "*" -> 42	"/" -> 47
-   "," -> 44	"." -> 46
-   ":" -> 58	";" -> 59
-   "<" -> 60	">" -> 62
-   "@" -> 64	"%" -> 37
-   "'" -> 39	"`" -> 96
-   "|" -> 124	"~" -> 126
-   "\" -> 92	" " -> 32
-   _ -> (error "Cannot map unit string to byte~%"))          
-
 (define mod
   N Div -> (modh N (multiples N [Div])))
   
@@ -438,7 +387,7 @@
                               
 (define string->bytes
   "" -> []
-  S -> [(unit-string->byte (pos S 0)) | (string->bytes (tlstr S))])
+  S -> [(string->n (pos S 0)) | (string->bytes (tlstr S))])
 
 (define maxinferences
   N -> (set *maxinferences* N))
