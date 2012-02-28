@@ -142,7 +142,7 @@
   (core/let [body (walk/postwalk cleanup-clj body)
              kl ((value 'shen-shen->kl) name body)]
             (binding [*ns* (the-ns 'shen)]
-              ((resolve 'shen/eval) kl))))
+              ((value 'eval) kl))))
 
 (defn ^:private shen-elim-define [X]
   (if (seq? X)
@@ -152,7 +152,7 @@
 
 (defmacro eval-shen [& body]
   (core/let [body (walk/postwalk cleanup-clj body)]
-            `((resolve 'shen/eval) '~@body)))
+            `((value 'eval) '~@body)))
 
 (defmacro 神 [& body]
   `(eval-shen ~@body))
@@ -251,3 +251,11 @@
 
 (defmethod print-method (class (object-array 1)) [o ^Writer w]
   (print-method (vec o) w))
+
+(defn ^:private read-bytes [s]
+  ((value (intern "@p")) (map int s) ()))
+
+(defn parse-shen [s]
+  (core/let [<st_input> (value 'shen-<st_input>)
+             snd (value 'snd)]
+            (-> s read-bytes <st_input> snd first)))

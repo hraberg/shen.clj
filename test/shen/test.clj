@@ -1,7 +1,7 @@
 (ns shen.test
   (:use [clojure.test]
-        [shen.primitives :only (value intern shen-kl-to-clj λ 神 define)])
-  (:refer-clojure :exclude [intern eval])
+        [shen.primitives :only (value shen-kl-to-clj λ 神 define parse-shen)])
+  (:refer-clojure :exclude [eval])
   (:require [shen]
             [shen.primitives :as primitives]))
 
@@ -36,36 +36,24 @@
                 (λ X (integer? (/ X 3)))))
        "[0 3 6 9 12 15 18 21 24 27 30 33 36 39 42 45 48 51 54 57 60... etc]"
 
+       ))
+
+(deftest 神-macro
+  (are [shen result] ((if (fn? result) result #{result}) shen)
+
        (神
         ((λ X Y (/ X Y)) 10 5))
-       "2"
+       2
+
+       (神
+        ((λ X Y (+ X Y)) 2))
+       fn?
 
        (神
         ((λ X (integer? (/ X 3))) 3))
-       "true"
+       true
 
        ))
-
-(defn read-bytes [s]
-  ((value (intern "@p")) (map int s) ()))
-
-(defn parse-shen [s]
-  (-> s read-bytes shen/shen-<st_input> shen/snd first))
-
-(deftest parser
-  (are [clj kl-str] (= clj (-> kl-str parse-shen
-                               shen-kl-to-clj))
-       1 "1"
-       1.0 "1.0"
-       ''a-symbol "a-symbol"
-       nil ""
-       nil "nil"
-       true "true"
-       false "false"
-       "String" "\"String\""
-       () "()"
-       '(+ 1 1) "(+ 1 1)"))
-
 (deftest eval
   (are [shen result] ((if (fn? result) result #{result})
                       (-> shen parse-shen shen/eval))
@@ -84,6 +72,21 @@
 
        ))
 
+
+(deftest parser
+  (are [clj kl-str] (= clj (-> kl-str parse-shen
+                               shen-kl-to-clj))
+       1 "1"
+       1.0 "1.0"
+       ''a-symbol "a-symbol"
+       nil ""
+       nil "nil"
+       true "true"
+       false "false"
+       "String" "\"String\""
+       () "()"
+       '(+ 1 1) "(+ 1 1)"))
+
 (defn test-programs []
   (shen/cd "shen/test-programs")
   (shen/load "README.shen")
@@ -91,7 +94,7 @@
 
 ;; (deftest README.shen
 ;;   (is (test-programs))
-;;   (is (= 0 (shen.primitives/value '*failed*))))
+;;   (is (= 0 (value '*failed*))))
 
 (defn toggle-trace [tfn]
   (require 'clojure.tools.trace)
