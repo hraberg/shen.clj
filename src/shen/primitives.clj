@@ -34,7 +34,7 @@
 (defn ^:private interned? [X]
   (and (seq? X) (= 'intern (first X))))
 
-(def safe-tail-call '#{shen-reverse_help shen-read-file-as-bytelist-help})
+(def ^:private safe-tail-call '#{shen-reverse_help shen-read-file-as-bytelist-help})
 
 (def ^:private slash-dot (symbol "/."))
 
@@ -105,8 +105,6 @@
     (with-out-str
       (.printStackTrace E))
     (throw (IllegalArgumentException. (core/str E " is not an exception")))))
-
-(declare absvector? cons?)
 
 (defn cons [X Y]
   (if (coll? Y)
