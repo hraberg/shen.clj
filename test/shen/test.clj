@@ -1,7 +1,7 @@
 (ns shen.test
   (:use [clojure.test]
         [shen.primitives :only (value intern shen-kl-to-clj λ 神 define)])
-  (:refer-clojure :exclude [intern])
+  (:refer-clojure :exclude [intern eval])
   (:require [shen]
             [shen.primitives :as primitives]))
 
@@ -57,6 +57,24 @@
        "String" "\"String\""
        () "()"
        '(+ 1 1) "(+ 1 1)"))
+
+(deftest eval
+  (are [shen result] ((if (fn? result) result #{result})
+                      (-> shen parse-shen shen/eval))
+
+       "((/. X (+ X 2)) 1)"
+       3
+
+       "((/. X Y (+ X Y)) 2 2)"
+       4
+
+       "((/. X Y (+ X Y)) 2)"
+       fn?
+
+       "(filter [0 (+ 1) (= 100)] (/. X (integer? (/ X 3))))"
+       seq?
+
+       ))
 
 (defn test-programs []
   (shen/cd "shen/test-programs")

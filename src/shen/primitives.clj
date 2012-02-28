@@ -81,7 +81,7 @@
   (core/let [s (name String)]
             (symbol (condp = s
                       "/" s
-                      "/." "λ"
+                      "/." "/."
                       (string/replace s "/" "-slash-")))))
 
 (defmacro cond [& CS]
@@ -150,7 +150,8 @@
     X))
 
 (defmacro eval-shen [& body]
-  `((resolve 'shen/eval) '~@(walk/postwalk cleanup-clj body)))
+  (core/let [body (walk/postwalk cleanup-clj body)]
+            `((resolve 'shen/eval) '~@body)))
 
 (defmacro 神 [& body]
   `(eval-shen ~@body))
