@@ -63,7 +63,7 @@ Uses [Leiningen](https://github.com/technomancy/leiningen) to build.
 
 ## Roadmap
 
-This port, while aiming to conform closely (and hopefully fully) to the [Shen specification](http://shenlanguage.org/Documentation/shendoc.htm), has its primiary goal to enable Shen's power in real world Clojure code.
+This port, while aiming to conform closely (and hopefully fully) to the [Shen specification](http://shenlanguage.org/Documentation/shendoc.htm), has its primary goal to enable Shen's power in real world Clojure code.
 
 * Test suite running properly. (day/s)
 * Test suite passing. (days to week/s)
@@ -75,8 +75,8 @@ This port, while aiming to conform closely (and hopefully fully) to the [Shen sp
     * Ensuring Shen can call Clojure/Java properly.
 * Future / Questions
     * Some implicit recur, but not too much focus on premature TCO.
-    * Revist using STM (refs/atoms) instead of inten for set/value.
-    * Exisiting Shen libraries and portability?
+    * Revisit using STM (refs/atoms) instead of intern for set/value.
+    * Existing Shen libraries and portability?
     * ClojureScript.
     * overrides.clj - rewriting parts of Shen into Clojure if interop or performance requires it.
 
