@@ -41,8 +41,8 @@
 
 (defn header [ns]
   `(ns ~ns
-     (:require [shen.primitives])
      (:refer-clojure :only [])
+     (:use [shen.primitives])
      (:require [clojure.core :as ~'clj])
      (:gen-class)))
 
@@ -66,9 +66,6 @@
   '(clojure.core/defn -main []
      (shen-shen)))
 
-(defn alias-vars []
-  '(shen.primitives/alias-vars (clojure.core/ns-publics 'shen.primitives) 'shen))
-
 (defn write-clj-file [dir name forms]
   (with-open [w (writer (file dir (str name ".clj")))]
     (binding [*out* w]
@@ -87,7 +84,6 @@
        (write-clj-file to-dir "shen"
                        (concat [(header 'shen)]
                                [`(clojure.core/declare ~@(filter symbol? dcl))]
-                               [(alias-vars)]
                                (map #(shen.primitives/shen-kl-to-clj %)
                                     (remove string? shen))
                                (env)

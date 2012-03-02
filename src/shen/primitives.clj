@@ -3,11 +3,17 @@
   (:require [clojure.string :as string])
   (:require [clojure.walk :as walk])
   (:require [clojure.java.io :as io])
-  (:refer-clojure :exclude [set intern let pr type cond cons number? string? str
-                            + - * / > < >= <= = or and])
+  (:refer-clojure :exclude [set intern let pr type cond cons str number? string?
+                            + - * / > < >= <= = and or])
   (:import [java.io Writer]
            [java.util Arrays])
   (:gen-class))
+
+(defn ^:private alias-vars [ns-map target-ns]
+  (doseq [[k v] ns-map]
+    (alter-meta! (core/intern target-ns k v) merge (meta v))))
+
+(alias-vars (select-keys (ns-map 'clojure.core) '[and or string? number?]) 'shen.primitives)
 
 (defn ^:private partials [name parameters]
   (for [p (map #(take % parameters) (range 1 (count parameters)))]
@@ -15,21 +21,13 @@
 
 (defmacro defun [F X & Y]
   (core/let [F (if (seq? F) (eval F) F)]
-    `(defn ^:dynamic ~F
-       ~@(partials F X)
-       (~(vec X) ~@Y))))
+            `(defn ^:dynamic ~F
+               ~@(partials F X)
+               (~(vec X) ~@Y))))
 
 (doseq [op '[+ - * / > < >= <= =]
         :let [real-op (symbol "clojure.core" (name op))]]
   (eval `(defun ~op ~'[X Y] (~real-op ~'X ~'Y))))
-
-(defn alias-vars [ns-map target-ns]
-  (doseq [[k v] ns-map]
-      (core/intern target-ns k v)
-      (alter-meta! (find-var (symbol (name target-ns) (name k)))
-                   merge (meta v))))
-
-(alias-vars (select-keys (ns-map 'clojure.core) '[and or string? number?]) 'shen.primitives)
 
 (defn ^:private interned? [X]
   (and (seq? X) (= 'intern (first X))))
@@ -162,7 +160,7 @@
 (defmacro lambda [X Y]
   `(fn [~X & XS#] (core/let [result# ~Y]
                             (if XS# (apply result# XS#)
-                              result#))))
+                                result#))))
 
 (defmacro λ [X Y]
   `(lambda ~X ~Y))
@@ -217,10 +215,10 @@
 
 (defn open [Type String Direction]
   (core/let [Path (io/file (value '*home-directory*) String)]
-    (condp = Direction
-      'in (io/input-stream Path)
-      'out (io/output-stream Path)
-      (throw (IllegalArgumentException. "invalid direction")))))
+            (condp = Direction
+              'in (io/input-stream Path)
+              'out (io/output-stream Path)
+              (throw (IllegalArgumentException. "invalid direction")))))
 
 (defn type [X MyType]
   (cast MyType X))
@@ -241,11 +239,11 @@
 (def ^:private internal-start-time (System/currentTimeMillis))
 
 (defn get-time [Time]
-   (if (= Time 'run)
-       (* 1.0 (/ (- (System/currentTimeMillis) internal-start-time)
-                 1000))
-       (throw (IllegalArgumentException.
-               (core/str "get-time does not understand the parameter " Time)))))
+  (if (= Time 'run)
+    (* 1.0 (/ (- (System/currentTimeMillis) internal-start-time)
+              1000))
+    (throw (IllegalArgumentException.
+            (core/str "get-time does not understand the parameter " Time)))))
 
 (defmethod print-method (class (object-array 1)) [o ^Writer w]
   (print-method (vec o) w))
