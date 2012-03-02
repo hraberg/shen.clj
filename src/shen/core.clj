@@ -43,8 +43,7 @@
   `(ns ~ns
      (:refer-clojure :only [])
      (:use [shen.primitives])
-     (:require [clojure.core :as ~'clj])
-     (:gen-class)))
+     (:require [clojure.core :as ~'clj])))
 
 (def missing-declarations '#{shen-kl-to-lisp FORMAT READ-CHAR})
 

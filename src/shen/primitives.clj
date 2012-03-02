@@ -6,8 +6,7 @@
   (:refer-clojure :exclude [set intern let pr type cond cons str number? string?
                             + - * / > < >= <= = and or])
   (:import [java.io Writer]
-           [java.util Arrays])
-  (:gen-class))
+           [java.util Arrays]))
 
 (defn ^:private alias-vars [ns-map target-ns]
   (doseq [[k v] ns-map]
