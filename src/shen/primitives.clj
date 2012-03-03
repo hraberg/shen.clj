@@ -185,10 +185,23 @@
 (core/defmacro package [name exceptions & body]
   `(eval-shen ~(concat ['package name exceptions] body)))
 
+(defn ^:private missing-symbol [e]
+  ((re-find #"Unable to resolve symbol: (.+) in this context" e) 1))
+
+(defn ^:private eval-and-declare-missing [kl]
+  (binding [*ns* (the-ns 'shen)]
+    (try
+      (eval kl)
+      (catch RuntimeException e
+        (if-let [s (missing-symbol (.getMessage e))]
+          (do
+            (set (symbol s) nil)
+            (eval-and-declare-missing kl))
+          (throw e))))))
+
 (defn eval-without-macros [X]
   (core/let [kl (shen-kl-to-clj (shen-elim-define (cleanup-clj X)))]
-            (binding [*ns* (the-ns 'shen)]
-              (eval kl))))
+            (eval-and-declare-missing kl)))
 
 (core/defmacro lambda [X Y]
   `(fn [~X & XS#] (core/let [result# ~Y]
