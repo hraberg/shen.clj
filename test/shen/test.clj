@@ -1,6 +1,6 @@
 (ns shen.test
   (:use [clojure.test]
-        [shen.primitives :only (value shen-kl-to-clj λ 神 define parse-shen)])
+        [shen.primitives :only (value shen-kl-to-clj λ 神 define defmacro parse-shen parse-and-eval-shen)])
   (:refer-clojure :exclude [eval defmacro])
   (:require [shen]
             [shen.primitives :as primitives]))
@@ -26,12 +26,19 @@
 ;; (defmacro exec-macro
 ;;   [exec Expr] -> [trap-error [time Expr] [λ E failed]])
 
+;; (parse-and-eval-shen "(defmacro exec-macro [exec Expr] -> [trap-error [time Expr] [/. E failed]])")
+
 ;; (deftest shen-defmacro
-;;   (are [shen out] (= out (with-out-str (shen/print shen)))
+;;   (are [shen out] (re-find (re-pattern out) (with-out-str (shen/print shen)))
 ;;        (神
 ;;         (exec (/ 8 2)))
-;;         4
+;;        (str
+;;         "run time: \\d+ secs" "\n"
+;;         "4")
 
+;;        (神
+;;         (exec (/ 2 0)))
+;;         "failed"
 ;;         ))
 
 
@@ -67,9 +74,30 @@
 
        ))
 
+(deftest printer
+  (are [shen out] (= out (with-out-str (-> shen shen/print)))
+
+       (神
+        ())
+       "[]"
+
+       (神
+        (cons 1 (cons 2 ())))
+       "[1 2]"
+
+       ;; (神
+       ;;  (cons 1 2))
+       ;; "[1 | 2]"
+
+       (神
+        (@p 1 2)
+        "(@p 1 2)")
+
+       ))
+
 (deftest eval
   (are [shen result] ((if (fn? result) result #{result})
-                      (-> shen parse-shen shen/eval))
+                      (-> shen parse-and-eval-shen))
 
        "((/. X (+ X 2)) 1)"
        3

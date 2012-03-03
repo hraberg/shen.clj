@@ -125,7 +125,10 @@
 
 (defn ^:private cleanup-clj [clj]
   (condp some [clj]
-    vector? (vec-to-cons clj)
+    vector? (cleanup-clj (vec-to-cons clj))
+    coll? (if ('#{clojure.core/deref} (first clj))
+            (symbol (core/str "@" (second clj)))
+            clj)
     '#{λ} slash-dot
     clj))
 
@@ -143,8 +146,8 @@
 
 (core/defmacro eval-shen [& body]
   (core/let [body (walk/postwalk cleanup-clj body)]
-            (binding [*ns* (the-ns 'shen)]
-              `((value 'eval) '~@body))))
+            `(binding [*ns* (the-ns '~'shen)]
+               ((value 'eval) '~@body))))
 
 (core/defmacro 神 [& body]
   `(eval-shen ~@body))
@@ -152,12 +155,12 @@
 (core/defmacro define [name & body]
   `(eval-shen ~(cons 'define (cons name body))))
 
-;; (core/defmacro defmacro [name & body]
-;;   `(eval-shen ~'defmacro ~name ~@body))
-;  `(eval-shen ~(cons 'defmacro (cons name body))))
+; is use of first wrong and a hint? macro never defined
+(core/defmacro defmacro [name & body]
+  `(first (eval-shen ~(cons 'defmacro (cons name body)))))
 
 (defn eval-without-macros [X]
-  (core/let [kl (shen-kl-to-clj (shen-elim-define X))]
+  (core/let [kl (shen-kl-to-clj (shen-elim-define (cleanup-clj X)))]
             (binding [*ns* (the-ns 'shen)]
               (eval kl))))
 
@@ -186,11 +189,11 @@
   (doto (make-array Object N) (Arrays/fill 'fail!)))
 
 (defn absvector? [X]
-  (if (nil? X)
+  (if-not X
     false
     (-> X core/type .isArray)))
 
-(def shen-absarray? absvector?)
+;(def shen-absarray? absvector?)
 
 (defn address-> [Vector N Value]
   (aset Vector N Value)
@@ -259,3 +262,6 @@
   (core/let [<st_input> (value 'shen-<st_input>)
              snd (value 'snd)]
             (-> s read-bytes <st_input> snd first)))
+
+(defn parse-and-eval-shen [s]
+  ((value 'shen/eval) (parse-shen s)))

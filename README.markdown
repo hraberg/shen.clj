@@ -60,6 +60,12 @@ Uses [Leiningen](https://github.com/technomancy/leiningen) to build.
                  (/. X (integer? (/ X 3))))
     [0 3 6 9 12 15 18 21 24 27 30 33 36 39 42 45 48 51 54 57 60... etc]
 
+### Known Issues
+
+* shen-tuples created with @p prints as empty string (or list). They are absvectors, which are Java arrays.
+* cons of two atoms prints differently from CLisp Shen: [a b] vs [a | b], and might also behave differently.
+* defmacro registers the macro, but it doesn't get defined when evaluating the null package form.
+
 
 ## Roadmap
 
