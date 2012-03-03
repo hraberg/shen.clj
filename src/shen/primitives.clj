@@ -32,10 +32,9 @@
 
 (defn =
   ([X] (partial = X))
-  ([X Y]
-     (if (every? absvector? [X Y])
-       (Arrays/equals X Y)
-       (core/= X Y))))
+  ([X Y] (if (every? absvector? [X Y])
+           (Arrays/equals X Y)
+           (core/= X Y))))
 
 (defn ^:private interned? [X]
   (and (seq? X) (= 'intern (first X))))
@@ -165,20 +164,28 @@
         (map shen-elim-define X))
     X))
 
-(core/defmacro eval-shen [& body]
+(defn eval-shen* [body]
   (core/let [body (walk/postwalk cleanup-clj body)]
-            `(binding [*ns* (the-ns '~'shen)]
-               ((value 'eval) '~@body))))
+            (binding [*ns* (the-ns 'shen)]
+              (->> body
+                   (map (value 'eval))
+                   last))))
+
+(core/defmacro eval-shen [& body]
+  `(eval-shen* '~body))
 
 (core/defmacro 神 [& body]
   `(eval-shen ~@body))
 
 (core/defmacro define [name & body]
-  `(eval-shen ~(cons 'define (cons name body))))
+  `(eval-shen ~(concat ['define name] body)))
 
 ; is use of first wrong and a hint? macro never defined
 (core/defmacro defmacro [name & body]
-  `(first (eval-shen ~(cons 'defmacro (cons name body)))))
+  `(eval-shen ~(concat ['defmacro name] body)))
+
+(core/defmacro package [name exceptions & body]
+  `(eval-shen ~(concat ['package name exceptions] body)))
 
 (defn eval-without-macros [X]
   (core/let [kl (shen-kl-to-clj (shen-elim-define (cleanup-clj X)))]
@@ -284,7 +291,10 @@
 (defn parse-shen [s]
   (core/let [<st_input> (value 'shen-<st_input>)
              snd (value 'snd)]
-            (-> s read-bytes <st_input> snd first)))
+            (-> s read-bytes <st_input> snd)))
 
 (defn parse-and-eval-shen [s]
-  ((value 'shen/eval) (parse-shen s)))
+  (eval-shen* (parse-shen s)))
+
+(defn reset-macros! []
+  (set '*macros* (filter #(re-find #"shen-" (name %)) (value '*macros*))))
