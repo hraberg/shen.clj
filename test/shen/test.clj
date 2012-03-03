@@ -1,7 +1,7 @@
 (ns shen.test
   (:use [clojure.test]
         [shen.primitives :only (value shen-kl-to-clj λ 神 define parse-shen)])
-  (:refer-clojure :exclude [eval])
+  (:refer-clojure :exclude [eval defmacro])
   (:require [shen]
             [shen.primitives :as primitives]))
 
@@ -22,6 +22,18 @@
          (λ Val (if (Condition Val) [Val] []))
          append
          []))
+
+;; (defmacro exec-macro
+;;   [exec Expr] -> [trap-error [time Expr] [λ E failed]])
+
+;; (deftest shen-defmacro
+;;   (are [shen out] (= out (with-out-str (shen/print shen)))
+;;        (神
+;;         (exec (/ 8 2)))
+;;         4
+
+;;         ))
+
 
 (deftest shenlanguage.org
   (are [shen out] (= out (with-out-str (shen/print shen)))

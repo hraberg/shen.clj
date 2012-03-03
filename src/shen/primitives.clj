@@ -3,7 +3,7 @@
   (:require [clojure.string :as string])
   (:require [clojure.walk :as walk])
   (:require [clojure.java.io :as io])
-  (:refer-clojure :exclude [set intern let pr type cond cons str number? string?
+  (:refer-clojure :exclude [set intern let pr type cond cons str number? string? defmacro
                             + - * / > < >= <= = and or])
   (:import [java.io Writer]
            [java.util Arrays]))
@@ -18,7 +18,7 @@
   (for [p (map #(take % parameters) (range 1 (count parameters)))]
     `(~(vec p) (partial ~name ~@p))))
 
-(defmacro defun [F X & Y]
+(core/defmacro defun [F X & Y]
   (core/let [F (if (seq? F) (eval F) F)]
             `(defn ^:dynamic ~F
                ~@(partials F X)
@@ -75,7 +75,7 @@
                       "/." slash-dot
                       (string/replace s "/" "-slash-")))))
 
-(defmacro cond [& CS]
+(core/defmacro cond [& CS]
   `(core/cond ~@(apply concat CS)))
 
 (defn set [X Y]
@@ -91,7 +91,7 @@
 (defn simple-error [String]
   (throw (RuntimeException. String)))
 
-(defmacro trap-error [X F]
+(core/defmacro trap-error [X F]
   `(try
      ~X
      (catch Throwable T#
@@ -141,37 +141,42 @@
         (map shen-elim-define X))
     X))
 
-(defmacro eval-shen [& body]
+(core/defmacro eval-shen [& body]
   (core/let [body (walk/postwalk cleanup-clj body)]
-            `((value 'eval) '~@body)))
+            (binding [*ns* (the-ns 'shen)]
+              `((value 'eval) '~@body))))
 
-(defmacro 神 [& body]
+(core/defmacro 神 [& body]
   `(eval-shen ~@body))
 
-(defmacro define [name & body]
-  (define* name body))
+(core/defmacro define [name & body]
+  `(eval-shen ~(cons 'define (cons name body))))
+
+;; (core/defmacro defmacro [name & body]
+;;   `(eval-shen ~'defmacro ~name ~@body))
+;  `(eval-shen ~(cons 'defmacro (cons name body))))
 
 (defn eval-without-macros [X]
   (core/let [kl (shen-kl-to-clj (shen-elim-define X))]
             (binding [*ns* (the-ns 'shen)]
               (eval kl))))
 
-(defmacro lambda [X Y]
+(core/defmacro lambda [X Y]
   `(fn [~X & XS#] (core/let [result# ~Y]
                             (if XS# (apply result# XS#)
                                 result#))))
 
-(defmacro λ [X Y]
+(core/defmacro λ [X Y]
   `(lambda ~X ~Y))
 
-(defmacro let [X Y Z]
+(core/defmacro let [X Y Z]
   (core/let [X-safe (if (seq? X) (gensym (eval X)) X)
              Z (if (seq? X) (walk/postwalk
                              #(if (= X %) X-safe %) Z) Z)]
             `(core/let [~X-safe ~Y]
                        ~Z)))
 
-(defmacro freeze [X]
+(core/defmacro freeze [X]
   `(fn [] ~X))
 
 (defn thaw [X]
