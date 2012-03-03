@@ -259,7 +259,8 @@
   ([Str1] (partial cn Str1))
   ([Str1 Str2]
      (core/let [strings (replace {() ""} [Str1 Str2])]
-               (assert (every? string? strings))
+               (when-let [no-string (first (remove string? strings))]
+                 (throw (IllegalArgumentException. (core/str no-string " is not a string"))))
                (apply core/str strings))))
 
 (def ^:private internal-start-time (System/currentTimeMillis))
