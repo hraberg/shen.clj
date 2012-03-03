@@ -110,8 +110,7 @@
       (.printStackTrace E))
     (throw (IllegalArgumentException. (core/str E " is not an exception")))))
 
-(defn ^:private pair [X Y]
-  [X Y])
+(defn ^:private pair [X Y] [X Y])
 
 (defn ^:private pair? [X]
   (and (vector? X) (= 2 (count X))))

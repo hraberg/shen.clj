@@ -67,7 +67,7 @@
       (V510)
       (let
           Y
-        (shen-compose (map value (value '*macros*)) V510)
+        (shen-compose (clojure.core/remove symbol? (clojure.core/map value (value '*macros*))) V510)
         (if (= V510 Y) V510 (shen-walk macroexpand Y))))])
 
 (defn main-fn []

@@ -24,20 +24,25 @@
          append
          []))
 
-;; (defmacro exec-macro
-;;   [exec Expr] -> [trap-error [time Expr] [λ E failed]])
+(defmacro exec-macro
+  [exec Expr] -> [trap-error [time Expr] [λ E failed]])
 
-;;        (神
-;;         (exec (/ 8 2)))
-;;        (str
-;;         "run time: 0.0 secs" "\n"
-;;         "4")
+(parse-and-eval-shen "(defmacro parsed-exec-macro [parsed-exec Expr] -> [trap-error [time Expr] [/. E failed]])")
 
-;;        (神
-;;         (exec (/ 2 0)))
-;;         "failed"
+(deftest shen-defmacro
+  (are [shen out] (re-find (re-pattern out) (with-out-str (shen/print shen)))
 
-;;         ))
+       (神
+        (exec (/ 8 2)))
+       (str
+        "run time: 0.0 secs" "\n"
+        "4")
+
+       (神
+        (parsed-exec (/ 2 0)))
+       "failed"
+
+       ))
 
 (deftest shenlanguage.org
   (are [shen out] (= out (with-out-str (shen/print shen)))
