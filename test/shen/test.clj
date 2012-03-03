@@ -27,13 +27,6 @@
 ;; (defmacro exec-macro
 ;;   [exec Expr] -> [trap-error [time Expr] [λ E failed]])
 
-;; (defmacro report-results-macro
-;;   [report Name | Tests] -> (let NewTests (create-tests Name Tests)
-;;                                          [do | NewTests]))
-
-;; (deftest shen-defmacro
-;;   (are [shen out] (re-find (re-pattern out) (with-out-str (shen/print shen)))
-
 ;;        (神
 ;;         (exec (/ 8 2)))
 ;;        (str
@@ -90,16 +83,16 @@
   (are [shen result] ((if (fn? result) result #{result}) shen)
 
        (神
-        (cons 1 2)
+        (cons 1 2))
+       [1 2]
+
+       (神
+        (cons 1 (cons 2 ())))
+       '(1 2)
+
+       (神
         [1 2])
-
-       (神
-        (cons 1 (cons 2 ()))
-        '(1 2))
-
-       (神
-        [1 2]
-        '(1 2))
+       '(1 2)
 
        ))
 
@@ -156,18 +149,39 @@
 
 
 (deftest parser
-  (are [clj kl-str] (= clj (-> kl-str parse-shen first
+  (are [kl-str clj] (= clj (-> kl-str parse-shen first
                                shen-kl-to-clj))
-       1 "1"
-       1.0 "1.0"
-       ''symbol "symbol"
-       nil ""
-       nil "nil"
-       true "true"
-       false "false"
-       "String" "\"String\""
-       () "()"
-       '(+ 1 1) "(+ 1 1)"))
+       "1"
+       1
+
+       "1.0"
+       1.0
+
+       "symbol"
+       ''symbol
+
+       ""
+       nil
+
+       "nil"
+       nil
+
+       "true"
+       true
+
+       "false"
+       false
+
+       "\"String\""
+       "String"
+
+       "()"
+       ()
+
+       "(+ 1 1)"
+       '(+ 1 1)
+
+       ))
 
 (defn test-programs []
   (神

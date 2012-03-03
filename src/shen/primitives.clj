@@ -44,16 +44,16 @@
 (def ^:private slash-dot (symbol "/."))
 
 (defn shen-kl-to-clj
-  ([clj] (shen-kl-to-clj clj #{}))
-  ([clj scope]
-     (condp some [clj]
-       scope clj
-       symbol? (condp = (name clj)
+  ([kl] (shen-kl-to-clj kl #{}))
+  ([kl scope]
+     (condp some [kl]
+       scope kl
+       symbol? (condp = (name kl)
                  "true" true
                  "false" false
                  "nil" nil
-                 (list 'quote clj))
-       seq? (core/let [[fst snd trd & rst] clj
+                 (list 'quote kl))
+       seq? (core/let [[fst snd trd & rst] kl
                        scope (condp get fst
                                '#{defun} (into (conj scope snd) trd)
                                '#{let lambda} (conj scope snd)
@@ -73,7 +73,7 @@
                       (take-while (complement nil?)
                                   (concat [fst snd trd]
                                           (map #(shen-kl-to-clj % scope) rst))))
-       clj)))
+       kl)))
 
 (defn intern [String]
   (core/let [s (name String)]
@@ -153,8 +153,7 @@
     clj))
 
 (defn ^:private define* [name body]
-  (core/let [body (walk/postwalk cleanup-clj body)
-             kl ((value 'shen-shen->kl) name body)]
+  (core/let [kl ((value 'shen-shen->kl) name body)]
             (binding [*ns* (the-ns 'shen)]
               ((value 'eval) kl))))
 
