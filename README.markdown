@@ -62,7 +62,7 @@ Uses [Leiningen](https://github.com/technomancy/leiningen) to build.
 
 ### Known Issues
 
-* shen-tuples created with @p prints as empty string (or list). They are absvectors, which are Java arrays.
+* absvectors prints as empty string (or list). They are Java arrays.
 * defmacro registers the macro, but it doesn't get defined when evaluating the null package form.
 
 

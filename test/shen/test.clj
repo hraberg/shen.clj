@@ -110,9 +110,9 @@
        ;;  (absvector 1))
        ;; "<fail!>"
 
-       ;; (神
-       ;;  (vector 1))
-       ;; "<fail!>"
+       (神
+        (vector 1))
+       "<...>"
 
        (神
         (vector 0))
