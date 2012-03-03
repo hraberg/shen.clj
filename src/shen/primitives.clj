@@ -133,7 +133,7 @@
   (and (coll? X) (not (empty? X))))
 
 (defn str [X]
-  (if-not (coll? X) (core/str X)
+  (if-not (coll? X) (core/pr-str X)
           (throw (IllegalArgumentException.
                   (core/str X " is not an atom; str cannot convert it to a string.")))))
 
@@ -272,8 +272,8 @@
     (throw (IllegalArgumentException.
             (core/str "get-time does not understand the parameter " Time)))))
 
-;; (defmethod print-method (class (object-array 1)) [o ^Writer w]
-;;   (print-method (vec o) w))
+(defmethod print-method (class (object-array 1)) [o ^Writer w]
+  (print-method (vec o) w))
 
 (defn ^:private read-bytes [s]
   ((value (intern "@p")) (map int s) ()))
