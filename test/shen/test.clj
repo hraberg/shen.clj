@@ -106,9 +106,9 @@
         (cons 1 2))
        "[1 | 2]"
 
-       ;; (神
-       ;;  (absvector 1))
-       ;; "<fail!>"
+       (神
+        (absvector 1))
+       "<fail!>"
 
        (神
         (vector 1))

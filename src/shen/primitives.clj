@@ -129,6 +129,9 @@
     (second X)
     (rest X)))
 
+; is this safe?
+(defn fail! [] (assert false))
+
 (defn cons? [X]
   (and (coll? X) (not (empty? X))))
 
