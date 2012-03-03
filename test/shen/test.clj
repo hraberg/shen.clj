@@ -92,7 +92,7 @@
        ))
 
 (deftest printer
-  (are [shen out] (= out (with-out-str (-> shen shen/print)))
+  (are [shen out] (= out (with-out-str (shen/print shen)))
 
        (神
         ())
@@ -106,9 +106,21 @@
         (cons 1 2))
        "[1 | 2]"
 
+       ;; (神
+       ;;  (absvector 1))
+       ;; "<fail!>"
+
+       ;; (神
+       ;;  (vector 1))
+       ;; "<fail!>"
+
        (神
-        (@p 1 2)
-        "(@p 1 2)")
+        (vector 0))
+       "<>"
+
+       (神
+        (@p 1 2))
+       "(@p 1 2)"
 
        ))
 

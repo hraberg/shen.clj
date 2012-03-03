@@ -24,9 +24,18 @@
                ~@(partials F X)
                (~(vec X) ~@Y))))
 
-(doseq [op '[+ - * / > < >= <= =]
+(doseq [op '[+ - * / > < >= <=]
         :let [real-op (symbol "clojure.core" (name op))]]
   (eval `(defun ~op ~'[X Y] (~real-op ~'X ~'Y))))
+
+(declare absvector?)
+
+(defn =
+  ([X] (partial = X))
+  ([X Y]
+     (if (every? absvector? [X Y])
+       (Arrays/equals X Y)
+       (core/= X Y))))
 
 (defn ^:private interned? [X]
   (and (seq? X) (= 'intern (first X))))
@@ -39,8 +48,7 @@
   ([clj] (shen-kl-to-clj clj #{}))
   ([clj scope]
      (condp some [clj]
-       scope (if (interned? clj) (list 'value clj)
-                 clj)
+       scope clj
        symbol? (condp = (name clj)
                  "true" true
                  "false" false
@@ -57,7 +65,7 @@
                               scope) (if (safe-tail-call fst)
                                        'recur
                                        (list 'value fst))
-                              seq? (shen-kl-to-clj fst scope)
+                              seq? (list 'value (shen-kl-to-clj fst scope))
                               fst)
                        snd (if ('#{defun let lambda} fst) snd
                                (shen-kl-to-clj snd scope))
@@ -124,9 +132,10 @@
 (defn cons? [X]
   (and (coll? X) (not (empty? X))))
 
-(defn str [X] (if-not (coll? X) (core/str X)
-                      (throw (IllegalArgumentException.
-                              (core/str X " is not an atom; str cannot convert it to a string.")))))
+(defn str [X]
+  (if-not (coll? X) (core/str X)
+          (throw (IllegalArgumentException.
+                  (core/str X " is not an atom; str cannot convert it to a string.")))))
 
 (defn ^:private vec-to-cons [[fst & rst]]
   (if fst (list 'cons fst (vec-to-cons rst))
@@ -248,7 +257,10 @@
 
 (defn cn
   ([Str1] (partial cn Str1))
-  ([Str1 Str2] (core/str Str1 Str2)))
+  ([Str1 Str2]
+     (core/let [strings (replace {() ""} [Str1 Str2])]
+               (assert (every? string? strings))
+               (apply core/str strings))))
 
 (def ^:private internal-start-time (System/currentTimeMillis))
 
@@ -259,8 +271,8 @@
     (throw (IllegalArgumentException.
             (core/str "get-time does not understand the parameter " Time)))))
 
-(defmethod print-method (class (object-array 1)) [o ^Writer w]
-  (print-method (vec o) w))
+;; (defmethod print-method (class (object-array 1)) [o ^Writer w]
+;;   (print-method (vec o) w))
 
 (defn ^:private read-bytes [s]
   ((value (intern "@p")) (map int s) ()))

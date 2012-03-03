@@ -63,7 +63,6 @@ Uses [Leiningen](https://github.com/technomancy/leiningen) to build.
 ### Known Issues
 
 * shen-tuples created with @p prints as empty string (or list). They are absvectors, which are Java arrays.
-* cons of two atoms prints differently from CLisp Shen: [a b] vs [a | b], and might also behave differently.
 * defmacro registers the macro, but it doesn't get defined when evaluating the null package form.
 
 
