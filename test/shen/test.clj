@@ -57,7 +57,7 @@
 
        ))
 
-(deftest 神-macro
+(deftest partials
   (are [shen result] ((if (fn? result) result #{result}) shen)
 
        (神
@@ -74,6 +74,23 @@
 
        ))
 
+(deftest cons-pair
+  (are [shen result] ((if (fn? result) result #{result}) shen)
+
+       (神
+        (cons 1 2)
+        [1 2])
+
+       (神
+        (cons 1 (cons 2 ()))
+        '(1 2))
+
+       (神
+        [1 2]
+        '(1 2))
+
+       ))
+
 (deftest printer
   (are [shen out] (= out (with-out-str (-> shen shen/print)))
 
@@ -85,9 +102,9 @@
         (cons 1 (cons 2 ())))
        "[1 2]"
 
-       ;; (神
-       ;;  (cons 1 2))
-       ;; "[1 | 2]"
+       (神
+        (cons 1 2))
+       "[1 | 2]"
 
        (神
         (@p 1 2)

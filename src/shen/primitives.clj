@@ -103,14 +103,23 @@
       (.printStackTrace E))
     (throw (IllegalArgumentException. (core/str E " is not an exception")))))
 
+(defn ^:private pair [X Y]
+  [X Y])
+
+(defn ^:private pair? [X]
+  (and (vector? X) (= 2 (count X))))
+
 (defn cons [X Y]
   (if (coll? Y)
     (core/cons X Y)
-    (list X Y)))
+    (pair X Y)))
 
 (defn hd [X] (first X))
 
-(defn tl [X] (rest X))
+(defn tl [X]
+  (if (pair? X)
+    (second X)
+    (rest X)))
 
 (defn cons? [X]
   (and (coll? X) (not (empty? X))))
