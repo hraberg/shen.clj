@@ -193,8 +193,6 @@
     false
     (-> X core/type .isArray)))
 
-;(def shen-absarray? absvector?)
-
 (defn address-> [Vector N Value]
   (aset Vector N Value)
   Vector)
