@@ -90,9 +90,10 @@
 
 (defn test-programs []
   (神
-   (cd "shen/test-programs")
-   (load "README.shen")
-   (load "tests.shen")))
+   (do
+     (cd "shen/test-programs")
+     (load "README.shen")
+     (load "tests.shen"))))
 
 ;; (deftest README.shen
 ;;   (is (test-programs))
