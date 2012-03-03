@@ -24,8 +24,8 @@
          append
          []))
 
-(defmacro exec-macro
-  [exec Expr] -> [trap-error [time Expr] [λ E failed]])
+(defmacro clj-exec-macro
+  [clj-exec Expr] -> [trap-error [time Expr] [λ E failed]])
 
 (parse-and-eval-shen "(defmacro parsed-exec-macro [parsed-exec Expr] -> [trap-error [time Expr] [/. E failed]])")
 
@@ -33,9 +33,9 @@
   (are [shen out] (re-find (re-pattern out) (with-out-str (shen/print shen)))
 
        (神
-        (exec (/ 8 2)))
+        (clj-exec (/ 8 2)))
        (str
-        "run time: 0.0 secs" "\n"
+        "run time: 0.\\d+ secs" "\n"
         "4")
 
        (神
