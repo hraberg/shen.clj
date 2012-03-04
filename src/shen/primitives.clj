@@ -226,21 +226,20 @@
                        ~Z)))
 
 (core/defmacro freeze [X]
-  `(fn [] ~X))
+ `(fn [] ~X))
 
-(defn thaw [X]
-  (X))
+(defn thaw [X] (X))
 
 (defn absvector [N]
-  (doto (make-array Object N) (Arrays/fill 'fail!)))
+  (doto (object-array N) (Arrays/fill 'fail!)))
 
 (defn absvector? [X]
   (if-not X
     false
-    (-> X core/type .isArray)))
+    (. (core/class X) isArray)))
 
-;; (defn <-address [Vector N]
-;;   (aget Vector N))
+(defn <-address [Vector N]
+  (aget Vector N))
 
 (def <-address aget)
 

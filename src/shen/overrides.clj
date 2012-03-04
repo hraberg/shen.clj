@@ -13,6 +13,11 @@
 (def ^:dynamic *home-directory* (System/getProperty "user.dir"))
 
 (defun
+ (intern "@p")
+ (V706 V707)
+ (core/object-array ['shen-tuple V706 V707]))
+
+(defun
   macroexpand
   (V510)
   (let
