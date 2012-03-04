@@ -15,9 +15,7 @@ Shen is a portable functional programming language by [Mark Tarver](http://www.l
 
 ## This Clojure Port
 
-`[shen.clj "0.1.0-SNAPSHOT"]`
-
-Is a work in progress. The example on the Shen homepage now works. The test suite is now running: 90% passed.
+Is a work in progress. The example on the Shen homepage now works. The test suite is now running: ~80% passed.
 
 Uses [Leiningen](https://github.com/technomancy/leiningen) to build.
 
@@ -115,6 +113,12 @@ As can be seen `λ` stands in for `/.` in Shen to avoid Clojure reader macros.
 `@p`, `@s` and `@v` are converted from Clojure deref to their Shen symbols.
 
 See [`shen.test`](https://github.com/hraberg/shen.clj/blob/master/test/shen/test.clj) for more examples.
+
+
+### Leiningen
+
+`[shen.clj "0.1.0-SNAPSHOT"]` - not yet in public repo.
+
 
 
 ## Roadmap
