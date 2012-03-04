@@ -82,7 +82,7 @@ The suite isn't part of the normal build yet, but can be run via `shen.test/test
 * ~20% failures in the test suite.
 * The Prolog tests are broken, prompting `failed; continue?`.
 * Symbols vs Fns causes issues when tc+ (type checking) is on.
-* I use `-Xss512mb` to run, and it's currently 10 times slower than the CLisp version.
+* I use `-Xss512mb` to run (probably over the top), and it's currently 10 times slower than the CLisp version.
     * Performance is not a goal for 0.1.0, but some tuning to be made to ease development.
 
 
