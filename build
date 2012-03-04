@@ -1,0 +1,9 @@
+#!/bin/bash -e
+
+rm -rf classes *.jar
+
+lein difftest
+
+yes | lein trampoline run -m shen.test 2>&1 | tee test.log
+
+lein uberjar

@@ -78,7 +78,7 @@ The Shen test suite is now running, slowly but surely:
     run time: 254.07 secs
     loaded
 
-The suite isn't part of the normal build yet, but can be run via:
+The suite can be run via:
 
     yes | lein trampoline run -m shen.test
 
@@ -127,6 +127,13 @@ See [`shen.test`](https://github.com/hraberg/shen.clj/blob/master/test/shen/test
 ### Leiningen
 
 `[shen.clj "0.1.0-SNAPSHOT"]` - not yet in public repo.
+
+The script `build` is used for full, repeatable builds. It does the following:
+
+* clean
+* difftest - also generates classes/shen.clj.
+* test-programs - takes 3-5 minutes, writes to test.log.
+* uberjar - seems to do clean as well.
 
 
 ## Roadmap

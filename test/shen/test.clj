@@ -1,6 +1,6 @@
 (ns shen.test
   (:use [clojure.test]
-        [shen.primitives :only (value set shen-kl-to-clj λ 神 define defmacro
+        [shen.primitives :only (value set shen-kl-to-clj λ 神 define defmacro reset-macros!
                                       package parse-shen parse-and-eval-shen)])
   (:refer-clojure :exclude [eval defmacro set])
   (:require [shen]
@@ -188,17 +188,17 @@
 
        ))
 
+(use-fixtures :once (fn [suite]
+                      (神
+                       (shen-initialise_environment))
+                      (suite)
+                      (reset-macros!)))
+
 (defn test-programs []
-  ; (reset) should not be needed
   (神
    (cd "shen/test-programs")
    (load "README.shen")
-   (reset)
    (load "tests.shen")))
-
-;; (deftest README.shen
-;;   (is (test-programs))
-;;   (is (= 0 (value 'test-harness-*failed*))))
 
 (defn toggle-trace [tfn]
   (require 'clojure.tools.trace)
@@ -208,4 +208,5 @@
 (defn -main []
   (神
    (shen-initialise_environment))
-  (test-programs))
+  (test-programs)
+  (System/exit (value 'test-harness-*failed*)))
