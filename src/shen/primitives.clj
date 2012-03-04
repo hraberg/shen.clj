@@ -175,7 +175,7 @@
   `(eval-shen ~@body))
 
 (core/defmacro define [name & body]
-  `(eval-shen ~(concat ['define name] body)))
+  `(def ~(with-meta name {:dynamic true}) (eval-shen ~(concat ['define name] body))))
 
 ; is use of first wrong and a hint? macro never defined
 (core/defmacro defmacro [name & body]

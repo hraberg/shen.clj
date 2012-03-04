@@ -2,7 +2,7 @@
   (:use [clojure.test]
         [shen.primitives :only (value set shen-kl-to-clj λ 神 define defmacro reset-macros!
                                       package parse-shen parse-and-eval-shen)])
-  (:refer-clojure :exclude [eval defmacro set])
+  (:refer-clojure :exclude [eval defmacro set for filter])
   (:require [shen]
             [shen.primitives :as primitives]))
 
