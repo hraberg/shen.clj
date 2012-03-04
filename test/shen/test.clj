@@ -199,6 +199,20 @@
   (doseq [ns '[shen shen.primitives]]
     ((ns-resolve 'clojure.tools.trace tfn) ns)))
 
+
+;; CLisp
+
+;; passed ... 146
+;; failed ...0
+;; pass rate ...100%
+
+;; ok
+;; 0
+
+;; run time: 25.129999235272408 secs
+;; loaded
+
+
 (defn test-programs []
   (神
    (cd "shen/test-programs")

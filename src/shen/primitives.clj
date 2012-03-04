@@ -36,7 +36,11 @@
 (defn ^:private interned? [X]
   (and (seq? X) (= 'intern (first X))))
 
-(def ^:private safe-tail-call '#{shen-reverse_help shen-read-file-as-bytelist-help})
+(def ^:private safe-tail-call '#{shen-reverse_help
+                                 shen-read-file-as-bytelist-help
+                                 shen-loop
+                                 shen-compose
+                                 element?})
 
 (def ^:private slash-dot (symbol "/."))
 
@@ -78,6 +82,8 @@
                       "/" s
                       "/." slash-dot
                       (string/replace s "/" "-slash-")))))
+
+(alter-var-root #'intern memoize)
 
 (core/defmacro cond [& CS]
   `(core/cond ~@(apply concat CS)))
@@ -233,12 +239,14 @@
     false
     (-> X core/type .isArray)))
 
+;; (defn <-address [Vector N]
+;;   (aget Vector N))
+
+(def <-address aget)
+
 (defn address-> [Vector N Value]
   (aset Vector N Value)
   Vector)
-
-(defn <-address [Vector N]
-  (aget Vector N))
 
 (defn n->string [N]
   (core/str (char N)))
