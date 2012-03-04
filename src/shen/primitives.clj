@@ -78,12 +78,10 @@
        kl)))
 
 (defn intern [String]
-  (if (symbol? String)
-    String
-    (symbol (condp = String
-              "/" "/"
-              "/." slash-dot
-              (string/replace String "/" "-slash-")))))
+  (symbol (condp = String
+            "/" "/"
+            "/." slash-dot
+            (string/replace String "/" "-slash-"))))
 
 (core/defmacro cond [& CS]
   `(core/cond ~@(apply concat CS)))
@@ -92,11 +90,11 @@
   ([X] (partial set X))
   ([X Y]
      @(core/intern (the-ns 'shen)
-                   (with-meta (intern X) {:dynamic true :declared true})
+                   (with-meta X {:dynamic true :declared true})
                    Y)))
 
 (defn value [X]
-  (if-let [v (and (symbol? X) (ns-resolve 'shen (intern X)))]
+  (if-let [v (and (symbol? X) (ns-resolve 'shen X))]
     @v
     X))
 
