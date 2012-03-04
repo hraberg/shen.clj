@@ -1,8 +1,5 @@
 # 神.clj | Shen for Clojure
 
-`[shen.clj "0.1.0-SNAPSHOT"]`
-
-
 http://shenlanguage.org/
 
 Shen is a portable functional programming language by [Mark Tarver](http://www.lambdassociates.org/) that offers
@@ -17,6 +14,8 @@ Shen is a portable functional programming language by [Mark Tarver](http://www.l
 
 
 ## This Clojure Port
+
+`[shen.clj "0.1.0-SNAPSHOT"]`
 
 Is a work in progress. The example on the Shen homepage now works. The test suite is now running: 90% passed.
 
