@@ -28,7 +28,7 @@
   (are [shen out] (= out (with-out-str (shen/print shen)))
 
        (神
-        (clj/with-out-str
+        (core/with-out-str
           (for [0 (+ 1) (= 10)] print)))
        "\"0123456789\""
 
