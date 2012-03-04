@@ -51,31 +51,6 @@
   (into missing-declarations
         (map second (filter #(= 'defun (first %)) clj))))
 
-(defn env []
-  (for [[k v] '{*language* "Clojure"
-                *implementation* (clojure.core/str "Clojure " (clojure.core/clojure-version)
-                                                   " [jvm "(System/getProperty "java.version")"]")
-                *port* "0.1.0-SNAPSHOT"
-                *porters* "Håkan Råberg"
-                *stinput* clojure.core/*in*
-                *home-directory* (System/getProperty "user.dir")}]
-    `(clojure.core/intern (find-ns '~'shen) (with-meta '~k {:dynamic true}) ~v)))
-
-(defn overrides []
-  '[
-    (defun
-      macroexpand
-      (V510)
-      (let
-          Y
-        (shen-compose (clojure.core/remove symbol? (clojure.core/map value (value '*macros*))) V510)
-        (if (= V510 Y) V510 (shen-walk macroexpand Y))))
-    ])
-
-(defn main-fn []
-  '(clojure.core/defn -main []
-     (shen-shen)))
-
 (defn write-clj-file [dir name forms]
   (with-open [w (writer (file dir (str name ".clj")))]
     (binding [*out* w]
@@ -96,9 +71,7 @@
                                [`(clojure.core/declare ~@(filter symbol? dcl))]
                                (map #(shen.primitives/shen-kl-to-clj %)
                                     (remove string? shen))
-                               (env)
-                               (overrides)
-                               [(main-fn)])))))
+                               ['(clojure.core/load "shen/overrides")])))))
 
 (defn install []
   (try
