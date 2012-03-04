@@ -24,10 +24,20 @@
          append
          []))
 
-(defmacro clj-exec-macro
-  [clj-exec Expr] -> [trap-error [time Expr] [λ E failed]])
+(deftest shenlanguage.org
+  (are [shen out] (= out (with-out-str (shen/print shen)))
 
-(parse-and-eval-shen "(defmacro parsed-exec-macro [parsed-exec Expr] -> [trap-error [time Expr] [/. E failed]])")
+       (神
+        (clj/with-out-str
+          (for [0 (+ 1) (= 10)] print)))
+       "\"0123456789\""
+
+       (神
+        (filter [0 (+ 1) (= 100)]
+                (λ X (integer? (/ X 3)))))
+       "[0 3 6 9 12 15 18 21 24 27 30 33 36 39 42 45 48 51 54 57 60... etc]"
+
+       ))
 
 (deftest shen-defmacro
   (are [shen out] (re-find (re-pattern out) (with-out-str (shen/print shen)))
@@ -41,21 +51,6 @@
        (神
         (parsed-exec (/ 2 0)))
        "failed"
-
-       ))
-
-(deftest shenlanguage.org
-  (are [shen out] (= out (with-out-str (shen/print shen)))
-
-       (神
-        (clj/with-out-str
-          (for [0 (+ 1) (= 10)] print)))
-       "\"0123456789\""
-
-       (神
-        (filter [0 (+ 1) (= 100)]
-                (λ X (integer? (/ X 3)))))
-       "[0 3 6 9 12 15 18 21 24 27 30 33 36 39 42 45 48 51 54 57 60... etc]"
 
        ))
 
@@ -191,19 +186,24 @@
 (use-fixtures :once (fn [suite]
                       (神
                        (shen-initialise_environment))
+                      (defmacro clj-exec-macro
+                        [clj-exec Expr] -> [trap-error [time Expr] [λ E failed]])
+                      (parse-and-eval-shen "(defmacro parsed-exec-macro [parsed-exec Expr] -> [trap-error [time Expr] [/. E failed]])")
+
                       (suite)
+
                       (reset-macros!)))
+
+(defn toggle-trace [tfn]
+  (require 'clojure.tools.trace)
+  (doseq [ns '[shen shen.primitives]]
+    ((ns-resolve 'clojure.tools.trace tfn) ns)))
 
 (defn test-programs []
   (神
    (cd "shen/test-programs")
    (load "README.shen")
    (load "tests.shen")))
-
-(defn toggle-trace [tfn]
-  (require 'clojure.tools.trace)
-  (doseq [ns '[shen shen.primitives]]
-    ((ns-resolve 'clojure.tools.trace tfn) ns)))
 
 (defn -main []
   (神
