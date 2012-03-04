@@ -189,12 +189,12 @@
        ))
 
 (defn test-programs []
+  ; (reset) should not be needed
   (神
-   (do
-     (cd "shen/test-programs")
-     (load "README.shen")
-     (reset) ; should not be needed
-     (load "tests.shen"))))
+   (cd "shen/test-programs")
+   (load "README.shen")
+   (reset)
+   (load "tests.shen")))
 
 ;; (deftest README.shen
 ;;   (is (test-programs))
@@ -204,3 +204,8 @@
   (require 'clojure.tools.trace)
   (doseq [ns '[shen shen.primitives]]
     ((ns-resolve 'clojure.tools.trace tfn) ns)))
+
+(defn -main []
+  (神
+   (shen-initialise_environment))
+  (test-programs))

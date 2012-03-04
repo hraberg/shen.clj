@@ -73,17 +73,22 @@ The suite is now running, slowly but surely:
     ok
     0
 
-    run time: 276.29900000000004 secs
+    run time: 254.07 secs
     loaded
 
-The suite isn't part of the normal build yet, but can be run via `shen.test/test-programs`.
+The suite isn't part of the normal build yet, but can be run via:
+
+    yes | lein trampoline run -m shen.test
 
 
 * ~20% failures in the test suite.
-* The Prolog tests are broken, prompting `failed; continue?`.
-* Symbols vs Fns causes issues when tc+ (type checking) is on.
-* I use `-Xss512mb` to run (probably over the top), and it's currently 10 times slower than the CLisp version.
-    * Performance is not a goal for 0.1.0, but some tuning to be made to ease development.
+* Most Prolog tests are broken, prompting `failed; continue?`.
+* Many tc+ (typechecking) tests fails with "type-error".
+  * #<shen$top shen$top@c6c2bc3> is not an operation on stacks - Symbol vs Fn issue.
+* prime* in `primes.shen` blows the stack unless increased.
+  * Uses `-Xss256mb` to run for now (no TCO).
+* It's currently 10 times slower than the CLisp version.
+  * Performance is not a goal for 0.1.0, but some tuning to be made to ease development.
 
 
 ### 神 and define macros
@@ -129,17 +134,17 @@ This port, while aiming to conform closely (and hopefully fully) to the [Shen sp
 
 * Test suite passing. (days to week/s)
 * Shen / Clojure interop:
-    * define macro to embed Shen in Clojure (if needed: https://github.com/klutometis/reader-macros)
-    * Shen packages as namespaces?
-    * Hiding KLambda and its names a bit.
-    * Bringing smaller parts of Shen goodness back into Clojure: predicate dispatch, pattern matching, prolog. Maybe even the type system.
-    * Ensuring Shen can call Clojure/Java properly.
+  * define macro to embed Shen in Clojure (if needed: https://github.com/klutometis/reader-macros)
+  * Shen packages as namespaces?
+  * Hiding KLambda and its names a bit.
+  * Bringing smaller parts of Shen goodness back into Clojure: predicate dispatch, pattern matching, prolog. Maybe even the type system.
+  * Ensuring Shen can call Clojure/Java properly.
 * Future / Questions
-    * Some implicit recur, but not too much focus on premature TCO.
-    * Revisit using STM (refs/atoms) instead of intern for set/value.
-    * Existing Shen libraries and portability?
-    * ClojureScript.
-    * overrides.clj - rewriting parts of Shen into Clojure if interop or performance requires it.
+  * Some implicit recur, but not too much focus on premature TCO.
+  * Revisit using STM (refs/atoms) instead of intern for set/value.
+  * Existing Shen libraries and portability?
+  * ClojureScript.
+  * overrides.clj - rewriting parts of Shen into Clojure if interop or performance requires it.
 
 
 #### The other port, Shen to Clojure
