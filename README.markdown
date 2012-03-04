@@ -85,7 +85,7 @@ The suite isn't part of the normal build yet, but can be run via:
 
 * ~20% failures in the test suite.
 * Most Prolog tests are broken, prompting `failed; continue?`.
-* Many tc+ (typechecking) tests fails with `type-error`.
+* Many `tc+` (typechecking) tests fails with `type-error`.
   * `#<shen$top shen$top@c6c2bc3> is not an operation on stacks` - symbol vs fn issue.
 * `prime*` in `primes.shen` blows the stack unless increased.
   * Uses `-Xss256mb` to run for now (no TCO).
