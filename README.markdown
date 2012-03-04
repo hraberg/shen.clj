@@ -91,6 +91,7 @@ The suite isn't part of the normal build yet, but can be run via `shen.test/test
 Instead of using Shen's reader, you can embed Shen directly in Clojure using these macros.
 For simplicity, all Shen code lives and is evaluated in the `shen` namespace for now (this will likely change).
 
+```clojure
     ; shen.test/shenlanguage.org
     (define for
        Stream Action -> (super Stream Action do 0))
@@ -108,6 +109,7 @@ For simplicity, all Shen code lives and is evaluated in the `shen` namespace for
     (神
      ((λ X Y (+ X Y)) 2))
     fn?
+```
 
 As can be seen `λ` stands in for `/.` in Shen to avoid Clojure reader macros.
 `@p`, `@s` and `@v` are converted from Clojure deref to their Shen symbols.
