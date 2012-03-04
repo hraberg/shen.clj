@@ -19,6 +19,8 @@ Is a work in progress. The example on the Shen homepage works, and the test suit
 
 Uses [Leiningen](https://github.com/technomancy/leiningen) to build.
 
+**0.1.0 will be released once the test suite passes.**
+
 ### To run the REPL:
 
     lein trampoline run
