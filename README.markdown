@@ -88,7 +88,7 @@ The suite isn't part of the normal build yet, but can be run via:
 * prime* in `primes.shen` blows the stack unless increased.
   * Uses `-Xss256mb` to run for now (no TCO).
 * It's currently 10 times slower than the CLisp version.
-  * Performance is not a goal for 0.1.0, but some tuning to be made to ease development.
+  * Performance is not a goal for 0.1.0, but some tuning will be made to ease development.
 
 
 ### 神 and define macros
