@@ -15,7 +15,7 @@ Shen is a portable functional programming language by [Mark Tarver](http://www.l
 
 ## This Clojure Port
 
-Is a work in progress. The example on the Shen homepage works, and The test suite is currently running at 79% passed.
+Is a work in progress. The example on the Shen homepage works, and the test suite is currently running: 79% passed.
 
 Uses [Leiningen](https://github.com/technomancy/leiningen) to build.
 
