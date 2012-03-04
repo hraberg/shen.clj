@@ -78,13 +78,12 @@
        kl)))
 
 (defn intern [String]
-  (core/let [s (name String)]
-            (symbol (condp = s
-                      "/" s
-                      "/." slash-dot
-                      (string/replace s "/" "-slash-")))))
-
-(alter-var-root #'intern memoize)
+  (if (symbol? String)
+    String
+    (symbol (condp = String
+              "/" "/"
+              "/." slash-dot
+              (string/replace String "/" "-slash-")))))
 
 (core/defmacro cond [& CS]
   `(core/cond ~@(apply concat CS)))
