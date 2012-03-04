@@ -1,4 +1,4 @@
-# 神.clj | Shen for Clojure
+# 神.clj | Shen for Clojure 0.1.0-SNAPSHOT
 
 http://shenlanguage.org/
 
@@ -63,7 +63,7 @@ Uses [Leiningen](https://github.com/technomancy/leiningen) to build.
 
 ### Known Issues
 
-The suite is now running, slowly but surely. 79% passing in ~5 minutes.
+The suite is now running, slowly but surely:
 
     [... loads of output ...]
     passed ... 117
@@ -76,12 +76,43 @@ The suite is now running, slowly but surely. 79% passing in ~5 minutes.
     run time: 276.29900000000004 secs
     loaded
 
+The suite isn't part of the normal build yet, but can be run via `shen.test/test-programs`.
 
-* 20% failures in the test suite.
-* The Prolog tests are fundamentally broken, prompting "failed; continue?"
+
+* ~20% failures in the test suite.
+* The Prolog tests are broken, prompting "failed; continue?"
 * Symbols vs Fns causes issues when tc+ (type checking) is on.
 * I use -Xss512mb to run, and it's currently 10 times slower than the CLisp version.
-    * Performance is not a goal for 0.1.0 - minor tuning will be made to ease development.
+    * Performance is not a goal for 0.1.0, but some tuning to be made to ease development.
+
+
+### 神 and define macros
+
+Instead of using Shen's reader, you can embed Shen directly in Clojure using these macros.
+For simplicity, all Shen code lives and is evaluated in the `shen` namespace for now (this will likely change).
+
+    ; shen.test/shenlanguage.org
+    (define for
+       Stream Action -> (super Stream Action do 0))
+
+    ; shen.test/printer
+    (神
+     (cons 1 2))
+    "[1 | 2]"
+
+    (神
+     (@p 1 2))
+    "(@p 1 2)"
+
+    ; shen.test/partials
+    (神
+     ((λ X Y (+ X Y)) 2))
+    fn?
+
+As can be seen `λ` stands in for `/.` in Shen to avoid Clojure reader macros.
+`@p`, `@s` and `@v` are converted from Clojure deref to their Shen symbols.
+
+See [`shen.test`](https://github.com/hraberg/shen.clj/blob/master/test/shen/test.clj) for more examples.
 
 
 ## Roadmap
