@@ -2,8 +2,5 @@
 
 rm -rf classes *.jar
 
-lein difftest
-
+lein uberjar, difftest, marg
 yes | lein trampoline run -m shen.test 2>&1 | tee test.log
-
-lein uberjar

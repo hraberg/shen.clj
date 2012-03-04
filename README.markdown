@@ -128,12 +128,7 @@ See [`shen.test`](https://github.com/hraberg/shen.clj/blob/master/test/shen/test
 
 `[shen.clj "0.1.0-SNAPSHOT"]` - not yet in public repo.
 
-The script `build` is used for full, repeatable builds. It does the following:
-
-* clean
-* difftest - also generates classes/shen.clj.
-* test-programs - takes 3-5 minutes, writes to test.log.
-* uberjar - seems to do clean as well.
+The script `build` is used for full, repeatable builds.
 
 
 ## Roadmap
