@@ -159,4 +159,4 @@ http://shenlanguage.org/license.html
 
 Shen, Copyright © 2010-2012 Mark Tarver
 
-Shen.clj, Copyright © 2012 Håkan Råberg
+shen.clj, Copyright © 2012 Håkan Råberg
