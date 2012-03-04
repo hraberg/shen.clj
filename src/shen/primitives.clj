@@ -6,7 +6,8 @@
   (:refer-clojure :exclude [set intern let pr type cond cons str number? string? defmacro
                             + - * / > < >= <= = and or])
   (:import [java.io Writer]
-           [java.util Arrays]))
+           [java.util Arrays]
+           [java.lang.reflect Array]))
 
 (defn ^:private alias-vars [ns-map target-ns]
   (doseq [[k v] ns-map]
@@ -101,7 +102,7 @@
     X))
 
 (defn simple-error [String]
-  (throw (RuntimeException. String)))
+  (throw (RuntimeException. ^String String)))
 
 (core/defmacro trap-error [X F]
   `(try
@@ -113,7 +114,7 @@
   (if (instance? Throwable E)
     (with-out-str
       (.printStackTrace E))
-    (throw (IllegalArgumentException. (core/str E " is not an exception")))))
+    (throw (IllegalArgumentException. ^String (core/str E " is not an exception")))))
 
 (defn ^:private pair [X Y] [X Y])
 
@@ -239,12 +240,10 @@
     (. (core/class X) isArray)))
 
 (defn <-address [Vector N]
-  (aget Vector N))
-
-(def <-address aget)
+  (. Array (get Vector (int N))))
 
 (defn address-> [Vector N Value]
-  (aset Vector N Value)
+  (. Array (set Vector (int N) Value))
   Vector)
 
 (defn n->string [N]

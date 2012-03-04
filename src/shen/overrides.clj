@@ -18,6 +18,11 @@
  (core/object-array ['shen-tuple V706 V707]))
 
 (defun
+ variable?
+ (V702)
+ (and (core/symbol? V702) (Character/isUpperCase (.charAt (core/name V702) 0))))
+
+(defun
   macroexpand
   (V510)
   (let

@@ -222,5 +222,4 @@
 (defn -main []
   (神
    (shen-initialise_environment))
-  (test-programs)
-  (System/exit (value 'test-harness-*failed*)))
+  (test-programs))
