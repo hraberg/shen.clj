@@ -24,17 +24,14 @@
                ~@(partials F X)
                (~(vec X) ~@Y))))
 
-(doseq [op '[+ - * / > < >= <=]
+(defn /
+  ([X] (partial X))
+  ([X Y] (core/let [r# (clojure.core// X Y)]
+                   (if (ratio? r#) (double r#) r#))))
+
+(doseq [op '[> < >= <= = + - * =]
         :let [real-op (symbol "clojure.core" (name op))]]
   (eval `(defun ~op ~'[X Y] (~real-op ~'X ~'Y))))
-
-(declare absvector?)
-
-(defn =
-  ([X] (partial = X))
-  ([X Y] (if (every? absvector? [X Y])
-           (Arrays/equals X Y)
-           (core/= X Y))))
 
 (defn ^:private interned? [X]
   (and (seq? X) (= 'intern (first X))))
@@ -85,10 +82,12 @@
 (core/defmacro cond [& CS]
   `(core/cond ~@(apply concat CS)))
 
-(defn set [X Y]
-  @(core/intern (the-ns 'shen)
-                (intern X)
-                Y))
+(defn set
+  ([X] (partial set X))
+  ([X Y]
+     @(core/intern (the-ns 'shen)
+                   (with-meta (intern X) {:dynamic true :declared true})
+                   Y)))
 
 (defn value [X]
   (if-let [v (and (symbol? X) (ns-resolve 'shen (intern X)))]
@@ -185,8 +184,11 @@
 (core/defmacro package [name exceptions & body]
   `(eval-shen ~(concat ['package name exceptions] body)))
 
-(defn ^:private missing-symbol [e]
-  ((re-find #"Unable to resolve symbol: (.+) in this context" e) 1))
+
+(def ^:private missing-symbol-pattern #"Unable to resolve symbol: (.+) in this context")
+
+(defn ^:private missing-symbol [s]
+  (when-let [[_ sym] (re-find missing-symbol-pattern (or s ""))] sym))
 
 (defn ^:private eval-and-declare-missing [kl]
   (binding [*ns* (the-ns 'shen)]

@@ -62,13 +62,15 @@
     `(clojure.core/intern (find-ns '~'shen) (with-meta '~k {:dynamic true}) ~v)))
 
 (defn overrides []
-  '[(defun
+  '[
+    (defun
       macroexpand
       (V510)
       (let
           Y
         (shen-compose (clojure.core/remove symbol? (clojure.core/map value (value '*macros*))) V510)
-        (if (= V510 Y) V510 (shen-walk macroexpand Y))))])
+        (if (= V510 Y) V510 (shen-walk macroexpand Y))))
+    ])
 
 (defn main-fn []
   '(clojure.core/defn -main []

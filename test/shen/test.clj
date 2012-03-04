@@ -35,7 +35,7 @@
        (神
         (clj-exec (/ 8 2)))
        (str
-        "run time: 0.\\d+ secs" "\n"
+        "run time: .+ secs" "\n"
         "4")
 
        (神
@@ -124,9 +124,9 @@
         (vector 1))
        "<...>"
 
-       (神
-        (vector 0))
-       "<>"
+       ;; (神
+       ;;  (vector 0))
+       ;; "<>"
 
        (神
         (@p 1 2))
@@ -193,11 +193,12 @@
    (do
      (cd "shen/test-programs")
      (load "README.shen")
+     (reset) ; should not be needed
      (load "tests.shen"))))
 
 ;; (deftest README.shen
 ;;   (is (test-programs))
-;;   (is (= 0 (value '*failed*))))
+;;   (is (= 0 (value 'test-harness-*failed*))))
 
 (defn toggle-trace [tfn]
   (require 'clojure.tools.trace)

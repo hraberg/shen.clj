@@ -6,5 +6,6 @@
   :dev-dependencies [[org.clojure/tools.trace "0.7.2-SNAPSHOT"]]
   :repositories [["sonatype snapshots"
                   "https://oss.sonatype.org/content/repositories/snapshots/"]]
+  :jvm-opts ["-Xss512m" "-Xmx2g"]
   :main shen.core
   :aot [shen.primitives shen.core shen])

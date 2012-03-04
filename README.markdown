@@ -15,7 +15,7 @@ Shen is a portable functional programming language by [Mark Tarver](http://www.l
 
 ## This Clojure Port
 
-Is a work in progress. The example on the Shen homepage now works. The test suite is not running properly yet.
+Is a work in progress. The example on the Shen homepage now works. The test suite is now running: 90% passed.
 
 Uses [Leiningen](https://github.com/technomancy/leiningen) to build.
 
@@ -60,16 +60,34 @@ Uses [Leiningen](https://github.com/technomancy/leiningen) to build.
                  (/. X (integer? (/ X 3))))
     [0 3 6 9 12 15 18 21 24 27 30 33 36 39 42 45 48 51 54 57 60... etc]
 
+
 ### Known Issues
 
-* defmacro registers the macro, but it doesn't get defined when evaluating the null package form.
+The suite is now running, slowly but surely. 79% passing in ~5 minutes.
+
+    [... loads of output ...]
+    passed ... 117
+    failed ...31
+    pass rate ...79.05405405405405%
+
+    ok
+    0
+
+    run time: 276.29900000000004 secs
+    loaded
+
+
+* 20% failures in the test suite.
+* The Prolog tests are fundamentally broken, prompting "failed; continue?"
+* Symbols vs Fns causes issues when tc+ (type checking) is on.
+* I use -Xss512mb to run, and it's currently 10 times slower than the CLisp version.
+    * Performance is not a goal for 0.1.0 - minor tuning will be made to ease development.
 
 
 ## Roadmap
 
 This port, while aiming to conform closely (and hopefully fully) to the [Shen specification](http://shenlanguage.org/Documentation/shendoc.htm), has its primary goal to enable Shen's power in real world Clojure code.
 
-* Test suite running properly. (day/s)
 * Test suite passing. (days to week/s)
 * Shen / Clojure interop:
     * define macro to embed Shen in Clojure (if needed: https://github.com/klutometis/reader-macros)
