@@ -1,4 +1,7 @@
-# 神.clj | Shen for Clojure 0.1.0-SNAPSHOT
+# 神.clj | Shen for Clojure
+
+`[shen.clj "0.1.0-SNAPSHOT"]`
+
 
 http://shenlanguage.org/
 
