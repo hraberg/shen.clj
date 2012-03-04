@@ -63,7 +63,7 @@ Uses [Leiningen](https://github.com/technomancy/leiningen) to build.
 
 ### Known Issues
 
-The suite is now running, slowly but surely:
+The Shen test suite is now running, slowly but surely:
 
     [... loads of output ...]
     passed ... 117
@@ -139,6 +139,7 @@ This port, while aiming to conform closely (and hopefully fully) to the [Shen sp
   * Hiding KLambda and its names a bit.
   * Bringing smaller parts of Shen goodness back into Clojure: predicate dispatch, pattern matching, prolog. Maybe even the type system.
   * Ensuring Shen can call Clojure/Java properly.
+* Docstrings for Shen, maybe from [shen-mode.el](https://github.com/eschulte/shen-mode/blob/master/shen-mode.el).
 * Future / Questions
   * Some implicit recur, but not too much focus on premature TCO.
   * Revisit using STM (refs/atoms) instead of intern for set/value.
