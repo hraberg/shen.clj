@@ -75,7 +75,7 @@ The Shen test suite is now running, slowly but surely:
     ok
     0
 
-    run time: 254.07 secs
+    run time: 15.843 secs
     loaded
 
 The suite can be run via:
@@ -89,8 +89,7 @@ The suite can be run via:
   * `#<shen$top shen$top@c6c2bc3> is not an operation on stacks` - symbol vs fn issue.
 * `prime*` in `primes.shen` blows the stack unless increased.
   * Uses `-Xss128mb` to run for now (no TCO).
-* It's currently 10 times slower than the CLisp version.
-  * Performance is not a goal for 0.1.0, but some tuning will be made to ease development.
+* Performance is not a goal for 0.1.0, but some tuning will be made to ease development.
 
 
 ### 神 and define macros
