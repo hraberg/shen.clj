@@ -83,6 +83,8 @@
             "/." slash-dot
             (string/replace String "/" "-slash-"))))
 
+(alter-var-root #'intern memoize)
+
 (core/defmacro cond [& CS]
   `(core/cond ~@(apply concat CS)))
 
@@ -110,7 +112,7 @@
 (defn error-to-string [E]
   (if (instance? Throwable E)
     (with-out-str
-      (.printStackTrace E))
+      (.printStackTrace ^Throwable E))
     (throw (IllegalArgumentException. ^String (core/str E " is not an exception")))))
 
 (defn ^:private pair [X Y] [X Y])
@@ -236,11 +238,11 @@
     false
     (. (core/class X) isArray)))
 
-(defn <-address [Vector N]
-  (. Array (get Vector (int N))))
+(defn <-address [#^"[Ljava.lang.Object;" Vector N]
+  (aget Vector (int N)))
 
-(defn address-> [Vector N Value]
-  (. Array (set Vector (int N) Value))
+(defn address-> [#^"[Ljava.lang.Object;" Vector N Value]
+  (aset Vector (int N) Value)
   Vector)
 
 (defn n->string [N]
@@ -258,7 +260,7 @@
     (flush)
     X))
 
-(defn read-byte [S]
+(defn read-byte [^java.io.InputStream S]
   (.read S))
 
 (defn open [Type String Direction]
@@ -271,7 +273,7 @@
 (defn type [X MyType]
   (cast MyType X))
 
-(defn close [Stream]
+(defn close [^java.io.Closeable Stream]
   (.close Stream))
 
 (defn pos [X N]
