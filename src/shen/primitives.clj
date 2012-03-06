@@ -231,7 +231,7 @@
 (defn thaw [X] (X))
 
 (defn absvector [N]
-  (doto (object-array N) (Arrays/fill 'fail!)))
+  (doto (object-array (int N)) (Arrays/fill 'fail!)))
 
 (defn absvector? [X]
   (if-not X
