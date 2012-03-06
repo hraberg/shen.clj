@@ -53,7 +53,6 @@
        symbol? (condp = (name kl)
                  "true" true
                  "false" false
-                 "nil" nil
                  (list 'quote kl))
        seq? (core/let [[fst snd trd & rst] kl
                        scope (condp get fst

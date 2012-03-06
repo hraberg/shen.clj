@@ -164,7 +164,7 @@
        nil
 
        "nil"
-       nil
+       `'~(symbol "nil")
 
        "true"
        true
