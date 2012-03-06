@@ -5,7 +5,7 @@
   (:require [clojure.java.io :as io])
   (:refer-clojure :exclude [set intern let pr type cond cons str number? string? defmacro
                             + - * / > < >= <= = and or])
-  (:import [java.io Writer]
+  (:import [java.io Reader Writer InputStream]
            [java.util Arrays]
            [java.lang.reflect Array]))
 
@@ -260,7 +260,12 @@
     (flush)
     X))
 
-(defn read-byte [^java.io.InputStream S]
+(defmulti read-byte class)
+
+(defmethod read-byte InputStream [^InputStream S]
+  (.read S))
+
+(defmethod read-byte Reader [^Reader S]
   (.read S))
 
 (defn open [Type String Direction]
