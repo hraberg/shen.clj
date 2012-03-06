@@ -320,3 +320,7 @@
 
 (defn reset-macros! []
   (set '*macros* (filter #(re-find #"shen-" (name %)) (value '*macros*))))
+
+(defn exit
+  ([] (exit 0))
+  ([status] (System/exit status)))
