@@ -1,5 +1,6 @@
 (ns shen.test
   (:use [clojure.test]
+;        [criterium.core :only (with-progress-reporting bench)]
         [shen.primitives :only (value set shen-kl-to-clj λ 神 define defmacro reset-macros!
                                       package parse-shen parse-and-eval-shen)])
   (:refer-clojure :exclude [eval defmacro set for filter])
@@ -190,6 +191,7 @@
                         [clj-exec Expr] -> [trap-error [time Expr] [λ E failed]])
                       (parse-and-eval-shen "(defmacro parsed-exec-macro [parsed-exec Expr] -> [trap-error [time Expr] [/. E failed]])")
 
+ ;                     (with-progress-reporting (bench (suite) :verbose))
                       (suite)
 
                       (reset-macros!)))

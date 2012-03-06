@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-rm -rf classes *.jar
+rm -rf classes *.jar docs lib
 
-lein uberjar, difftest, marg
+lein uberjar, difftest, run -m marginalia.main
 yes | lein trampoline run -m shen.test 2>&1 | tee test.log
