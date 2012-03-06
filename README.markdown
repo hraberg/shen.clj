@@ -144,6 +144,7 @@ This port, while aiming to conform closely (and hopefully fully) to the [Shen sp
 * Docstrings for Shen, maybe from [shen-mode.el](https://github.com/eschulte/shen-mode/blob/master/shen-mode.el).
 * Future / Questions
   * Some implicit recur, but not too much focus on premature TCO.
+  * Making Shen as lazy as its host?
   * Revisit using STM (refs/atoms) instead of intern for set/value.
   * Existing Shen libraries and portability?
   * ClojureScript.
