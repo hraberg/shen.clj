@@ -1,4 +1,4 @@
-(ns shen.primitives
+ (ns shen.primitives
   (:require [clojure.core :as core]
             [clojure.set :as set]
             [clojure.string :as string]
@@ -43,7 +43,7 @@
 (defn ^:private recur?
   ([path] (partial recur? path))
   ([path fn]
-     (or (= 'cond (last (butlast path)))
+     (or (= 'cond (last (drop-last path)))
          (set/superset? '#{defun cond if do let}
                         (core/set path)))))
 
