@@ -8,6 +8,5 @@
                      [lein-difftest "1.3.7"]]
   :repositories [["sonatype snapshots"
                   "https://oss.sonatype.org/content/repositories/snapshots/"]]
-  :jvm-opts ["-Xss128m"]
   :main shen.core
   :aot [shen.primitives shen.core shen])

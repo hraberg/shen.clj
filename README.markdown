@@ -87,8 +87,6 @@ The suite can be run via:
 * Most Prolog tests are broken, prompting `failed; continue?`.
 * Many `tc+` (typechecking) tests fails with `type-error`.
   * `#<shen$top shen$top@c6c2bc3> is not an operation on stacks` - symbol vs fn issue.
-* `prime*` in `primes.shen` blows the stack unless increased.
-  * Uses `-Xss128mb` to run for now (no TCO).
 * Performance is not a goal for 0.1.0, but some tuning will be made to ease development.
 
 

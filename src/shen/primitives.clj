@@ -74,8 +74,10 @@
                               seq? (list 'value (shen-kl-to-clj fst scope))
                               fst)
                        path (conj path fst)
-                       snd (if ('#{defun let lambda} fst) snd
-                               (shen-kl-to-clj snd scope path fn))
+                       snd (condp get fst
+                             '#{defun let lambda} snd
+                             '#{if} (shen-kl-to-clj snd scope)
+                             (shen-kl-to-clj snd scope path fn))
                        trd (condp get fst
                              '#{defun} trd
                              '#{let} (shen-kl-to-clj trd scope)
