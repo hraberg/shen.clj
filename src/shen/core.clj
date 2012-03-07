@@ -1,8 +1,8 @@
 (ns shen.core
   (:use [clojure.java.io :only (file reader writer)]
         [clojure.pprint :only (pprint)])
-  (:require [clojure.string :as string])
-  (:require [shen.primitives])
+  (:require [clojure.string :as string]
+            [shen.primitives])
   (:import [java.io StringReader PushbackReader FileNotFoundException]
            [java.util.regex Pattern])
   (:gen-class))

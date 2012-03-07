@@ -1,8 +1,9 @@
 (ns shen.primitives
-  (:require [clojure.core :as core])
-  (:require [clojure.string :as string])
-  (:require [clojure.walk :as walk])
-  (:require [clojure.java.io :as io])
+  (:require [clojure.core :as core]
+            [clojure.set :as set]
+            [clojure.string :as string]
+            [clojure.walk :as walk]
+            [clojure.java.io :as io])
   (:refer-clojure :exclude [set intern let pr type cond cons str number? string? defmacro
                             + - * / > < >= <= = and or])
   (:import [java.io Reader Writer InputStream]
@@ -37,17 +38,19 @@
 (defn ^:private interned? [X]
   (and (seq? X) (= 'intern (first X))))
 
-(def ^:private safe-tail-call '#{shen-reverse_help
-                                 shen-read-file-as-bytelist-help
-                                 shen-loop
-                                 shen-compose
-                                 element?})
-
 (def ^:private slash-dot (symbol "/."))
 
+(defn ^:private recur?
+  ([path] (partial recur? path))
+  ([path fn]
+     (or (= 'cond (last (butlast path)))
+         (set/superset? '#{defun cond if do let}
+                        (core/set path)))))
+
 (defn shen-kl-to-clj
-  ([kl] (shen-kl-to-clj kl #{}))
-  ([kl scope]
+  ([kl] (shen-kl-to-clj kl #{} [] nil))
+  ([kl scope] (shen-kl-to-clj kl scope nil nil))
+  ([kl scope path fn]
      (condp some [kl]
        scope kl
        symbol? (condp = (name kl)
@@ -55,25 +58,31 @@
                  "false" false
                  (list 'quote kl))
        seq? (core/let [[fst snd trd & rst] kl
+                       fn (if ('#{defun} fst) snd
+                              fn)
                        scope (condp get fst
                                '#{defun} (into (conj scope snd) trd)
                                '#{let lambda} (conj scope snd)
                                scope)
                        fst (condp some [fst]
+                             (every-pred
+                              #{fn}
+                              (recur? path)) 'recur
                              (some-fn
                               interned?
-                              scope) (if (safe-tail-call fst)
-                                       'recur
-                                       (list 'value fst))
+                              scope) (list 'value fst)
                               seq? (list 'value (shen-kl-to-clj fst scope))
                               fst)
+                       path (conj path fst)
                        snd (if ('#{defun let lambda} fst) snd
-                               (shen-kl-to-clj snd scope))
-                       trd (if ('#{defun} fst) trd
-                               (shen-kl-to-clj trd scope))]
+                               (shen-kl-to-clj snd scope path fn))
+                       trd (condp get fst
+                             '#{defun} trd
+                             '#{let} (shen-kl-to-clj trd scope)
+                             (shen-kl-to-clj trd scope path fn))]
                       (take-while (complement nil?)
                                   (concat [fst snd trd]
-                                          (map #(shen-kl-to-clj % scope) rst))))
+                                          (map #(shen-kl-to-clj % scope path fn) rst))))
        kl)))
 
 (defn intern [String]
@@ -148,7 +157,7 @@
 
 (defn ^:private cleanup-clj [clj]
   (condp some [clj]
-    vector? (cleanup-clj (vec-to-cons clj))
+    vector? (recur (vec-to-cons clj))
     coll? (if ('#{clojure.core/deref} (first clj))
             (symbol (core/str "@" (second clj)))
             clj)
