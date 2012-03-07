@@ -48,8 +48,8 @@
                         (core/set path)))))
 
 (defn shen-kl-to-clj
-  ([kl] (shen-kl-to-clj kl #{} [] nil))
-  ([kl scope] (shen-kl-to-clj kl scope nil nil))
+  ([kl] (shen-kl-to-clj kl #{} [] :unknown))
+  ([kl scope] (shen-kl-to-clj kl scope [] :no-recur))
   ([kl scope path fn]
      (condp some [kl]
        scope kl
