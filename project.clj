@@ -2,6 +2,7 @@
   :description "Shen is a portable functional programming language"
   :license {:name "Shen License"
             :url "http://www.shenlanguage.org/license.html"}
+  :url "https://github.com/hraberg/shen.clj"
   :dependencies [[org.clojure/clojure "1.4.0-beta1"]]
   :dev-dependencies [[org.clojure/tools.trace "0.7.2-SNAPSHOT"]
                      [marginalia "0.7.0"]
