@@ -27,7 +27,8 @@
   (V510)
   (let
       Y
-    (shen-compose (core/filter core/fn? (core/map value (value '*macros*))) V510)
+    (shen-compose (core/drop-while core/symbol?
+                                   (core/map value (value '*macros*))) V510)
     (if (= V510 Y) V510 (shen-walk macroexpand Y))))
 
 (core/defn -main []
