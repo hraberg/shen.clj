@@ -128,11 +128,17 @@ See [`shen.test`](https://github.com/hraberg/shen.clj/blob/master/test/shen/test
 The script `build` is used for full, repeatable builds.
 
 
+### Marginalia
+
+http://ghettojedi.org/shen.clj/
+
+
 ## Roadmap
 
 This port, while aiming to conform closely (and hopefully fully) to the [Shen specification](http://shenlanguage.org/Documentation/shendoc.htm), has its primary goal to enable Shen's power in real world Clojure code.
 
 * Test suite passing. (days to week/s)
+* [Shen in 15 minutes](http://www.shenlanguage.org/learn-shen/tutorials/shen_in_15mins.html#shen-in-15mins) as smoke test for the REPL
 * Shen / Clojure interop:
   * define macro to embed Shen in Clojure (if needed: https://github.com/klutometis/reader-macros)
   * Shen packages as namespaces?
