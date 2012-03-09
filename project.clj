@@ -1,5 +1,5 @@
 (defproject shen.clj "0.1.0-SNAPSHOT"
-  :description "Shen is a portable functional programming language"
+  :description "Shen is a portable functional programming language by Mark Tarver"
   :license {:name "Shen License"
             :url "http://www.shenlanguage.org/license.html"}
   :url "https://github.com/hraberg/shen.clj"
