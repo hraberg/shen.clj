@@ -2,7 +2,7 @@
 
 rm -rf classes *.jar docs lib
 
-lein uberjar, difftest, run -m marginalia.main
+lein uberjar, difftest, run -m marginalia.main --file index.html
 
 echo "(exit)" | java -jar shen.clj-*-standalone.jar ; echo
 
