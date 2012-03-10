@@ -116,7 +116,7 @@
 (core/defmacro trap-error [X F]
   `(try
      ~X
-     (catch RuntimeException e#
+     (catch Exception e#
        (~F e#))))
 
 (defn error-to-string [E]

@@ -145,6 +145,9 @@
        "(filter [0 (+ 1) (= 100)] (/. X (integer? (/ X 3))))"
        seq?
 
+       "(defprolog a <--;)"
+       var?
+
        ))
 
 
