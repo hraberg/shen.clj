@@ -61,7 +61,7 @@
                        fn (if ('#{defun} fst) snd
                               fn)
                        scope (condp get fst
-                               '#{defun} (into (conj scope snd) trd)
+                               '#{defun} (into scope trd)
                                '#{let lambda} (conj scope snd)
                                scope)
                        fst (condp some [fst]
@@ -116,8 +116,8 @@
 (core/defmacro trap-error [X F]
   `(try
      ~X
-     (catch Throwable T#
-       (~F T#))))
+     (catch RuntimeException e#
+       (~F e#))))
 
 (defn error-to-string [E]
   (if (instance? Throwable E)
