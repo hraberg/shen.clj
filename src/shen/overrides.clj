@@ -3,6 +3,8 @@
   (:use [shen.primitives])
   (:require [clojure.core :as core]))
 
+(clojure.core/comment "src/shen/overrides.clj")
+
 (def ^:dynamic *language* "Clojure")
 (def ^:dynamic *implementation* (core/str "Clojure " (core/clojure-version)
                                           " [jvm "(System/getProperty "java.version")"]"))
