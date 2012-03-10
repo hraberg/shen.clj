@@ -1,4 +1,4 @@
- (ns shen.primitives
+(ns shen.primitives
   (:require [clojure.core :as core]
             [clojure.set :as set]
             [clojure.string :as string]
@@ -123,8 +123,7 @@
 
 (defn error-to-string [E]
   (if (instance? Throwable E)
-    (with-out-str
-      (.printStackTrace ^Throwable E))
+    (.getMessage  ^Throwable E)
     (throw (IllegalArgumentException. ^String (core/str E " is not an exception")))))
 
 (defn ^:private pair [X Y] [X Y])
@@ -202,16 +201,25 @@
 (core/defmacro package [name exceptions & body]
   `(eval-shen ~(concat ['package name exceptions] body)))
 
-
 (def ^:private missing-symbol-pattern #"Unable to resolve symbol: (.+) in this context")
 
 (defn ^:private missing-symbol [s]
   (when-let [[_ sym] (re-find missing-symbol-pattern (or s ""))] sym))
 
+
+(defn ^:private cleanup-return [x]
+  (if (fn? x) (core/let [name (-> x class .getName
+                                  (string/replace "_" "-")
+                                  (string/split #"\$")
+                                  last symbol)]
+                        (if (fn? (value name)) name
+                          x))
+      x))
+
 (defn ^:private eval-and-declare-missing [kl]
   (binding [*ns* (the-ns 'shen)]
     (try
-      (eval kl)
+      (cleanup-return (eval kl))
       (catch RuntimeException e
         (if-let [s (missing-symbol (.getMessage e))]
           (do

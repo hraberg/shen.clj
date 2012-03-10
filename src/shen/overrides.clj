@@ -25,6 +25,15 @@
  (and (core/symbol? V702) (Character/isUpperCase (.charAt (core/name V702) 0))))
 
 (defun
+ boolean?
+ (V746)
+ (core/contains?
+  #{true
+    false
+    (core/symbol "true")
+    (core/symbol "false")} V746))
+
+(defun
   macroexpand
   (V510)
   (let
