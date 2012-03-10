@@ -1,7 +1,8 @@
 #!/bin/bash -e
 
-rm -rf classes *.jar docs lib
+rm -rf classes *.jar lib
 
+lein deps
 lein uberjar, difftest, run -m marginalia.main --file index.html
 
 echo "(exit)" | java -jar shen.clj-*-standalone.jar ; echo
