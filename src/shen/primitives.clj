@@ -22,9 +22,11 @@
 
 (core/defmacro defun [F X & Y]
   (core/let [F (if (seq? F) (eval F) F)]
-            `(defn ^:dynamic ~F
-               ~@(partials F X)
-               (~(vec X) ~@Y))))
+            `(do
+               (defn ^:dynamic ~F
+                 ~@(partials F X)
+                 (~(vec X) ~@Y))
+               ~F)))
 
 (defn /
   ([X] (partial X))
@@ -169,7 +171,8 @@
 (defn ^:private define* [name body]
   (core/let [kl ((value 'shen-shen->kl) name body)]
             (binding [*ns* (the-ns 'shen)]
-              ((value 'eval) kl))))
+              ((value 'eval) kl)
+              name)))
 
 (defn ^:private shen-elim-define [X]
   (if (seq? X)
