@@ -3523,12 +3523,11 @@ net.brehaut.ClojureTools = (function (SH) {
 </td><td class="codes"><pre class="brush: clojure">(defn ^:private missing-symbol [s]
   (when-let [[_ sym] (re-find missing-symbol-pattern (or s ))] sym))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn ^:private cleanup-return [x]
-  (if (fn? x) (core/let [name (-&gt; x class .getName
-                                  (string/replace &quot;_&quot; &quot;-&quot;)
-                                  (string/split #&quot;\$&quot;)
-                                  last symbol)]
-                        (if (fn? (value name)) name
-                          x))
+  (or (when (fn? x) (core/let [name (-&gt; x class .getName
+                                        (string/replace &quot;_&quot; &quot;-&quot;)
+                                        (string/split #&quot;\$&quot;)
+                                        last symbol)]
+                              (when (fn? (value name)) name)))
       x))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn ^:private eval-and-declare-missing [kl]
   (binding [*ns* (the-ns 'shen)]
