@@ -87,7 +87,7 @@ The suite can be run via:
   * 3 `tc+` tests fails with `type-error in rule`.
   * `einstein.shen` returns `false` instead of `german`.
 * Performance is not a goal for 0.1.0, but some tuning has been made to ease development.
-* Next step: `benchmark.shen` running without errors.
+* Next step: `benchmarks.shen` running without errors.
 
 ### 神 and define macros
 
