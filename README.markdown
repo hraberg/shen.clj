@@ -30,7 +30,7 @@ Uses [Leiningen](https://github.com/technomancy/leiningen) to build.
 
     Shen 2010, copyright (C) 2010 Mark Tarver
     www.lambdassociates.org, version 3.1
-    running under Clojure, implementation: Clojure 1.4.0-beta1 [jvm 1.8.0-ea]
+    running under Clojure, implementation: Clojure 1.4.0-beta4 [jvm 1.8.0-ea]
     port 0.1.0-SNAPSHOT ported by Håkan Råberg
 
 
@@ -41,11 +41,11 @@ Uses [Leiningen](https://github.com/technomancy/leiningen) to build.
                  (Combine (Action Value)
                           (super [(Succ Value) Succ End]
                                  Action Combine Zero))))
-    #'shen/super
+    super
 
     (1-) (define for
            Stream Action -> (super Stream Action do 0))
-    #'shen/for
+    for
 
     (2-) (define filter
            Stream Condition ->
@@ -53,7 +53,7 @@ Uses [Leiningen](https://github.com/technomancy/leiningen) to build.
                     (/. Val (if (Condition Val) [Val] []))
                     append
                     []))
-    #'shen/filter
+    filter
 
     (3-) (for [0 (+ 1) (= 10)] print)
     01234567890
