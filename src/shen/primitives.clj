@@ -10,11 +10,24 @@
            [java.util Arrays]
            [java.lang.reflect Array]))
 
-(defn ^:private alias-vars [ns-map target-ns]
-  (doseq [[k v] ns-map]
-    (alter-meta! (core/intern target-ns k v) merge (meta v))))
+(def string? core/string?)
+(def number? core/number?)
 
-(alias-vars (select-keys (ns-map 'clojure.core) '[and or string? number?]) 'shen.primitives)
+(core/defmacro and
+  ([x] `(fn [y#] (core/and ~x y#)))
+  ([x & xs] `(core/and ~x ~@xs)))
+
+(core/defmacro or
+  ([x] `(fn [y#] (core/or ~x y#)))
+  ([x & xs] `(core/or ~x ~@xs)))
+
+(defn ^:private and-fn
+  ([x] (and x))
+  ([x y] (and x y)))
+
+(defn ^:private or-fn
+  ([x] (or x))
+  ([x y] (or x y)))
 
 (defn ^:private partials [name parameters]
   (for [p (map #(take % parameters) (range 1 (count parameters)))]
@@ -109,7 +122,10 @@
 
 (defn value [X]
   (if-let [v (and (symbol? X) (ns-resolve 'shen X))]
-    @v
+    (condp = X
+      'and and-fn
+      'or or-fn
+      @v)
     X))
 
 (defn simple-error [String]
