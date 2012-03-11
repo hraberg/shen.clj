@@ -44,7 +44,6 @@
   X [X | _] <--\;
   X [Y | Z] <-- (mem X Z)\;)
 
-
 (deftest interop
   (are [shen out] (= out (with-out-str (shen/print shen)))
 

@@ -188,7 +188,7 @@
             (symbol (core/str "@" (second clj)))
             clj)
     '#{λ} slash-dot
-    '#{\;} (intern clj)
+    char? (intern clj)
     clj))
 
 (defn ^:private define* [name body]
@@ -221,17 +221,10 @@
              (defn ~(with-meta name {:dynamic true})
                [& ~'args] (apply (value fn#) ~'args))))
 
-(core/defmacro defmacro [name & body]
-  `(eval-shen ~(concat ['defmacro name] body)))
-
-(core/defmacro defprolog [name & body]
-  `(eval-shen ~(concat ['defprolog name] body)))
-
-(core/defmacro prolog? [& body]
-  `(eval-shen ~(concat ['prolog?] body)))
-
-(core/defmacro package [name exceptions & body]
-  `(eval-shen ~(concat ['package name exceptions] body)))
+(doseq [[name args] '{defmacro [name] defprolog [name] prolog? [] package [name exceptions]}]
+  (eval
+   `(core/defmacro ~name [~@args & ~'body]
+      `(eval-shen ~(concat ['~name ~@args] ~'body)))))
 
 (def ^:private missing-symbol-pattern #"Unable to resolve symbol: (.+) in this context")
 
