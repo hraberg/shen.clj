@@ -3514,7 +3514,9 @@ net.brehaut.ClojureTools = (function (SH) {
 </td><td class="codes"><pre class="brush: clojure">(core/defmacro 神 [&amp; body]
   `(eval-shen ~@body))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(core/defmacro define [name &amp; body]
-  `(def ~(with-meta name {:dynamic true}) (eval-shen ~(concat ['define name] body))))</pre></td></tr><tr><td class="docs">
+  `(core/let [fn# (eval-shen ~(concat ['define name] body))]
+             (defn ~(with-meta name {:dynamic true})
+               [&amp; ~'args] (apply (value fn#) ~'args))))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(core/defmacro defmacro [name &amp; body]
   `(eval-shen ~(concat ['defmacro name] body)))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(core/defmacro package [name exceptions &amp; body]
