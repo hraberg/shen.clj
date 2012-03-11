@@ -224,12 +224,11 @@
 
 
 (defn ^:private cleanup-return [x]
-  (if (fn? x) (core/let [name (-> x class .getName
-                                  (string/replace "_" "-")
-                                  (string/split #"\$")
-                                  last symbol)]
-                        (if (fn? (value name)) name
-                          x))
+  (or (when (fn? x) (core/let [name (-> x class .getName
+                                        (string/replace "_" "-")
+                                        (string/split #"\$")
+                                        last symbol)]
+                              (when (fn? (value name)) name)))
       x))
 
 (defn ^:private eval-and-declare-missing [kl]
