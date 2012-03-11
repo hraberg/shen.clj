@@ -139,19 +139,16 @@ This port, while aiming to conform closely (and hopefully fully) to the [Shen sp
 * Test suite passing. (days to week/s)
 * [Shen in 15 minutes](http://www.shenlanguage.org/learn-shen/tutorials/shen_in_15mins.html#shen-in-15mins) as smoke test for the REPL
 * Shen / Clojure interop:
-  * define macro to embed Shen in Clojure (if needed: https://github.com/klutometis/reader-macros)
   * Shen packages as namespaces?
   * Hiding KLambda and its names a bit.
   * Bringing smaller parts of Shen goodness back into Clojure: predicate dispatch, pattern matching, prolog. Maybe even the type system.
   * Ensuring Shen can call Clojure/Java properly.
 * Docstrings for Shen, maybe from [shen-mode.el](https://github.com/eschulte/shen-mode/blob/master/shen-mode.el).
 * Future / Questions
-  * Some implicit recur, but not too much focus on premature TCO.
   * Making Shen as lazy as its host?
   * Revisit using STM (refs/atoms) instead of intern for set/value.
   * Existing Shen libraries and portability?
   * ClojureScript.
-  * overrides.clj - rewriting parts of Shen into Clojure if interop or performance requires it.
   * This project is part of my long term wish for a semi-automated global socialistic utopia, which requires some further work.
 
 
