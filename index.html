@@ -3119,12 +3119,11 @@ net.brehaut.ClojureTools = (function (SH) {
   (-&gt;&gt; (Thread/currentThread) .getStackTrace seq
        (map str) (some (partial re-find #&quot;clojure.main.repl&quot;))))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(when (repl?)
-  (-main))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#shen" name="shen"><h1 class="project-name">shen</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
+  (-main))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#shen" name="shen"><h1 class="project-name">shen</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><p>src/shen/overwrite.clj</p>
 </td><td class="codes"><pre class="brush: clojure">(ns shen
   (:refer-clojure :only [])
   (:use [shen.primitives])
   (:require [clojure.core :as core]))</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(clojure.core/comment &quot;src/shen/overwrite.clj&quot;)</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(def ^:dynamic *language* &quot;Clojure&quot;)
 (def ^:dynamic *implementation* (core/str &quot;Clojure &quot; (core/clojure-version)
                                           &quot; [jvm &quot;(System/getProperty &quot;java.version&quot;)&quot;]&quot;))
