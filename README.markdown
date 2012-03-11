@@ -152,7 +152,6 @@ This port, while aiming to conform closely (and hopefully fully) to the [Shen sp
   * Existing Shen libraries and portability?
   * ClojureScript.
   * overwrite.clj - rewriting parts of Shen into Clojure if interop or performance requires it.
-  * This project is part of my long term wish for a semi-automated global socialistic utopia, which requires some further work.
 
 
 #### The other port, Shen to Clojure
