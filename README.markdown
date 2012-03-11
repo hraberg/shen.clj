@@ -85,10 +85,10 @@ The suite can be run via:
 
 * 4 failing tests:
   * 3 `tc+` tests fails with `type-error in rule`.
-  * `einstein.shen` returns `false` instead of `german`.
+  * [`einstein.shen`](https://github.com/hraberg/shen.clj/blob/master/shen/test-programs/einstein.shen) returns `false` instead of `german`.
 * Cannot print empty vectors (vector 0).
 * Performance is not a goal for 0.1.0, but some tuning has been made to ease development.
-* Next step: `benchmarks.shen` running without errors.
+* Next step: [`benchmarks.shen`](https://github.com/hraberg/shen.clj/blob/master/shen/benchmarks/benchmarks.shen) running without errors.
 
 ### 神 and define macros
 
@@ -151,7 +151,7 @@ This port, while aiming to conform closely (and hopefully fully) to the [Shen sp
   * Revisit using STM (refs/atoms) instead of intern for set/value.
   * Existing Shen libraries and portability?
   * ClojureScript.
-  * overrides.clj - rewriting parts of Shen into Clojure if interop or performance requires it.
+  * overwrite.clj - rewriting parts of Shen into Clojure if interop or performance requires it.
   * This project is part of my long term wish for a semi-automated global socialistic utopia, which requires some further work.
 
 
