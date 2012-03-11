@@ -3158,7 +3158,8 @@ net.brehaut.ClojureTools = (function (SH) {
                                    (core/map value (value '*macros*))) V510)
     (if (= V510 Y) V510 (shen-walk macroexpand Y))))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(core/defn -main []
-  (shen-shen))</pre></td></tr><tr><td class="docs">
+  (shen-shen))</pre></td></tr><tr><td class="docs"><p>Based on <a href="https://github.com/eschulte/shen-mode">Shen Mode</a> by Eric Schulte.
+- Shen functions taken largely from the Qi documentation by Dr. Mark Tarver.</p>
 </td><td class="codes"><pre class="brush: clojure">(def ^:private shen-functions
   `((* &quot;number --&gt; number --&gt; number&quot; &quot;Number multiplication.&quot;)
     (+ &quot;number --&gt; number --&gt; number&quot; &quot;Number addition.&quot;)
