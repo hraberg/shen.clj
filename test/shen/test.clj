@@ -44,6 +44,10 @@
   X [X | _] <--\;
   X [Y | Z] <-- (mem X Z)\;)
 
+(define factorial
+  0 -> 1
+  X -> (* X (factorial (- X 1))))
+
 (deftest interop
   (are [shen out] (= out (with-out-str (shen/print shen)))
 
@@ -54,6 +58,8 @@
        (prolog? (mem 1 [X | 2]) (return X))
        "1"
 
+       (factorial 5)
+       "120"
        ))
 
 (deftest shen-defmacro
