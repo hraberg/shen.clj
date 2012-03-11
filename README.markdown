@@ -75,7 +75,7 @@ The Shen test suite is now running, slowly but surely:
     ok
     0
 
-    run time: 23.601000000000003 secs
+    run time: 18.337 secs
     loaded
 
 The suite can be run via:
