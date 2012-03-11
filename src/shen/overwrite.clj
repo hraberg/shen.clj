@@ -29,8 +29,8 @@
  (core/condp = V746
              true true
              false true
-             (core/symbol "true") true
-             (core/symbol "false") true
+             (intern "true") true
+             (intern "false") true
              false))
 
 (defun

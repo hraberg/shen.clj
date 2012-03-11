@@ -86,7 +86,6 @@ The suite can be run via:
 * 4 failing tests:
   * 3 `tc+` tests fails with `type-error in rule`.
   * [`einstein.shen`](https://github.com/hraberg/shen.clj/blob/master/shen/test-programs/einstein.shen) returns `false` instead of `german`.
-* Cannot print empty vectors (vector 0).
 * Performance is not a goal for 0.1.0, but some tuning has been made to ease development.
 * Next step: [`benchmarks.shen`](https://github.com/hraberg/shen.clj/blob/master/shen/benchmarks/benchmarks.shen) running without errors.
 

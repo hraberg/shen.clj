@@ -7,8 +7,7 @@
   (:refer-clojure :exclude [set intern let pr type cond cons str number? string? defmacro
                             + - * / > < >= <= = and or])
   (:import [java.io Reader Writer InputStream]
-           [java.util Arrays]
-           [java.lang.reflect Array]))
+           [java.util Arrays]))
 
 (def string? core/string?)
 (def number? core/number?)
@@ -46,7 +45,17 @@
   ([X Y] (core/let [r# (clojure.core// X Y)]
                    (if (ratio? r#) (double r#) r#))))
 
-(doseq [op '[> < >= <= = + - * =]
+(def ^:private array-class (Class/forName "[Ljava.lang.Object;"))
+
+(defn =
+  ([X] (partial = X))
+  ([X Y]
+     (if (and (identical? array-class (class X))
+              (identical? array-class (class Y)))               ;
+       (Arrays/equals #^"[Ljava.lang.Object;" X #^"[Ljava.lang.Object;" Y)
+       (core/= X Y))))
+
+(doseq [op '[> < >= <= + - *]
         :let [real-op (symbol "clojure.core" (name op))]]
   (eval `(defun ~op ~'[X Y] (~real-op ~'X ~'Y))))
 
@@ -107,8 +116,6 @@
             "/" "/"
             "/." slash-dot
             (string/replace String "/" "-slash-"))))
-
-(alter-var-root #'intern memoize)
 
 (core/defmacro cond [& CS]
   `(core/cond ~@(apply concat CS)))
@@ -346,7 +353,7 @@
     (throw (IllegalArgumentException.
             (core/str "get-time does not understand the parameter " Time)))))
 
-(defmethod print-method (class (object-array 1)) [o ^Writer w]
+(defmethod print-method array-class [o ^Writer w]
   (print-method (vec o) w))
 
 (defn ^:private read-bytes [s]
