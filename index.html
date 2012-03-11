@@ -3141,6 +3141,14 @@ net.brehaut.ClojureTools = (function (SH) {
  (V702)
  (and (core/symbol? V702) (Character/isUpperCase (.charAt (core/name V702) 0))))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defun
+ boolean?
+ (V746)
+ (core/contains?
+  #{true
+    false
+    (core/symbol &quot;true&quot;)
+    (core/symbol &quot;false&quot;)} V746))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defun
   macroexpand
   (V510)
   (let
@@ -3150,7 +3158,7 @@ net.brehaut.ClojureTools = (function (SH) {
     (if (= V510 Y) V510 (shen-walk macroexpand Y))))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(core/defn -main []
   (shen-shen))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#shen.primitives" name="shen.primitives"><h1 class="project-name">shen.primitives</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure"> (ns shen.primitives
+</td><td class="codes"><pre class="brush: clojure">(ns shen.primitives
   (:require [clojure.core :as core]
             [clojure.set :as set]
             [clojure.string :as string]
@@ -3161,18 +3169,28 @@ net.brehaut.ClojureTools = (function (SH) {
   (:import [java.io Reader Writer InputStream]
            [java.util Arrays]
            [java.lang.reflect Array]))</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(defn ^:private alias-vars [ns-map target-ns]
-  (doseq [[k v] ns-map]
-    (alter-meta! (core/intern target-ns k v) merge (meta v))))</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(alias-vars (select-keys (ns-map 'clojure.core) '[and or string? number?]) 'shen.primitives)</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(def string? core/string?)
+(def number? core/number?)</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(core/defmacro and
+  ([&amp; xs] `(core/and ~@xs)))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(core/defmacro or
+  ([&amp; xs] `(core/or ~@xs)))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defn ^:private and-fn
+  ([x] (partial and-fn x))
+  ([x y] (and x y)))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defn ^:private or-fn
+  ([x] (partial or-fn x))
+  ([x y] (or x y)))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn ^:private partials [name parameters]
   (for [p (map #(take % parameters) (range 1 (count parameters)))]
     `(~(vec p) (partial ~name ~@p))))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(core/defmacro defun [F X &amp; Y]
   (core/let [F (if (seq? F) (eval F) F)]
-            `(defn ^:dynamic ~F
-               ~@(partials F X)
-               (~(vec X) ~@Y))))</pre></td></tr><tr><td class="docs">
+            `(do
+               (defn ^:dynamic ~F
+                 ~@(partials F X)
+                 (~(vec X) ~@Y))
+               ~F)))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn /
   ([X] (partial X))
   ([X Y] (core/let [r# (clojure.core// X Y)]
@@ -3203,7 +3221,7 @@ net.brehaut.ClojureTools = (function (SH) {
                        fn (if ('#{defun} fst) snd
                               fn)
                        scope (condp get fst
-                               '#{defun} (into (conj scope snd) trd)
+                               '#{defun} (into scope trd)
                                '#{let lambda} (conj scope snd)
                                scope)
                        fst (condp some [fst]
@@ -3244,19 +3262,21 @@ net.brehaut.ClojureTools = (function (SH) {
                    Y)))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn value [X]
   (if-let [v (and (symbol? X) (ns-resolve 'shen X))]
-    @v
+    (condp = X
+      'and and-fn
+      'or or-fn
+      @v)
     X))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn simple-error [String]
   (throw (RuntimeException. ^String String)))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(core/defmacro trap-error [X F]
   `(try
      ~X
-     (catch Throwable T#
-       (~F T#))))</pre></td></tr><tr><td class="docs">
+     (catch Exception e#
+       (~F e#))))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn error-to-string [E]
   (if (instance? Throwable E)
-    (with-out-str
-      (.printStackTrace ^Throwable E))
+    (.getMessage  ^Throwable E)
     (throw (IllegalArgumentException. ^String (core/str E &quot; is not an exception&quot;)))))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn ^:private pair [X Y] [X Y])</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn ^:private pair? [X]
@@ -3291,7 +3311,8 @@ net.brehaut.ClojureTools = (function (SH) {
 </td><td class="codes"><pre class="brush: clojure">(defn ^:private define* [name body]
   (core/let [kl ((value 'shen-shen-&gt;kl) name body)]
             (binding [*ns* (the-ns 'shen)]
-              ((value 'eval) kl))))</pre></td></tr><tr><td class="docs">
+              ((value 'eval) kl)
+              name)))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn ^:private shen-elim-define [X]
   (if (seq? X)
     (if ('#{define} (first X)) (define* (second X) (drop 2 X))
@@ -3316,10 +3337,18 @@ net.brehaut.ClojureTools = (function (SH) {
 </td><td class="codes"><pre class="brush: clojure">(def ^:private missing-symbol-pattern #&quot;Unable to resolve symbol: (.+) in this context&quot;)</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn ^:private missing-symbol [s]
   (when-let [[_ sym] (re-find missing-symbol-pattern (or s ))] sym))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defn ^:private cleanup-return [x]
+  (if (fn? x) (core/let [name (-&gt; x class .getName
+                                  (string/replace &quot;_&quot; &quot;-&quot;)
+                                  (string/split #&quot;\$&quot;)
+                                  last symbol)]
+                        (if (fn? (value name)) name
+                          x))
+      x))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn ^:private eval-and-declare-missing [kl]
   (binding [*ns* (the-ns 'shen)]
     (try
-      (eval kl)
+      (cleanup-return (eval kl))
       (catch RuntimeException e
         (if-let [s (missing-symbol (.getMessage e))]
           (do
