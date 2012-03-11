@@ -1,9 +1,8 @@
+;; src/shen/overwrite.clj
 (ns shen
   (:refer-clojure :only [])
   (:use [shen.primitives])
   (:require [clojure.core :as core]))
-
-(clojure.core/comment "src/shen/overwrite.clj")
 
 (def ^:dynamic *language* "Clojure")
 (def ^:dynamic *implementation* (core/str "Clojure " (core/clojure-version)
