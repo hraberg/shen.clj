@@ -223,12 +223,16 @@
   (when-let [[_ sym] (re-find missing-symbol-pattern (or s ""))] sym))
 
 
+(defn ^:private fn-to-symbol [fn]
+  (-> fn class .getName
+      (string/replace "_" "-")
+      (string/split #"\$")
+      last symbol))
+
 (defn ^:private cleanup-return [x]
-  (or (when (fn? x) (core/let [name (-> x class .getName
-                                        (string/replace "_" "-")
-                                        (string/split #"\$")
-                                        last symbol)]
-                              (when (fn? (value name)) name)))
+  (or (when (fn? x)
+        (core/let [name (fn-to-symbol x)]
+                  (when (fn? (value name)) name)))
       x))
 
 (defn ^:private eval-and-declare-missing [kl]
