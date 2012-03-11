@@ -145,10 +145,12 @@ This port, while aiming to conform closely (and hopefully fully) to the [Shen sp
   * Ensuring Shen can call Clojure/Java properly.
 * Docstrings for Shen, maybe from [shen-mode.el](https://github.com/eschulte/shen-mode/blob/master/shen-mode.el).
 * Future / Questions
+  * More TCO than implicit recur for KLambda?
   * Making Shen as lazy as its host?
   * Revisit using STM (refs/atoms) instead of intern for set/value.
   * Existing Shen libraries and portability?
   * ClojureScript.
+  * overrides.clj - rewriting parts of Shen into Clojure if interop or performance requires it.
   * This project is part of my long term wish for a semi-automated global socialistic utopia, which requires some further work.
 
 
