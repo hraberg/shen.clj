@@ -3442,7 +3442,6 @@ net.brehaut.ClojureTools = (function (SH) {
             &quot;/&quot; &quot;/&quot;
             &quot;/.&quot; slash-dot
             (string/replace String &quot;/&quot; &quot;-slash-&quot;))))</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(alter-var-root #'intern memoize)</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(core/defmacro cond [&amp; CS]
   `(core/cond ~@(apply concat CS)))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn set
@@ -3498,6 +3497,7 @@ net.brehaut.ClojureTools = (function (SH) {
             (symbol (core/str &quot;@&quot; (second clj)))
             clj)
     '#{λ} slash-dot
+    '#{\;} (intern clj)
     clj))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn ^:private define* [name body]
   (core/let [kl ((value 'shen-shen-&gt;kl) name body)]
@@ -3525,6 +3525,10 @@ net.brehaut.ClojureTools = (function (SH) {
                [&amp; ~'args] (apply (value fn#) ~'args))))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(core/defmacro defmacro [name &amp; body]
   `(eval-shen ~(concat ['defmacro name] body)))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(core/defmacro defprolog [name &amp; body]
+  `(eval-shen ~(concat ['defprolog name] body)))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(core/defmacro prolog? [&amp; body]
+  `(eval-shen ~(concat ['prolog?] body)))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(core/defmacro package [name exceptions &amp; body]
   `(eval-shen ~(concat ['package name exceptions] body)))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(def ^:private missing-symbol-pattern #&quot;Unable to resolve symbol: (.+) in this context&quot;)</pre></td></tr><tr><td class="docs">
