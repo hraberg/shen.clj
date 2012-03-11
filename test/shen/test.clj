@@ -1,7 +1,7 @@
 (ns shen.test
   (:use [clojure.test]
-        [shen.primitives :only (value set shen-kl-to-clj λ 神 define defmacro reset-macros!
-                                      package parse-shen parse-and-eval-shen)])
+        [shen.primitives :only (value set shen-kl-to-clj λ 神 define defmacro defprolog prolog?
+                                      reset-macros! package parse-shen parse-and-eval-shen)])
   (:refer-clojure :exclude [eval defmacro set for filter])
   (:require [shen]
             [shen.primitives :as primitives]))
@@ -16,6 +16,7 @@
 
 (define for
   Stream Action -> (super Stream Action do 0))
+
 
 (define filter
   Stream Condition ->
@@ -39,13 +40,20 @@
 
        ))
 
+(defprolog mem
+  X [X | _] <--\;
+  X [Y | Z] <-- (mem X Z)\;)
 
-(deftest clj-calling-shen
+
+(deftest interop
   (are [shen out] (= out (with-out-str (shen/print shen)))
 
        (filter [0 (partial + 1) (partial = 100)]
                #(integer? (/ % 3)))
        "[0 3 6 9 12 15 18 21 24 27 30 33 36 39 42 45 48 51 54 57 60... etc]"
+
+       (prolog? (mem 1 [X | 2]) (return X))
+       "1"
 
        ))
 

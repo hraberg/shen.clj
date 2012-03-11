@@ -188,6 +188,7 @@
             (symbol (core/str "@" (second clj)))
             clj)
     '#{λ} slash-dot
+    '#{\;} (intern clj)
     clj))
 
 (defn ^:private define* [name body]
@@ -222,6 +223,12 @@
 
 (core/defmacro defmacro [name & body]
   `(eval-shen ~(concat ['defmacro name] body)))
+
+(core/defmacro defprolog [name & body]
+  `(eval-shen ~(concat ['defprolog name] body)))
+
+(core/defmacro prolog? [& body]
+  `(eval-shen ~(concat ['prolog?] body)))
 
 (core/defmacro package [name exceptions & body]
   `(eval-shen ~(concat ['package name exceptions] body)))
