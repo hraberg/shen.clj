@@ -3029,7 +3029,7 @@ net.brehaut.ClojureTools = (function (SH) {
   };
 })(SyntaxHighlighter);
 </script><title>shen.clj -- Marginalia</title></head><body><table><tr><td class="docs"><div class="header"><h1 class="project-name">shen.clj</h1><h2 class="project-version">0.1.0-SNAPSHOT</h2><br /><p>Shen is a portable functional programming language by Mark Tarver</p>
-</div><div class="dependencies"><h3>dependencies</h3><table><tr><td class="dep-name">org.clojure/clojure</td><td class="dotted"><hr /></td><td class="dep-version">1.4.0-beta4</td></tr></table></div><div class="dependencies"><h3>dev dependencies</h3><table><tr><td class="dep-name">org.clojure/tools.trace</td><td class="dotted"><hr /></td><td class="dep-version">0.7.2-SNAPSHOT</td></tr><tr><td class="dep-name">marginalia</td><td class="dotted"><hr /></td><td class="dep-version">0.7.0</td></tr><tr><td class="dep-name">lein-difftest</td><td class="dotted"><hr /></td><td class="dep-version">1.3.7</td></tr></table></div></td><td class="codes" style="text-align: center; vertical-align: middle;color: #666;padding-right:20px"><br /><br /><br />(this space intentionally left almost blank)</td></tr><tr><td class="docs"><div class="toc"><a name="toc"><h3>namespaces</h3></a><ul><li><a href="#shen.install">shen.install</a></li><li><a href="#shen">shen</a></li><li><a href="#shen.primitives">shen.primitives</a></li></ul></div></td><td class="codes">&nbsp;</td></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#shen.install" name="shen.install"><h1 class="project-name">shen.install</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
+</div><div class="dependencies"><h3>dependencies</h3><table><tr><td class="dep-name">clojure</td><td class="dotted"><hr /></td><td class="dep-version">1.4.0-beta4</td></tr></table></div><div class="dependencies"><h3>dev dependencies</h3><table><tr><td class="dep-name">org.clojure/tools.trace</td><td class="dotted"><hr /></td><td class="dep-version">0.7.2-SNAPSHOT</td></tr><tr><td class="dep-name">marginalia</td><td class="dotted"><hr /></td><td class="dep-version">0.7.0</td></tr><tr><td class="dep-name">lein-difftest</td><td class="dotted"><hr /></td><td class="dep-version">1.3.7</td></tr></table></div></td><td class="codes" style="text-align: center; vertical-align: middle;color: #666;padding-right:20px"><br /><br /><br />(this space intentionally left almost blank)</td></tr><tr><td class="docs"><div class="toc"><a name="toc"><h3>namespaces</h3></a><ul><li><a href="#shen.install">shen.install</a></li><li><a href="#shen">shen</a></li><li><a href="#shen.primitives">shen.primitives</a></li></ul></div></td><td class="codes">&nbsp;</td></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#shen.install" name="shen.install"><h1 class="project-name">shen.install</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(ns shen.install
   (:use [clojure.java.io :only (file reader writer)]
         [clojure.pprint :only (pprint)])
@@ -3145,8 +3145,8 @@ net.brehaut.ClojureTools = (function (SH) {
  (core/condp = V746
              true true
              false true
-             (core/symbol &quot;true&quot;) true
-             (core/symbol &quot;false&quot;) true
+             (intern &quot;true&quot;) true
+             (intern &quot;false&quot;) true
              false))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defun
   macroexpand
@@ -3349,8 +3349,7 @@ net.brehaut.ClojureTools = (function (SH) {
   (:refer-clojure :exclude [set intern let pr type cond cons str number? string? defmacro
                             + - * / &gt; &lt; &gt;= &lt;= = and or])
   (:import [java.io Reader Writer InputStream]
-           [java.util Arrays]
-           [java.lang.reflect Array]))</pre></td></tr><tr><td class="docs">
+           [java.util Arrays]))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(def string? core/string?)
 (def number? core/number?)</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(core/defmacro and
@@ -3379,7 +3378,15 @@ net.brehaut.ClojureTools = (function (SH) {
   ([X] (partial X))
   ([X Y] (core/let [r# (clojure.core// X Y)]
                    (if (ratio? r#) (double r#) r#))))</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(doseq [op '[&gt; &lt; &gt;= &lt;= = + - * =]
+</td><td class="codes"><pre class="brush: clojure">(def ^:private array-class (Class/forName &quot;[Ljava.lang.Object;&quot;))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defn =
+  ([X] (partial = X))
+  ([X Y]
+     (if (and (identical? array-class (class X))
+              (identical? array-class (class Y)))               ;
+       (Arrays/equals #^&quot;[Ljava.lang.Object;&quot; X #^&quot;[Ljava.lang.Object;&quot; Y)
+       (core/= X Y))))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(doseq [op '[&gt; &lt; &gt;= &lt;= + - *]
         :let [real-op (symbol &quot;clojure.core&quot; (name op))]]
   (eval `(defun ~op ~'[X Y] (~real-op ~'X ~'Y))))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn ^:private interned? [X]
@@ -3616,7 +3623,7 @@ net.brehaut.ClojureTools = (function (SH) {
               1000))
     (throw (IllegalArgumentException.
             (core/str &quot;get-time does not understand the parameter &quot; Time)))))</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(defmethod print-method (class (object-array 1)) [o ^Writer w]
+</td><td class="codes"><pre class="brush: clojure">(defmethod print-method array-class [o ^Writer w]
   (print-method (vec o) w))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn ^:private read-bytes [s]
   ((value (intern &quot;@p&quot;)) (map int s) ()))</pre></td></tr><tr><td class="docs">
