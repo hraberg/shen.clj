@@ -3497,7 +3497,7 @@ net.brehaut.ClojureTools = (function (SH) {
             (symbol (core/str &quot;@&quot; (second clj)))
             clj)
     '#{λ} slash-dot
-    '#{\;} (intern clj)
+    char? (intern clj)
     clj))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn ^:private define* [name body]
   (core/let [kl ((value 'shen-shen-&gt;kl) name body)]
@@ -3523,14 +3523,10 @@ net.brehaut.ClojureTools = (function (SH) {
   `(core/let [fn# (eval-shen ~(concat ['define name] body))]
              (defn ~(with-meta name {:dynamic true})
                [&amp; ~'args] (apply (value fn#) ~'args))))</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(core/defmacro defmacro [name &amp; body]
-  `(eval-shen ~(concat ['defmacro name] body)))</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(core/defmacro defprolog [name &amp; body]
-  `(eval-shen ~(concat ['defprolog name] body)))</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(core/defmacro prolog? [&amp; body]
-  `(eval-shen ~(concat ['prolog?] body)))</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(core/defmacro package [name exceptions &amp; body]
-  `(eval-shen ~(concat ['package name exceptions] body)))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(doseq [[name args] '{defmacro [name] defprolog [name] prolog? [] package [name exceptions]}]
+  (eval
+   `(core/defmacro ~name [~@args &amp; ~'body]
+      `(eval-shen ~(concat ['~name ~@args] ~'body)))))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(def ^:private missing-symbol-pattern #&quot;Unable to resolve symbol: (.+) in this context&quot;)</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn ^:private missing-symbol [s]
   (when-let [[_ sym] (re-find missing-symbol-pattern (or s ))] sym))</pre></td></tr><tr><td class="docs">
