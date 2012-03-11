@@ -27,11 +27,12 @@
 (defun
  boolean?
  (V746)
- (core/contains?
-  #{true
-    false
-    (core/symbol "true")
-    (core/symbol "false")} V746))
+ (core/condp = V746
+             true true
+             false true
+             (core/symbol "true") true
+             (core/symbol "false") true
+             false))
 
 (defun
   macroexpand
