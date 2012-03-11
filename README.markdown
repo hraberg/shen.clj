@@ -83,12 +83,11 @@ The suite can be run via:
     yes | lein trampoline run -m shen.test
 
 
-* ~20% failures in the test suite.
-* Most Prolog tests are broken, prompting `failed; continue?`.
-* Many `tc+` (typechecking) tests fails with `type-error`.
-  * `#<shen$top shen$top@c6c2bc3> is not an operation on stacks` - symbol vs fn issue.
-* Performance is not a goal for 0.1.0, but some tuning will be made to ease development.
-
+* 4 failing tests:
+  * 3 `tc+` tests fails with `type-error in rule`.
+  * `einstein.shen` returns `false` instead of `german`.
+* Performance is not a goal for 0.1.0, but some tuning has been made to ease development.
+* Next step: `benchmark.shen` running without errors.
 
 ### 神 and define macros
 
