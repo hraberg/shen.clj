@@ -3,7 +3,7 @@
   (:use [shen.primitives])
   (:require [clojure.core :as core]))
 
-(clojure.core/comment "src/shen/overrides.clj")
+(clojure.core/comment "src/shen/overwrite.clj")
 
 (def ^:dynamic *language* "Clojure")
 (def ^:dynamic *implementation* (core/str "Clojure " (core/clojure-version)
@@ -48,7 +48,7 @@
 
 ;; Based on [Shen Mode](https://github.com/eschulte/shen-mode) by Eric Schulte.
 ;; - Shen functions taken largely from the Qi documentation by Dr. Mark Tarver.
-(def ^:private shen-functions
+(def ^:private shen-doc
   `((* "number --> number --> number" "Number multiplication.")
     (+ "number --> number --> number" "Number addition.")
     (- "number --> number --> number" "Number subtraction.")
@@ -225,7 +225,7 @@
     (write-to-file "string --> A --> string" "Writes the second input into a file named in the first input. If the file does not exist, it is created, else it is overwritten. If the second input is a string then it is written to the file without the enclosing quotes.  The first input is returned.")
     (y-or-n? "string --> boolean" "Prints the string as a question and returns true for y and false for n.")))
 
-(core/doseq [[fn sig doc] shen-functions
+(core/doseq [[fn sig doc] shen-doc
              :let [v (core/resolve fn)]
              :when v]
             (core/alter-meta! v core/merge {:doc doc

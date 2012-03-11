@@ -1,4 +1,4 @@
-(ns shen.core
+(ns shen.install
   (:use [clojure.java.io :only (file reader writer)]
         [clojure.pprint :only (pprint)])
   (:require [clojure.string :as string]
@@ -71,7 +71,7 @@
                                [`(clojure.core/declare ~@(filter symbol? dcl))]
                                (map #(shen.primitives/shen-kl-to-clj %)
                                     (remove string? shen))
-                               ['(clojure.core/load "shen/overrides")])))))
+                               ['(clojure.core/load "shen/overwrite")])))))
 
 (defn install []
   (try

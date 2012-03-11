@@ -9,5 +9,5 @@
                      [lein-difftest "1.3.7"]]
   :repositories [["sonatype snapshots"
                   "https://oss.sonatype.org/content/repositories/snapshots/"]]
-  :main shen.core
-  :aot [shen.primitives shen.core shen])
+  :main shen.install
+  :aot [shen.primitives shen.install shen])
