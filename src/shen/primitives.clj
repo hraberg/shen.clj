@@ -209,7 +209,9 @@
   `(eval-shen ~@body))
 
 (core/defmacro define [name & body]
-  `(def ~(with-meta name {:dynamic true}) (eval-shen ~(concat ['define name] body))))
+  `(core/let [fn# (eval-shen ~(concat ['define name] body))]
+             (defn ~(with-meta name {:dynamic true})
+               [& ~'args] (apply (value fn#) ~'args))))
 
 (core/defmacro defmacro [name & body]
   `(eval-shen ~(concat ['defmacro name] body)))

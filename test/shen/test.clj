@@ -39,6 +39,16 @@
 
        ))
 
+
+(deftest clj-calling-shen
+  (are [shen out] (= out (with-out-str (shen/print shen)))
+
+       (filter [0 (partial + 1) (partial = 100)]
+               #(integer? (/ % 3)))
+       "[0 3 6 9 12 15 18 21 24 27 30 33 36 39 42 45 48 51 54 57 60... etc]"
+
+       ))
+
 (deftest shen-defmacro
   (are [shen out] (re-find (re-pattern out) (with-out-str (shen/print shen)))
 
