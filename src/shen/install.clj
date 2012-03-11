@@ -40,7 +40,7 @@
       (println file e))))
 
 (defn header [ns]
-  `(ns ~ns
+  `(~'ns ~ns
      (:refer-clojure :only [])
      (:use [shen.primitives])
      (:require [clojure.core :as ~'core])))

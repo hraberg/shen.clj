@@ -1,4 +1,4 @@
-(clojure.core/ns shen
+(ns shen
   (:refer-clojure :only [])
   (:use [shen.primitives])
   (:require [clojure.core :as core]))
