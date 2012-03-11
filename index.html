@@ -3143,11 +3143,12 @@ net.brehaut.ClojureTools = (function (SH) {
 </td><td class="codes"><pre class="brush: clojure">(defun
  boolean?
  (V746)
- (core/contains?
-  #{true
-    false
-    (core/symbol &quot;true&quot;)
-    (core/symbol &quot;false&quot;)} V746))</pre></td></tr><tr><td class="docs">
+ (core/condp = V746
+             true true
+             false true
+             (core/symbol &quot;true&quot;) true
+             (core/symbol &quot;false&quot;) true
+             false))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defun
   macroexpand
   (V510)
@@ -3172,14 +3173,16 @@ net.brehaut.ClojureTools = (function (SH) {
 </td><td class="codes"><pre class="brush: clojure">(def string? core/string?)
 (def number? core/number?)</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(core/defmacro and
-  ([&amp; xs] `(core/and ~@xs)))</pre></td></tr><tr><td class="docs">
+  ([x] `(fn [y#] (core/and ~x y#)))
+  ([x &amp; xs] `(core/and ~x ~@xs)))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(core/defmacro or
-  ([&amp; xs] `(core/or ~@xs)))</pre></td></tr><tr><td class="docs">
+  ([x] `(fn [y#] (core/or ~x y#)))
+  ([x &amp; xs] `(core/or ~x ~@xs)))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn ^:private and-fn
-  ([x] (partial and-fn x))
+  ([x] (and x))
   ([x y] (and x y)))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn ^:private or-fn
-  ([x] (partial or-fn x))
+  ([x] (or x))
   ([x y] (or x y)))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn ^:private partials [name parameters]
   (for [p (map #(take % parameters) (range 1 (count parameters)))]
