@@ -3466,13 +3466,14 @@ net.brehaut.ClojureTools = (function (SH) {
        (~F e#))))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn error-to-string [E]
   (if (instance? Throwable E)
-    (.getMessage  ^Throwable E)
+    (or (.getMessage ^Throwable E) (core/str E))
     (throw (IllegalArgumentException. ^String (core/str E &quot; is not an exception&quot;)))))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn ^:private pair [X Y] [X Y])</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn ^:private pair? [X]
   (and (vector? X) (= 2 (count X))))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn cons [X Y]
-  (if (coll? Y)
+  (if (and (coll? Y)
+           (not (pair? Y)))
     (core/cons X Y)
     (pair X Y)))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn hd [X] (first X))</pre></td></tr><tr><td class="docs">
