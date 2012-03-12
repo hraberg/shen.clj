@@ -43,7 +43,8 @@
   `(~'ns ~ns
      (:refer-clojure :only [])
      (:use [shen.primitives])
-     (:require [clojure.core :as ~'core])))
+     (:require [clojure.core :as ~'core])
+     (:gen-class)))
 
 (def missing-declarations '#{shen-kl-to-lisp FORMAT READ-CHAR})
 
@@ -72,7 +73,8 @@
                                ['(core/intern 'shen (core/with-meta '*language* {:dynamic true}) "Clojure")]
                                (map #(shen.primitives/shen-kl-to-clj %)
                                     (remove string? shen))
-                               ['(clojure.core/load "shen/overwrite")])))))
+                               ['(clojure.core/load "shen/overwrite")]
+                               ['(core/defn -main [] (shen-shen))])))))
 
 (defn install []
   (try

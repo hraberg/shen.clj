@@ -43,9 +43,6 @@
                                              (value '*macros*))) V510)
     (if (= V510 Y) V510 (shen-walk macroexpand Y))))
 
-(core/defn -main []
-  (shen-shen))
-
 ;; Based on [Shen Mode](https://github.com/eschulte/shen-mode) by Eric Schulte.
 ;; - Shen functions taken largely from the Qi documentation by Dr. Mark Tarver.
 (def ^:private shen-doc

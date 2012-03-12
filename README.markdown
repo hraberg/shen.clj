@@ -15,11 +15,12 @@ Shen is a portable functional programming language by [Mark Tarver](http://www.l
 
 ## This Clojure Port
 
+`[shen.clj "0.1.0"]`
+
 Is a work in progress - the Shen test suite is now passing.
 
 Uses [Leiningen](https://github.com/technomancy/leiningen) to build.
-
-**0.1.0 will be released soon.**
+The script `build` is used for full, repeatable builds.
 
 ### To run the REPL:
 
@@ -27,6 +28,13 @@ Uses [Leiningen](https://github.com/technomancy/leiningen) to build.
 
     # If shen.clj already exists, for readline support:
     lein repl
+
+    # java:
+    java -cp lib/clojure-1.4.0-beta4.jar:shen.clj-0.1.0.jar shen
+
+    # standalone jar:
+    java -jar shen.clj-0.1.0-standalone.jar
+
 
     Shen 2010, copyright (C) 2010 Mark Tarver
     www.lambdassociates.org, version 3.1
@@ -121,13 +129,6 @@ As can be seen `λ` stands in for `/.` in Shen to avoid Clojure reader macros.
 Characters, like \;, will also be converted to symbols.
 
 See [`shen.test`](https://github.com/hraberg/shen.clj/blob/master/test/shen/test.clj) for more examples.
-
-
-### Leiningen
-
-`[shen.clj "0.1.0-SNAPSHOT"]` - not yet in public repo.
-
-The script `build` is used for full, repeatable builds.
 
 
 ### Marginalia

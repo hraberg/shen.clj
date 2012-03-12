@@ -7,7 +7,8 @@
   (:refer-clojure :exclude [set intern let pr type cond cons str number? string? defmacro
                             + - * / > < >= <= = and or])
   (:import [java.io Reader Writer InputStream]
-           [java.util Arrays]))
+           [java.util Arrays])
+  (:gen-class))
 
 (def string? core/string?)
 (def number? core/number?)
