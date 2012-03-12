@@ -71,6 +71,10 @@
          (set/superset? '#{defun cond if do let}
                         (core/set path)))))
 
+(defn ^:private maybe-apply [kl path]
+  (if (= 'cond (last path)) kl
+      (list 'function kl)))
+
 (defn shen-kl-to-clj
   ([kl] (shen-kl-to-clj kl #{} [] :unknown))
   ([kl scope] (shen-kl-to-clj kl scope [] :no-recur))
@@ -94,8 +98,8 @@
                               (recur? path)) 'recur
                              (some-fn
                               interned?
-                              scope) (list 'value fst)
-                              seq? (list 'value (shen-kl-to-clj fst scope))
+                              scope) (maybe-apply fst path)
+                              seq? (maybe-apply (shen-kl-to-clj fst scope) path)
                               fst)
                        path (conj path fst)
                        snd (condp get fst
@@ -128,12 +132,17 @@
                    Y)))
 
 (defn value [X]
-  (if-let [v (and (symbol? X) (ns-resolve 'shen X))]
-    (condp = X
-      'and and-fn
-      'or or-fn
-      @v)
-    X))
+  (core/let [v (and (symbol? X) (ns-resolve 'shen X))]
+            (condp = X
+              'and and-fn
+              'or or-fn
+              (if (and (nil? v) (re-find #"shen-" (name X)))
+                v
+                @v))))
+
+(defn function [fn]
+  (if (fn? fn) fn
+      (value fn)))
 
 (defn simple-error [String]
   (throw (RuntimeException. ^String String)))
@@ -242,7 +251,7 @@
 (defn ^:private cleanup-return [x]
   (or (when (fn? x)
         (core/let [name (fn-to-symbol x)]
-                  (when (fn? (value name)) name)))
+                  (when (fn? (ns-resolve 'shen name)) name)))
       x))
 
 (defn ^:private eval-and-declare-missing [kl]

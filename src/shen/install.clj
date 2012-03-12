@@ -7,8 +7,8 @@
            [java.util.regex Pattern])
   (:gen-class))
 
-(def shen-namespaces '[sys core writer load macros prolog reader sequent
-                       toplevel track t-star printer yacc declarations types])
+(def shen-namespaces '[sys writer declarations core load macros prolog reader sequent
+                       toplevel track t-star printer yacc types])
 
 (def cleanup-symbols-pattern
   (re-pattern (str "(\\s+|\\()("
@@ -69,6 +69,7 @@
        (write-clj-file to-dir "shen"
                        (concat [(header 'shen)]
                                [`(clojure.core/declare ~@(filter symbol? dcl))]
+                               ['(core/intern 'shen (core/with-meta '*language* {:dynamic true}) "Clojure")]
                                (map #(shen.primitives/shen-kl-to-clj %)
                                     (remove string? shen))
                                ['(clojure.core/load "shen/overwrite")])))))

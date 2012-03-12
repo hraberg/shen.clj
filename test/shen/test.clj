@@ -252,7 +252,6 @@
   (神
    (cd "shen/test-programs")
    (load "README.shen")
-   (reset) ; Should not be needed, value is to lenient
    (load "tests.shen")))
 
 (defn -main []
