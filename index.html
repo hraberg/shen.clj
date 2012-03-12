@@ -3029,7 +3029,7 @@ net.brehaut.ClojureTools = (function (SH) {
   };
 })(SyntaxHighlighter);
 </script><title>shen.clj -- Marginalia</title></head><body><table><tr><td class="docs"><div class="header"><h1 class="project-name">shen.clj</h1><h2 class="project-version">0.1.0-SNAPSHOT</h2><br /><p>Shen is a portable functional programming language by Mark Tarver</p>
-</div><div class="dependencies"><h3>dependencies</h3><table><tr><td class="dep-name">clojure</td><td class="dotted"><hr /></td><td class="dep-version">1.4.0-beta4</td></tr></table></div><div class="dependencies"><h3>dev dependencies</h3><table><tr><td class="dep-name">org.clojure/tools.trace</td><td class="dotted"><hr /></td><td class="dep-version">0.7.2-SNAPSHOT</td></tr><tr><td class="dep-name">marginalia</td><td class="dotted"><hr /></td><td class="dep-version">0.7.0</td></tr><tr><td class="dep-name">lein-difftest</td><td class="dotted"><hr /></td><td class="dep-version">1.3.7</td></tr></table></div></td><td class="codes" style="text-align: center; vertical-align: middle;color: #666;padding-right:20px"><br /><br /><br />(this space intentionally left almost blank)</td></tr><tr><td class="docs"><div class="toc"><a name="toc"><h3>namespaces</h3></a><ul><li><a href="#shen.install">shen.install</a></li><li><a href="#shen">shen</a></li><li><a href="#shen.primitives">shen.primitives</a></li></ul></div></td><td class="codes">&nbsp;</td></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#shen.install" name="shen.install"><h1 class="project-name">shen.install</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
+</div><div class="dependencies"><h3>dependencies</h3><table><tr><td class="dep-name">clojure</td><td class="dotted"><hr /></td><td class="dep-version">1.4.0-beta4</td></tr></table></div><div class="dependencies"><h3>dev dependencies</h3><table><tr><td class="dep-name">org.clojure/tools.trace</td><td class="dotted"><hr /></td><td class="dep-version">0.7.2-20120223.025622-2</td></tr><tr><td class="dep-name">marginalia</td><td class="dotted"><hr /></td><td class="dep-version">0.7.0</td></tr><tr><td class="dep-name">lein-difftest</td><td class="dotted"><hr /></td><td class="dep-version">1.3.7</td></tr></table></div></td><td class="codes" style="text-align: center; vertical-align: middle;color: #666;padding-right:20px"><br /><br /><br />(this space intentionally left almost blank)</td></tr><tr><td class="docs"><div class="toc"><a name="toc"><h3>namespaces</h3></a><ul><li><a href="#shen.install">shen.install</a></li><li><a href="#shen">shen</a></li><li><a href="#shen.primitives">shen.primitives</a></li></ul></div></td><td class="codes">&nbsp;</td></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#shen.install" name="shen.install"><h1 class="project-name">shen.install</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(ns shen.install
   (:use [clojure.java.io :only (file reader writer)]
         [clojure.pprint :only (pprint)])
@@ -3069,7 +3069,8 @@ net.brehaut.ClojureTools = (function (SH) {
   `(~'ns ~ns
      (:refer-clojure :only [])
      (:use [shen.primitives])
-     (:require [clojure.core :as ~'core])))</pre></td></tr><tr><td class="docs">
+     (:require [clojure.core :as ~'core])
+     (:gen-class)))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(def missing-declarations '#{shen-kl-to-lisp FORMAT READ-CHAR})</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn declarations [clj]
   (into missing-declarations
@@ -3094,7 +3095,8 @@ net.brehaut.ClojureTools = (function (SH) {
                                ['(core/intern 'shen (core/with-meta '*language* {:dynamic true}) &quot;Clojure&quot;)]
                                (map #(shen.primitives/shen-kl-to-clj %)
                                     (remove string? shen))
-                               ['(clojure.core/load &quot;shen/overwrite&quot;)])))))</pre></td></tr><tr><td class="docs">
+                               ['(clojure.core/load &quot;shen/overwrite&quot;)]
+                               ['(core/defn -main [] (shen-shen))])))))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn install []
   (try
     (require 'shen)
@@ -3157,9 +3159,7 @@ net.brehaut.ClojureTools = (function (SH) {
     (shen-compose (core/drop-while core/nil?
                                    (core/map #(core/when-let [m (core/ns-resolve 'shen %)] @m)
                                              (value '*macros*))) V510)
-    (if (= V510 Y) V510 (shen-walk macroexpand Y))))</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(core/defn -main []
-  (shen-shen))</pre></td></tr><tr><td class="docs"><p>Based on <a href="https://github.com/eschulte/shen-mode">Shen Mode</a> by Eric Schulte.
+    (if (= V510 Y) V510 (shen-walk macroexpand Y))))</pre></td></tr><tr><td class="docs"><p>Based on <a href="https://github.com/eschulte/shen-mode">Shen Mode</a> by Eric Schulte.
 - Shen functions taken largely from the Qi documentation by Dr. Mark Tarver.</p>
 </td><td class="codes"><pre class="brush: clojure">(def ^:private shen-doc
   `((* &quot;number --&gt; number --&gt; number&quot; &quot;Number multiplication.&quot;)
@@ -3351,7 +3351,8 @@ net.brehaut.ClojureTools = (function (SH) {
   (:refer-clojure :exclude [set intern let pr type cond cons str number? string? defmacro
                             + - * / &gt; &lt; &gt;= &lt;= = and or])
   (:import [java.io Reader Writer InputStream]
-           [java.util Arrays]))</pre></td></tr><tr><td class="docs">
+           [java.util Arrays])
+  (:gen-class))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(def string? core/string?)
 (def number? core/number?)</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(core/defmacro and
@@ -3581,7 +3582,7 @@ net.brehaut.ClojureTools = (function (SH) {
 </td><td class="codes"><pre class="brush: clojure">(defn absvector? [X]
   (if-not X
     false
-    (. (core/class X) isArray)))</pre></td></tr><tr><td class="docs">
+    (identical? array-class (core/class X))))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn &lt;-address [#^&quot;[Ljava.lang.Object;&quot; Vector N]
   (aget Vector (int N)))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn address-&gt; [#^&quot;[Ljava.lang.Object;&quot; Vector N Value]
