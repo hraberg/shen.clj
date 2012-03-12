@@ -7,7 +7,7 @@
 (def ^:dynamic *language* "Clojure")
 (def ^:dynamic *implementation* (core/str "Clojure " (core/clojure-version)
                                           " [jvm "(System/getProperty "java.version")"]"))
-(def ^:dynamic *port* "0.1.0-SNAPSHOT")
+(def ^:dynamic *port* "0.1.0")
 (def ^:dynamic *porters* "Håkan Råberg")
 
 (def ^:dynamic *stinput* core/*in*)
