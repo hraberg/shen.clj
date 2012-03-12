@@ -136,9 +136,7 @@
             (condp = X
               'and and-fn
               'or or-fn
-              (if (and (nil? v) (re-find #"shen-" (name X)))
-                v
-                @v))))
+              @v)))
 
 (defn function [fn]
   (if (fn? fn) fn

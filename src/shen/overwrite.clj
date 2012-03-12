@@ -38,8 +38,9 @@
   (V510)
   (let
       Y
-    (shen-compose (core/drop-while core/symbol?
-                                   (core/map #(try (function %) (catch NullPointerException _ %)) (value '*macros*))) V510)
+    (shen-compose (core/drop-while core/nil?
+                                   (core/map #(core/when-let [m (core/ns-resolve 'shen %)] @m)
+                                             (value '*macros*))) V510)
     (if (= V510 Y) V510 (shen-walk macroexpand Y))))
 
 (core/defn -main []
