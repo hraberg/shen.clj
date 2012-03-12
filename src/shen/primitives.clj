@@ -293,7 +293,7 @@
 (defn absvector? [X]
   (if-not X
     false
-    (. (core/class X) isArray)))
+    (identical? array-class (core/class X))))
 
 (defn <-address [#^"[Ljava.lang.Object;" Vector N]
   (aget Vector (int N)))

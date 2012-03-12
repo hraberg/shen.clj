@@ -3,8 +3,7 @@
         [shen.primitives :only (value set shen-kl-to-clj λ 神 define defmacro defprolog prolog?
                                       reset-macros! package parse-shen parse-and-eval-shen)])
   (:refer-clojure :exclude [eval defmacro set for filter])
-  (:require [shen]
-            [shen.primitives :as primitives]))
+  (:require [shen]))
 
 (define super
   [Value Succ End] Action Combine Zero ->
@@ -250,11 +249,10 @@
 
 (defn test-programs []
   (神
+   (shen-initialise_environment)
    (cd "shen/test-programs")
    (load "README.shen")
    (load "tests.shen")))
 
 (defn -main []
-  (神
-   (shen-initialise_environment))
   (test-programs))

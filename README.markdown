@@ -63,7 +63,7 @@ Uses [Leiningen](https://github.com/technomancy/leiningen) to build.
     [0 3 6 9 12 15 18 21 24 27 30 33 36 39 42 45 48 51 54 57 60... etc]
 
 
-### Known Issues
+### The Shen Test Suite
 
 The Shen test suite is now running, slowly but surely:
 
@@ -82,11 +82,16 @@ The suite can be run via:
 
     yes | lein trampoline run -m shen.test
 
-* `value` should throw exception when accessing undeclared vars - need to split out the internal use.
-* Performance is not a goal for 0.1.0, but some tuning has been made to ease development.
-* Next step: [`benchmarks.shen`](https://github.com/hraberg/shen.clj/blob/master/shen/benchmarks/benchmarks.shen) running without errors.
 
-### 神 and define macros
+The benchmarks can be run via:
+
+    JAVA_OPTS="-Xss4m" lein run -m shen.benchmarks
+
+
+* Performance is not a goal for 0.1.0, but some tuning has been made to ease development.
+
+
+### 神, define, prolog? and defprolog macros
 
 Instead of using Shen's reader, you can embed Shen directly in Clojure using these macros.
 For simplicity, all Shen code lives and is evaluated in the `shen` namespace for now (this will likely change).
@@ -113,6 +118,7 @@ fn?
 
 As can be seen `λ` stands in for `/.` in Shen to avoid Clojure reader macros.
 `@p`, `@s` and `@v` are converted from Clojure deref to their Shen symbols.
+Characters, like \;, will also be converted to symbols.
 
 See [`shen.test`](https://github.com/hraberg/shen.clj/blob/master/test/shen/test.clj) for more examples.
 
@@ -133,21 +139,19 @@ http://ghettojedi.org/shen.clj/
 
 This port, while aiming to conform closely (and hopefully fully) to the [Shen specification](http://shenlanguage.org/Documentation/shendoc.htm), has its primary goal to enable Shen's power in real world Clojure code.
 
-* Test suite passing. (days to week/s)
-* [Shen in 15 minutes](http://www.shenlanguage.org/learn-shen/tutorials/shen_in_15mins.html#shen-in-15mins) as smoke test for the REPL
 * Shen / Clojure interop:
   * Shen packages as namespaces?
-  * Hiding KLambda and its names a bit.
+  * Hiding Shen internal names.
   * Bringing smaller parts of Shen goodness back into Clojure: predicate dispatch, pattern matching, prolog. Maybe even the type system.
   * Ensuring Shen can call Clojure/Java properly.
-* Docstrings for Shen, maybe from [shen-mode.el](https://github.com/eschulte/shen-mode/blob/master/shen-mode.el).
 * Future / Questions
   * More TCO than implicit recur for KLambda?
   * Making Shen as lazy as its host?
-  * Revisit using STM (refs/atoms) instead of intern for set/value.
+  * Revisit using STM (refs/atoms) instead of intern for set/value?
   * Existing Shen libraries and portability?
   * ClojureScript.
-  * overwrite.clj - rewriting parts of Shen into Clojure if interop or performance requires it.
+  * overwrite.clj - rewriting more parts of Shen into Clojure if interop or performance requires it.
+* [Shen in 15 minutes](http://www.shenlanguage.org/learn-shen/tutorials/shen_in_15mins.html#shen-in-15mins) as smoke test for the REPL
 
 
 #### The other port, Shen to Clojure
