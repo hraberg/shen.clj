@@ -136,6 +136,14 @@
        "[1 | 2]"
 
        (神
+        (cons (cons 1 2) 3))
+       "[[1 | 2] | 3]"
+
+       (神
+        (cons 1 (cons 2 3)))
+       "[1 2 | 3]"
+
+       (神
         (absvector 1))
        "<fail!>"
 
@@ -244,6 +252,7 @@
   (神
    (cd "shen/test-programs")
    (load "README.shen")
+   (reset) ; Should not be needed, value is to lenient
    (load "tests.shen")))
 
 (defn -main []

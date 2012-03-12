@@ -146,7 +146,7 @@
 
 (defn error-to-string [E]
   (if (instance? Throwable E)
-    (.getMessage  ^Throwable E)
+    (or (.getMessage ^Throwable E) (core/str E))
     (throw (IllegalArgumentException. ^String (core/str E " is not an exception")))))
 
 (defn ^:private pair [X Y] [X Y])
@@ -155,7 +155,8 @@
   (and (vector? X) (= 2 (count X))))
 
 (defn cons [X Y]
-  (if (coll? Y)
+  (if (and (coll? Y)
+           (not (pair? Y)))
     (core/cons X Y)
     (pair X Y)))
 

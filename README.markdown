@@ -15,11 +15,11 @@ Shen is a portable functional programming language by [Mark Tarver](http://www.l
 
 ## This Clojure Port
 
-Is a work in progress. The example on the Shen homepage works, and the test suite is currently running: 97% passed.
+Is a work in progress - the Shen test suite is now passing.
 
 Uses [Leiningen](https://github.com/technomancy/leiningen) to build.
 
-**0.1.0 will be released once the test suite passes.**
+**0.1.0 will be released soon.**
 
 ### To run the REPL:
 
@@ -68,24 +68,21 @@ Uses [Leiningen](https://github.com/technomancy/leiningen) to build.
 The Shen test suite is now running, slowly but surely:
 
     [... loads of output ...]
-    passed ... 142
-    failed ...4
-    pass rate ...97.26027397260275%
+    passed ... 146
+    failed ...0
+    pass rate ...100%
 
     ok
     0
 
-    run time: 18.337 secs
+    run time: 19.022 secs
     loaded
 
 The suite can be run via:
 
     yes | lein trampoline run -m shen.test
 
-
-* 4 failing tests:
-  * 3 `tc+` tests fails with `type-error in rule`.
-  * [`einstein.shen`](https://github.com/hraberg/shen.clj/blob/master/shen/test-programs/einstein.shen) returns `false` instead of `german`.
+* `value` should throw exception when accessing undeclared vars - need to split out the internal use.
 * Performance is not a goal for 0.1.0, but some tuning has been made to ease development.
 * Next step: [`benchmarks.shen`](https://github.com/hraberg/shen.clj/blob/master/shen/benchmarks/benchmarks.shen) running without errors.
 

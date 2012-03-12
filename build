@@ -9,4 +9,4 @@ echo "(exit)" | java -jar shen.clj-*-standalone.jar
 echo
 
 yes | lein trampoline run -m shen.test 2>&1 | tee test.log
-grep "pass rate ...100.0%" test.log > /dev/null
+grep "pass rate ...100%" test.log > /dev/null
