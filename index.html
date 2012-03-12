@@ -3038,8 +3038,8 @@ net.brehaut.ClojureTools = (function (SH) {
   (:import [java.io StringReader PushbackReader FileNotFoundException]
            [java.util.regex Pattern])
   (:gen-class))</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(def shen-namespaces '[sys core writer load macros prolog reader sequent
-                       toplevel track t-star printer yacc declarations types])</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(def shen-namespaces '[sys writer declarations core load macros prolog reader sequent
+                       toplevel track t-star printer yacc types])</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(def cleanup-symbols-pattern
   (re-pattern (str &quot;(\\s+|\\()(&quot;
                    (string/join &quot;|&quot; (map #(Pattern/quote %) [&quot;:&quot; &quot;;&quot; &quot;{&quot; &quot;}&quot; &quot;:-&quot; &quot;:=&quot;
@@ -3091,6 +3091,7 @@ net.brehaut.ClojureTools = (function (SH) {
        (write-clj-file to-dir &quot;shen&quot;
                        (concat [(header 'shen)]
                                [`(clojure.core/declare ~@(filter symbol? dcl))]
+                               ['(core/intern 'shen (core/with-meta '*language* {:dynamic true}) &quot;Clojure&quot;)]
                                (map #(shen.primitives/shen-kl-to-clj %)
                                     (remove string? shen))
                                ['(clojure.core/load &quot;shen/overwrite&quot;)])))))</pre></td></tr><tr><td class="docs">
@@ -3153,8 +3154,9 @@ net.brehaut.ClojureTools = (function (SH) {
   (V510)
   (let
       Y
-    (shen-compose (core/drop-while core/symbol?
-                                   (core/map value (value '*macros*))) V510)
+    (shen-compose (core/drop-while core/nil?
+                                   (core/map #(core/when-let [m (core/ns-resolve 'shen %)] @m)
+                                             (value '*macros*))) V510)
     (if (= V510 Y) V510 (shen-walk macroexpand Y))))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(core/defn -main []
   (shen-shen))</pre></td></tr><tr><td class="docs"><p>Based on <a href="https://github.com/eschulte/shen-mode">Shen Mode</a> by Eric Schulte.
@@ -3398,6 +3400,9 @@ net.brehaut.ClojureTools = (function (SH) {
      (or (= 'cond (last (drop-last path)))
          (set/superset? '#{defun cond if do let}
                         (core/set path)))))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defn ^:private maybe-apply [kl path]
+  (if (= 'cond (last path)) kl
+      (list 'function kl)))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn shen-kl-to-clj
   ([kl] (shen-kl-to-clj kl #{} [] :unknown))
   ([kl scope] (shen-kl-to-clj kl scope [] :no-recur))
@@ -3421,8 +3426,8 @@ net.brehaut.ClojureTools = (function (SH) {
                               (recur? path)) 'recur
                              (some-fn
                               interned?
-                              scope) (list 'value fst)
-                              seq? (list 'value (shen-kl-to-clj fst scope))
+                              scope) (maybe-apply fst path)
+                              seq? (maybe-apply (shen-kl-to-clj fst scope) path)
                               fst)
                        path (conj path fst)
                        snd (condp get fst
@@ -3451,12 +3456,17 @@ net.brehaut.ClojureTools = (function (SH) {
                    (with-meta X {:dynamic true :declared true})
                    Y)))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn value [X]
-  (if-let [v (and (symbol? X) (ns-resolve 'shen X))]
-    (condp = X
-      'and and-fn
-      'or or-fn
-      @v)
-    X))</pre></td></tr><tr><td class="docs">
+  (core/let [v (and (symbol? X) (ns-resolve 'shen X))]
+            (condp = X
+              'and and-fn
+              'or or-fn
+              ;; (if (and (nil? v) (re-find #&quot;shen-type&quot; (name X)))
+              ;;   v
+              @v)))</pre></td></tr><tr><td class="docs"><p>)</p>
+</td><td class="codes"></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defn function [fn]
+  (if (fn? fn) fn
+      (value fn)))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn simple-error [String]
   (throw (RuntimeException. ^String String)))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(core/defmacro trap-error [X F]
@@ -3539,7 +3549,7 @@ net.brehaut.ClojureTools = (function (SH) {
 </td><td class="codes"><pre class="brush: clojure">(defn ^:private cleanup-return [x]
   (or (when (fn? x)
         (core/let [name (fn-to-symbol x)]
-                  (when (fn? (value name)) name)))
+                  (when (fn? (ns-resolve 'shen name)) name)))
       x))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn ^:private eval-and-declare-missing [kl]
   (binding [*ns* (the-ns 'shen)]
