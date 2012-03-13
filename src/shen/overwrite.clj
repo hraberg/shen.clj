@@ -13,6 +13,8 @@
 (def ^:dynamic *stinput* core/*in*)
 (def ^:dynamic *home-directory* (System/getProperty "user.dir"))
 
+(shen-initialise_environment)
+
 (defun
  (intern "@p")
  (V706 V707)

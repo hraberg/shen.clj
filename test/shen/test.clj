@@ -218,8 +218,6 @@
        ))
 
 (use-fixtures :once (fn [suite]
-                      (神
-                       (shen-initialise_environment))
                       (defmacro clj-exec-macro
                         [clj-exec Expr] -> [trap-error [time Expr] [λ E failed]])
                       (parse-and-eval-shen "(defmacro parsed-exec-macro [parsed-exec Expr] -> [trap-error [time Expr] [/. E failed]])")
@@ -249,7 +247,6 @@
 
 (defn test-programs []
   (神
-   (shen-initialise_environment)
    (cd "shen/test-programs")
    (load "README.shen")
    (load "tests.shen")))

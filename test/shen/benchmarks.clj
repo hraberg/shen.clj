@@ -5,7 +5,6 @@
 
 (defn benchmarks []
   (神
-   (shen-initialise_environment)
    (cd "shen/benchmarks")
    (load "README.shen")
    (load "benchmarks.shen")))
