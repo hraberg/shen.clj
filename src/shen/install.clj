@@ -59,6 +59,9 @@
         (pprint f)
         (println)))))
 
+(defn project-version []
+  (-> (slurp "project.clj") read-string (nth 2)))
+
 (defn kl-to-clj
   ([] (kl-to-clj "shen/klambda"
                  *compile-path*))
@@ -71,6 +74,8 @@
                        (concat [(header 'shen)]
                                [`(clojure.core/declare ~@(filter symbol? dcl))]
                                ['(core/intern 'shen (core/with-meta '*language* {:dynamic true}) "Clojure")]
+                               [(concat '(core/intern 'shen (core/with-meta '*port* {:dynamic true}))
+                                        [(project-version)])]
                                (map #(shen.primitives/shen-kl-to-clj %)
                                     (remove string? shen))
                                ['(clojure.core/load "shen/overwrite")]
