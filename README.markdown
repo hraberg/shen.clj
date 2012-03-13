@@ -126,7 +126,7 @@ fn?
 
 As can be seen `λ` stands in for `/.` in Shen to avoid Clojure reader macros.
 `@p`, `@s` and `@v` are converted from Clojure deref to their Shen symbols.
-Characters, like \;, will also be converted to symbols.
+Characters, like `\;`, will also be converted to symbols.
 
 See [`shen.test`](https://github.com/hraberg/shen.clj/blob/master/test/shen/test.clj) for more examples.
 
