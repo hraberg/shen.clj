@@ -39,7 +39,7 @@ The script `build` is used for full, repeatable builds.
     Shen 2010, copyright (C) 2010 Mark Tarver
     www.lambdassociates.org, version 3.1
     running under Clojure, implementation: Clojure 1.4.0-beta4 [jvm 1.8.0-ea]
-    port 0.1.0-SNAPSHOT ported by Håkan Råberg
+    port 0.1.0 ported by Håkan Råberg
 
 
     (0-) (define super
