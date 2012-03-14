@@ -42,7 +42,7 @@
                ~F)))
 
 (defn /
-  ([X] (partial X))
+  ([X] (partial / X))
   ([X Y] (core/let [r# (clojure.core// X Y)]
                    (if (ratio? r#) (double r#) r#))))
 
