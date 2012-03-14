@@ -43,8 +43,8 @@
 
 (defn /
   ([X] (partial / X))
-  ([X Y] (core/let [r# (clojure.core// X Y)]
-                   (if (ratio? r#) (double r#) r#))))
+  ([X Y] (core/let [r (clojure.core// X Y)]
+                   (if (ratio? r) (double r) r))))
 
 (def ^:private array-class (Class/forName "[Ljava.lang.Object;"))
 
