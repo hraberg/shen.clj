@@ -179,6 +179,9 @@
        "(defprolog f a <--;)"
        'f
 
+       "(cond (true \"/\"))"
+       "/"
+
        ))
 
 

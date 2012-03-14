@@ -101,7 +101,9 @@
                               interned?
                               scope) (maybe-apply fst path)
                               seq? (maybe-apply (shen-kl-to-clj fst scope) path)
-                              fst)
+                              (if (= 'cond (last path))
+                                (shen-kl-to-clj fst scope)
+                                fst))
                        path (conj path fst)
                        snd (condp get fst
                              '#{defun let lambda} snd
