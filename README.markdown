@@ -15,7 +15,7 @@ Shen is a portable functional programming language by [Mark Tarver](http://www.l
 
 ## This Clojure Port
 
-`[shen.clj "0.1.0"]`
+`[shen.clj "0.1.2"]`
 
 Is a work in progress - the Shen test suite is now passing.
 
@@ -30,16 +30,16 @@ The script `build` is used for full, repeatable builds.
     lein repl
 
     # java:
-    java -cp lib/clojure-1.4.0-beta4.jar:shen.clj-0.1.0.jar shen
+    java -cp lib/clojure-1.4.0-beta4.jar:shen.clj-0.1.2.jar shen
 
     # standalone jar:
-    java -jar shen.clj-0.1.0-standalone.jar
+    java -jar shen.clj-0.1.2-standalone.jar
 
 
     Shen 2010, copyright (C) 2010 Mark Tarver
     www.lambdassociates.org, version 3.1
     running under Clojure, implementation: Clojure 1.4.0-beta4 [jvm 1.8.0-ea]
-    port 0.1.0 ported by Håkan Råberg
+    port 0.1.2 ported by Håkan Råberg
 
 
     (0-) (define super
@@ -96,7 +96,7 @@ The benchmarks can be run via:
     JAVA_OPTS="-Xss4m" lein run -m shen.benchmarks
 
 
-* Performance is not a goal for 0.1.0, but some tuning has been made to ease development.
+* Performance is not a goal for 0.1.x, but some tuning has been made to ease development.
 
 
 ### 神, define, prolog? and defprolog macros
