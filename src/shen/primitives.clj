@@ -294,9 +294,7 @@
   (doto (object-array (int N)) (Arrays/fill 'fail!)))
 
 (defn absvector? [X]
-  (if-not X
-    false
-    (identical? array-class (core/class X))))
+  (identical? array-class (core/class X)))
 
 (defn <-address [#^"[Ljava.lang.Object;" Vector N]
   (aget Vector (int N)))
