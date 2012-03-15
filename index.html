@@ -3028,8 +3028,8 @@ net.brehaut.ClojureTools = (function (SH) {
     build_tree: build_tree
   };
 })(SyntaxHighlighter);
-</script><title>shen.clj -- Marginalia</title></head><body><table><tr><td class="docs"><div class="header"><h1 class="project-name">shen.clj</h1><h2 class="project-version">0.1.0</h2><br /><p>Shen is a portable functional programming language by Mark Tarver</p>
-</div><div class="dependencies"><h3>dependencies</h3><table><tr><td class="dep-name">clojure</td><td class="dotted"><hr /></td><td class="dep-version">1.4.0-beta4</td></tr></table></div><div class="dependencies"><h3>dev dependencies</h3><table><tr><td class="dep-name">org.clojure/tools.trace</td><td class="dotted"><hr /></td><td class="dep-version">0.7.2-20120223.025622-2</td></tr><tr><td class="dep-name">marginalia</td><td class="dotted"><hr /></td><td class="dep-version">0.7.0</td></tr><tr><td class="dep-name">lein-difftest</td><td class="dotted"><hr /></td><td class="dep-version">1.3.7</td></tr></table></div></td><td class="codes" style="text-align: center; vertical-align: middle;color: #666;padding-right:20px"><br /><br /><br />(this space intentionally left almost blank)</td></tr><tr><td class="docs"><div class="toc"><a name="toc"><h3>namespaces</h3></a><ul><li><a href="#shen.install">shen.install</a></li><li><a href="#shen">shen</a></li><li><a href="#shen.primitives">shen.primitives</a></li></ul></div></td><td class="codes">&nbsp;</td></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#shen.install" name="shen.install"><h1 class="project-name">shen.install</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
+</script><title>shen.clj -- Marginalia</title></head><body><table><tr><td class="docs"><div class="header"><h1 class="project-name">shen.clj</h1><h2 class="project-version">0.1.2</h2><br /><p>Shen is a portable functional programming language by Mark Tarver</p>
+</div><div class="dependencies"><h3>dependencies</h3><table><tr><td class="dep-name">clojure</td><td class="dotted"><hr /></td><td class="dep-version">1.4.0-beta4</td></tr></table></div><div class="dependencies"><h3>dev dependencies</h3><table><tr><td class="dep-name">org.clojure/tools.trace</td><td class="dotted"><hr /></td><td class="dep-version">0.7.2-20120223.025622-2</td></tr><tr><td class="dep-name">marginalia</td><td class="dotted"><hr /></td><td class="dep-version">0.7.0</td></tr><tr><td class="dep-name">lein-difftest</td><td class="dotted"><hr /></td><td class="dep-version">1.3.7</td></tr></table></div></td><td class="codes" style="text-align: center; vertical-align: middle;color: #666;padding-right:20px"><br /><br /><br />(this space intentionally left almost blank)</td></tr><tr><td class="docs"><div class="toc"><a name="toc"><h3>namespaces</h3></a><ul><li><a href="#shen.install">shen.install</a></li><li><a href="#shen">shen</a></li><li><a href="#shen.primitives">shen.primitives</a></li><li><a href="#"></a></li></ul></div></td><td class="codes">&nbsp;</td></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#shen.install" name="shen.install"><h1 class="project-name">shen.install</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(ns shen.install
   (:use [clojure.java.io :only (file reader writer)]
         [clojure.pprint :only (pprint)])
@@ -3081,6 +3081,8 @@ net.brehaut.ClojureTools = (function (SH) {
       (doseq [f forms]
         (pprint f)
         (println)))))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defn project-version []
+  (-&gt; (slurp &quot;project.clj&quot;) read-string (nth 2)))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn kl-to-clj
   ([] (kl-to-clj &quot;shen/klambda&quot;
                  *compile-path*))
@@ -3093,6 +3095,8 @@ net.brehaut.ClojureTools = (function (SH) {
                        (concat [(header 'shen)]
                                [`(clojure.core/declare ~@(filter symbol? dcl))]
                                ['(core/intern 'shen (core/with-meta '*language* {:dynamic true}) &quot;Clojure&quot;)]
+                               [(concat '(core/intern 'shen (core/with-meta '*port* {:dynamic true}))
+                                        [(project-version)])]
                                (map #(shen.primitives/shen-kl-to-clj %)
                                     (remove string? shen))
                                ['(clojure.core/load &quot;shen/overwrite&quot;)]
@@ -3130,10 +3134,10 @@ net.brehaut.ClojureTools = (function (SH) {
 </td><td class="codes"><pre class="brush: clojure">(def ^:dynamic *language* &quot;Clojure&quot;)
 (def ^:dynamic *implementation* (core/str &quot;Clojure &quot; (core/clojure-version)
                                           &quot; [jvm &quot;(System/getProperty &quot;java.version&quot;)&quot;]&quot;))
-(def ^:dynamic *port* &quot;0.1.0&quot;)
 (def ^:dynamic *porters* &quot;Håkan Råberg&quot;)</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(def ^:dynamic *stinput* core/*in*)
 (def ^:dynamic *home-directory* (System/getProperty &quot;user.dir&quot;))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(shen-initialise_environment)</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defun
  (intern &quot;@p&quot;)
  (V706 V707)
@@ -3378,9 +3382,9 @@ net.brehaut.ClojureTools = (function (SH) {
                  (~(vec X) ~@Y))
                ~F)))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn /
-  ([X] (partial X))
-  ([X Y] (core/let [r# (clojure.core// X Y)]
-                   (if (ratio? r#) (double r#) r#))))</pre></td></tr><tr><td class="docs">
+  ([X] (partial / X))
+  ([X Y] (core/let [r (clojure.core// X Y)]
+                   (if (ratio? r) (double r) r))))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(def ^:private array-class (Class/forName &quot;[Ljava.lang.Object;&quot;))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn =
   ([X] (partial = X))
@@ -3429,7 +3433,9 @@ net.brehaut.ClojureTools = (function (SH) {
                               interned?
                               scope) (maybe-apply fst path)
                               seq? (maybe-apply (shen-kl-to-clj fst scope) path)
-                              fst)
+                              (if (= 'cond (last path))
+                                (shen-kl-to-clj fst scope)
+                                fst))
                        path (conj path fst)
                        snd (condp get fst
                              '#{defun let lambda} snd
@@ -3580,9 +3586,7 @@ net.brehaut.ClojureTools = (function (SH) {
 </td><td class="codes"><pre class="brush: clojure">(defn absvector [N]
   (doto (object-array (int N)) (Arrays/fill 'fail!)))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn absvector? [X]
-  (if-not X
-    false
-    (identical? array-class (core/class X))))</pre></td></tr><tr><td class="docs">
+  (identical? array-class (core/class X)))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn &lt;-address [#^&quot;[Ljava.lang.Object;&quot; Vector N]
   (aget Vector (int N)))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn address-&gt; [#^&quot;[Ljava.lang.Object;&quot; Vector N Value]
@@ -3628,8 +3632,7 @@ net.brehaut.ClojureTools = (function (SH) {
 </td><td class="codes"><pre class="brush: clojure">(def ^:private internal-start-time (System/currentTimeMillis))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn get-time [Time]
   (if (= Time 'run)
-    (* 1.0 (/ (- (System/currentTimeMillis) internal-start-time)
-              1000))
+    (/ (- (System/currentTimeMillis) internal-start-time) 1000)
     (throw (IllegalArgumentException.
             (core/str &quot;get-time does not understand the parameter &quot; Time)))))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defmethod print-method array-class [o ^Writer w]
@@ -3646,5 +3649,32 @@ net.brehaut.ClojureTools = (function (SH) {
   (set '*macros* (filter #(re-find #&quot;shen-&quot; (name %)) (value '*macros*))))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn exit
   ([] (exit 0))
-  ([status] (System/exit status)))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr></table><div class="footer">Generated by <a href="https://github.com/fogus/marginalia">Marginalia</a>.&nbsp;&nbsp;Syntax highlighting provided by Alex Gorbatchev's <a href="http://alexgorbatchev.com/SyntaxHighlighter/">SyntaxHighlighter</a></div><script type="text/javascript">SyntaxHighlighter.defaults['gutter'] = false;
+  ([status] (System/exit status)))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#" name=""><h1 class="project-name"></h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(require '[cljs.repl :as repl])
+(require '[cljs.repl.rhino :as rhino])
+(def env (rhino/repl-env))
+(repl/repl env)</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defn div
+  ([X] (partial div X))
+  ([X Y] (clojure.core/let [r (/ X Y)]
+                         (if (ratio? r) (double r) r))))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defn eq
+  ([X] (partial eq X))
+  ([X Y]
+     (if (and (identical? js/Array (. X -constructor))
+              (identical? js/Array (. Y -constructor)))
+       (goog.array.equals X Y)
+       (= X Y))))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defn absvector [N]
+  (apply array (take N (cycle ['fail]))))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defn &lt;-address [Vector N]
+  (aget Vector N))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defn address-&gt; [Vector N Value]
+  (aset Vector N Value)
+  Vector)</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defn n-&gt;string [N]
+  (String.fromCharCode N))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defn string-&gt;n [S]
+  (String.charCodeAt S))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(def byte-&gt;string n-&gt;string)</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr></table><div class="footer">Generated by <a href="https://github.com/fogus/marginalia">Marginalia</a>.&nbsp;&nbsp;Syntax highlighting provided by Alex Gorbatchev's <a href="http://alexgorbatchev.com/SyntaxHighlighter/">SyntaxHighlighter</a></div><script type="text/javascript">SyntaxHighlighter.defaults['gutter'] = false;
        SyntaxHighlighter.all()</script></body></html>
