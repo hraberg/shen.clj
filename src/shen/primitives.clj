@@ -357,8 +357,7 @@
 
 (defn get-time [Time]
   (if (= Time 'run)
-    (* 1.0 (/ (- (System/currentTimeMillis) internal-start-time)
-              1000))
+    (/ (- (System/currentTimeMillis) internal-start-time) 1000)
     (throw (IllegalArgumentException.
             (core/str "get-time does not understand the parameter " Time)))))
 
