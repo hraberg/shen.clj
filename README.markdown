@@ -24,7 +24,7 @@ The script `build` is used for full, repeatable builds.
 
 ### To run the REPL:
 
-#### Standalone release:
+#### Standalone release
 
 `java -jar `[`shen.clj-0.1.2-standalone.jar`](https://github.com/downloads/hraberg/shen.clj/shen.clj-0.1.2-standalone.jar)
 
