@@ -3,7 +3,7 @@
   :license {:name "Shen License"
             :url "http://www.shenlanguage.org/license.html"}
   :url "https://github.com/hraberg/shen.clj"
-  :dependencies [[clojure "1.4.0-beta4"]]
+  :dependencies [[clojure "1.4.0-beta5"]]
   :dev-dependencies [[org.clojure/tools.trace "0.7.2-20120223.025622-2"]
                      [marginalia "0.7.0"]
                      [lein-difftest "1.3.7"]]
