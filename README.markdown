@@ -20,7 +20,7 @@ Shen is a portable functional programming language by [Mark Tarver](http://www.l
 Is a work in progress. Passes the Shen 3.1 test suite.
 
 Uses [Leiningen](https://github.com/technomancy/leiningen) to build.
-The script `build` is used for full, repeatable builds.
+The script [`build`](https://github.com/hraberg/shen.clj/blob/master/build) is used for full, repeatable builds.
 
 
 ### To run the REPL:
