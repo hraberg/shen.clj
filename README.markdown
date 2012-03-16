@@ -15,7 +15,7 @@ Shen is a portable functional programming language by [Mark Tarver](http://www.l
 
 ## This Clojure Port
 
-`[shen.clj "0.1.2"]`
+`[shen.clj "0.1.2"]` | [Marginalia](http://ghettojedi.org/shen.clj/)
 
 Is a work in progress. Passes the Shen 3.1 test suite.
 
@@ -134,11 +134,6 @@ As can be seen `λ` stands in for `/.` in Shen to avoid Clojure reader macros.
 Characters, like `\;`, will also be converted to symbols.
 
 See [`shen.test`](https://github.com/hraberg/shen.clj/blob/master/test/shen/test.clj) for more examples.
-
-
-### Marginalia
-
-http://ghettojedi.org/shen.clj/
 
 
 ## Roadmap
