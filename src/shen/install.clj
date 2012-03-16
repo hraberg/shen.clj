@@ -10,6 +10,9 @@
 (def shen-namespaces '[sys writer declarations core load macros prolog reader sequent
                        toplevel track t-star printer yacc types])
 
+(def kl-dir (->> ["../../K Lambda" "shen/klambda"]
+                 (map file) (filter #(.exists %)) first))
+
 (def cleanup-symbols-pattern
   (re-pattern (str "(\\s+|\\()("
                    (string/join "|" (map #(Pattern/quote %) [":" ";" "{" "}" ":-" ":="
@@ -63,7 +66,7 @@
   (-> (slurp "project.clj") read-string (nth 2)))
 
 (defn kl-to-clj
-  ([] (kl-to-clj "shen/klambda"
+  ([] (kl-to-clj kl-dir
                  *compile-path*))
   ([dir to-dir]
      (.mkdirs (file to-dir))
