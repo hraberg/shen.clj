@@ -26,7 +26,7 @@ The script `build` is used for full, repeatable builds.
 
 #### standalone released jar:
 
-`java -jar [shen.clj-0.1.2-standalone.jar](https://github.com/downloads/hraberg/shen.clj/shen.clj-0.1.2-standalone.jar)`
+`java -jar [shen.clj-0.1.2-standalone.jar]`(https://github.com/downloads/hraberg/shen.clj/shen.clj-0.1.2-standalone.jar)
 
 
 #### Leiningen
