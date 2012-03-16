@@ -30,6 +30,12 @@ The script [`build`](https://github.com/hraberg/shen.clj/blob/master/build) is u
 `java -jar `[`shen.clj-0.1.2-standalone.jar`](https://github.com/downloads/hraberg/shen.clj/shen.clj-0.1.2-standalone.jar)
 
 
+#### Plain
+
+    mkdir classes
+    java -cp lib/clojure-1.4.0-beta4.jar:src:classes clojure.main -m shen.install
+
+
 #### Leiningen
 
     lein trampoline run
@@ -40,6 +46,8 @@ The script [`build`](https://github.com/hraberg/shen.clj/blob/master/build) is u
     # java:
     java -cp lib/clojure-1.4.0-beta4.jar:shen.clj-0.1.2.jar shen
 
+
+---
 
     Shen 2010, copyright (C) 2010 Mark Tarver
     www.lambdassociates.org, version 3.1
