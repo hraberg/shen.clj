@@ -1,0 +1,13 @@
+#!/bin/bash -e
+
+shen=${1:-}
+target=$shen/Plaforms/Clojure
+
+if [ ! -d "$shen/Platforms" ]; then
+	echo "Please provide the path to Shen"
+	exit 1
+fi
+
+echo "copying into $target"
+mkdir -p "$target"
+cp -a src project.clj README.markdown install "$target"
