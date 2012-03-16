@@ -24,6 +24,10 @@ The script `build` is used for full, repeatable builds.
 
 ### To run the REPL:
 
+    # standalone jar:
+    java -jar [shen.clj-0.1.2-standalone.jar](https://github.com/downloads/hraberg/shen.clj/shen.clj-0.1.2-standalone.jar)
+
+    # Leiningen
     lein trampoline run
 
     # If shen.clj already exists, for readline support:
@@ -31,9 +35,6 @@ The script `build` is used for full, repeatable builds.
 
     # java:
     java -cp lib/clojure-1.4.0-beta4.jar:shen.clj-0.1.2.jar shen
-
-    # standalone jar:
-    java -jar shen.clj-0.1.2-standalone.jar
 
 
     Shen 2010, copyright (C) 2010 Mark Tarver
