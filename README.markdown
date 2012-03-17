@@ -109,6 +109,12 @@ The benchmarks can be run via:
 
 * Performance is not a goal for 0.1.x, but some tuning has been made to ease development.
 
+### Libraries
+
+* [`strlib.shen`](http://www.shenlanguage.org/library.html) starts to loads and typecheck but fails with `integer overflow`.
+* `vectors.shen` loads and type checks ok.
+* [shen-libs](https://github.com/vasil-sd/shen-libs) part of it loads, but [`file-system.shen`](https://github.com/vasil-sd/shen-libs/blob/master/file-system/file-system.shen) needs a java.io version to proceeed.
+
 
 ### 神, define, prolog? and defprolog macros
 
