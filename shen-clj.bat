@@ -1,1 +1,1 @@
-java -jar shen.clj-0.1.2-standalone.jar
+java -Xss4m -jar shen.clj-0.1.2-standalone.jar

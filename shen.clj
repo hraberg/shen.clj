@@ -5,7 +5,7 @@ clojure=clojure-$version.jar
 repo=http://repo1.maven.org/maven2
 
 if [ -e  shen.clj-*-standalone.jar ]; then
-	java -jar shen.clj-*-standalone.jar
+	java -Xss4m -jar shen.clj-*-standalone.jar
 else
 	mkdir -p classes lib
 	test -e lib/$clojure || curl $repo/org/clojure/clojure/$version/$clojure > lib/$clojure
