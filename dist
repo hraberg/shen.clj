@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-shen=${1:-}
+shen=$1
 target=$shen/Platforms/Clojure
 
 if [ ! -d "$shen/Platforms" ]; then
