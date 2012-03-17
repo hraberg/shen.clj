@@ -139,7 +139,21 @@ As can be seen `λ` stands in for `/.` in Shen to avoid Clojure reader macros.
 `@p`, `@s` and `@v` are converted from Clojure deref to their Shen symbols.
 Characters, like `\;`, will also be converted to symbols.
 
+Note that `[]` in Shen are lists, and not Clojure vectors. A Clojure vector with a count of 2 is used to represent a cons pair internally.
+
 See [`shen.test`](https://github.com/hraberg/shen.clj/blob/master/test/shen/test.clj) for more examples.
+
+
+#### Shen calling Clojure
+
+Shen code can (but this is not very tested) access `clojure.core`, which is required as `core`:
+
+    (神
+      (core/with-out-str
+        (for [0 (+ 1) (= 10)] print)))
+    "\"0123456789\""
+
+More advanced mixing and requiring of Clojure packages isn't supported yet.
 
 
 ## Roadmap
