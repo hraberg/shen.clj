@@ -43,7 +43,7 @@ The script [`build`](https://github.com/hraberg/shen.clj/blob/master/build) is u
 
 #### Plain
 
-    ./install
+    ./shen.clj
 
 ---
 

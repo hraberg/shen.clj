@@ -1,0 +1,1 @@
+java -jar shen.clj-0.1.2-standalone.jar

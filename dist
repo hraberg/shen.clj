@@ -1,7 +1,7 @@
 #!/bin/bash -e
 
 shen=${1:-}
-target=$shen/Plaforms/Clojure
+target=$shen/Platforms/Clojure
 
 if [ ! -d "$shen/Platforms" ]; then
 	echo "Please provide the path to Shen"
@@ -10,4 +10,4 @@ fi
 
 echo "copying into $target"
 mkdir -p "$target"
-cp -a src project.clj README.markdown install "$target"
+cp -a src project.clj README shen.clj shen-clj.bat shen.clj-*-standalone.jar "$target"

@@ -1,0 +1,18 @@
+shen.clj
+
+To run, execute:
+
+	java -jar shen.clj-0.1.2-standalone.jar
+
+Windows:
+
+	shen-clj.bat
+
+Unix:
+
+	./shen.clj
+
+
+Written by Håkan Råberg (hakan.raberg@gmai.com), feedback welcome.
+https://github.com/hraberg/shen.clj
+
