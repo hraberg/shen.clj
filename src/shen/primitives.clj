@@ -41,24 +41,31 @@
                  (~(vec X) ~@Y))
                ~F)))
 
-(defn /
-  ([X] (partial / X))
-  ([X Y] (core/let [r (clojure.core// X Y)]
-                   (if (ratio? r) (double r) r))))
-
 (def ^:private array-class (Class/forName "[Ljava.lang.Object;"))
 
 (defn =
   ([X] (partial = X))
   ([X Y]
-     (if (and (identical? array-class (class X))
-              (identical? array-class (class Y)))               ;
-       (Arrays/equals #^"[Ljava.lang.Object;" X #^"[Ljava.lang.Object;" Y)
-       (core/= X Y))))
+     (core/cond
+      (and (identical? array-class (class X))
+           (identical? array-class (class Y))) (Arrays/equals #^"[Ljava.lang.Object;" X
+                                                              #^"[Ljava.lang.Object;" Y)
+           (and (number? X) (number? Y)) (== X Y)
+           :else (core/= X Y))))
 
-(doseq [op '[> < >= <= + - *]
-        :let [real-op (symbol "clojure.core" (name op))]]
+(defn /
+  ([X] (partial / X))
+  ([X Y] (core/let [r (clojure.core// X Y)]
+                   (if (ratio? r) (double r) r))))
+
+(defn ^:private alias-op [op real-op]
   (eval `(defun ~op ~'[X Y] (~real-op ~'X ~'Y))))
+
+(doseq [op '[+ - *]]
+  (alias-op op (symbol "clojure.core" (core/str (name op) "'"))))
+
+(doseq [op '[> < >= <=]]
+  (alias-op op (symbol "clojure.core" (name op))))
 
 (defn ^:private interned? [X]
   (and (seq? X) (= 'intern (first X))))
