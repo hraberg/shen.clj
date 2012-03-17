@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 
 version=1.4.0-beta5
 clojure=clojure-$version.jar
@@ -6,7 +6,7 @@ repo=http://repo1.maven.org/maven2
 rlwrap=$(which rlwrap) || "" &> /dev/null
 java="$rlwrap java -Xss4m $JAVA_OPTS"
 
-if [ -e  shen.clj-*-standalone.jar ]; then
+if [ -e shen.clj-*-standalone.jar ]; then
 	$java -jar shen.clj-*-standalone.jar
 else
 	mkdir -p classes lib
