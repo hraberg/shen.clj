@@ -5,7 +5,7 @@ rm -rf classes *.jar lib
 lein deps
 lein uberjar, difftest, run -m marginalia.main --file index.html
 
-echo "(exit)" | java -jar shen.clj-*-standalone.jar
+echo "(exit)" | ./shen.clj
 echo
 
 yes | lein trampoline run -m shen.test 2>&1 | tee test.log
