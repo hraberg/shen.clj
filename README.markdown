@@ -111,7 +111,7 @@ The benchmarks can be run via:
 
 ### Libraries
 
-* [`strlib.shen`](http://www.shenlanguage.org/library.html) starts to loads and typecheck but fails with `integer overflow`.
+* [`strlib.shen`](http://www.shenlanguage.org/library.html) starts to loads and typecheck but fails with `integer overflow`. (This is fixed but broken in 0.1.2)
 * `vectors.shen` loads and type checks ok.
 * [shen-libs](https://github.com/vasil-sd/shen-libs) part of it loads, but [`file-system.shen`](https://github.com/vasil-sd/shen-libs/blob/master/file-system/file-system.shen) needs a java.io version to proceeed.
 
