@@ -9,5 +9,16 @@ if [ ! -d "$shen/Platforms" ]; then
 fi
 
 echo "copying into $target"
-mkdir -p "$target"
+rm -rf "$target"
+mkdir -p "$target/lib"
 cp -a src project.clj README shen.clj shen-clj.bat shen.clj-*-standalone.jar "$target"
+cp -a lib/*.jar "$target/lib"
+
+version=$(cat project.clj | head -n 1 | awk '{print $3}' | sed s/\"//g)
+dist=shen.clj-$version-dist.zip
+
+cd "$shen"
+rm -f $dist
+zip -qr $dist Platforms/Clojure
+cd - &> /dev/null
+mv "$shen/$dist" .
