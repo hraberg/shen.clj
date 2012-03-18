@@ -115,6 +115,13 @@ The benchmarks can be run via:
 * `vectors.shen` loads and type checks ok.
 * [shen-libs](https://github.com/vasil-sd/shen-libs) part of it loads, but [`file-system.shen`](https://github.com/vasil-sd/shen-libs/blob/master/file-system/file-system.shen) needs a java.io version to proceeed.
 
+### Known Issues
+
+#### Fixed (but broken in 0.1.2)
+
+* `dump` is broken.
+* Automatic number promotion.
+
 
 ### 神, define, prolog? and defprolog macros
 
@@ -175,6 +182,7 @@ This port, while aiming to conform closely (and hopefully fully) to the [Shen sp
   * More TCO than implicit recur for KLambda?
   * Making Shen as lazy as its host?
   * Revisit using STM (refs/atoms) instead of intern for set/value?
+    * The dual namespace part of the specification is currently not adhered to.
   * Existing Shen libraries and portability?
   * ClojureScript.
   * overwrite.clj - rewriting more parts of Shen into Clojure if interop or performance requires it.
