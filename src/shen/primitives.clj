@@ -6,7 +6,7 @@
             [clojure.java.io :as io])
   (:refer-clojure :exclude [set intern let pr type cond cons str number? string? defmacro
                             + - * / > < >= <= = and or])
-  (:import [java.io Reader Writer InputStream]
+  (:import [java.io Reader Writer InputStream OutputStream PrintWriter OutputStreamWriter]
            [java.util Arrays])
   (:gen-class))
 
@@ -319,8 +319,12 @@
 (def byte->string n->string)
 
 (defn pr [X S]
-  (binding [*out* (if (= *in* S) *out*
-                      S)]
+  (binding [*out* (condp some [S]
+                   #{*in*} *out*
+                   (partial
+                    instance?
+                    OutputStream) (PrintWriter. (OutputStreamWriter. S))
+                   S)]
     (print X)
     (flush)
     X))
@@ -334,11 +338,14 @@
   (.read S))
 
 (defn open [Type String Direction]
-  (core/let [Path (io/file (value '*home-directory*) String)]
-            (condp = Direction
-              'in (io/input-stream Path)
-              'out (io/output-stream Path)
-              (throw (IllegalArgumentException. "invalid direction")))))
+  (condp = Type
+    'file
+    (core/let [Path (io/file (value '*home-directory*) String)]
+              (condp = Direction
+                'in (io/input-stream Path)
+                'out (io/output-stream Path)
+                (throw (IllegalArgumentException. "invalid direction"))))
+    (throw (IllegalArgumentException. "invalid stream type"))))
 
 (defn type [X MyType]
   (cast MyType X))
