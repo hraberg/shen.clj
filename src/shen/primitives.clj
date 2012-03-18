@@ -318,13 +318,18 @@
 
 (def byte->string n->string)
 
-(defn pr [X S]
-  (binding [*out* (condp some [S]
-                   #{*in*} *out*
-                   (partial
-                    instance?
-                    OutputStream) (PrintWriter. (OutputStreamWriter. S))
-                   S)]
+(defmulti pr (fn [_ S] (class S)))
+
+(defmethod pr Reader [X ^Reader S]
+  (if (= *in* S)
+    (pr X *out*)
+    (throw (IllegalArgumentException. (str S)))))
+
+(defmethod pr OutputStream [X ^OutputStream S]
+  (pr X (OutputStreamWriter. S)))
+
+(defmethod pr Writer [X ^Writer S]
+  (binding [*out* S]
     (print X)
     (flush)
     X))
