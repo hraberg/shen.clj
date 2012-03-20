@@ -14,6 +14,8 @@ mkdir -p "$target/lib"
 cp -a src project.clj README shen.clj shen-clj.bat shen.clj-*-standalone.jar "$target"
 cp -a lib/*.jar "$target/lib"
 
+git rev-parse --short HEAD > "$target"/version.txt
+
 version=$(cat project.clj | head -n 1 | awk '{print $3}' | sed s/\"//g)
 dist=shen.clj-$version-dist.zip
 
