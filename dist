@@ -10,9 +10,8 @@ fi
 
 echo "copying into $target"
 rm -rf "$target"
-mkdir -p "$target/lib"
+mkdir -p "$target"
 cp -a src project.clj README shen.clj shen-clj.bat shen.clj-*-standalone.jar "$target"
-cp -a lib/*.jar "$target/lib"
 
 git rev-parse --short HEAD > "$target"/version.txt
 
