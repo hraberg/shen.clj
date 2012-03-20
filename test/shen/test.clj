@@ -187,6 +187,15 @@
 
        ))
 
+(deftest dual-namespace
+  (set 'dual-namespace true)
+  (is (true? @(resolve 'shen.globals/dual-namespace)))
+  (is (true? (value 'dual-namespace)))
+  (is (nil? (resolve 'shen/dual-namespace)))
+
+  (set 'element? nil)
+  (is (nil? (value 'element?)))
+  (is (fn? shen/element?)))
 
 (deftest parser
   (are [kl-str clj] (= clj (-> kl-str parse-shen first

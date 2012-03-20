@@ -4,13 +4,13 @@
   (:use [shen.primitives])
   (:require [clojure.core :as core]))
 
-(def ^:dynamic *language* "Clojure")
-(def ^:dynamic *implementation* (core/str "Clojure " (core/clojure-version)
+(set '*language* "Clojure")
+(set '*implementation* (core/str "Clojure " (core/clojure-version)
                                           " [jvm "(System/getProperty "java.version")"]"))
-(def ^:dynamic *porters* "Håkan Råberg")
+(set '*porters* "Håkan Råberg")
 
-(def ^:dynamic *stinput* core/*in*)
-(def ^:dynamic *home-directory* (System/getProperty "user.dir"))
+(set '*stinput* core/*in*)
+(set '*home-directory* (System/getProperty "user.dir"))
 
 (shen-initialise_environment)
 

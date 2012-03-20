@@ -10,6 +10,8 @@
            [java.util Arrays])
   (:gen-class))
 
+(create-ns 'shen.globals)
+
 (def string? core/string?)
 (def number? core/number?)
 
@@ -134,23 +136,27 @@
 (core/defmacro cond [& CS]
   `(core/cond ~@(apply concat CS)))
 
+(defn set* [X Y ns]
+  @(core/intern (the-ns ns)
+                (with-meta X {:dynamic true :declared true})
+                Y))
+
 (defn set
   ([X] (partial set X))
-  ([X Y]
-     @(core/intern (the-ns 'shen)
-                   (with-meta X {:dynamic true :declared true})
-                   Y)))
+  ([X Y] (set* X Y 'shen.globals)))
 
-(defn value [X]
-  (core/let [v (and (symbol? X) (ns-resolve 'shen X))]
+(defn ^:private value* [X ns]
+  (core/let [v (and (symbol? X) (ns-resolve ns X))]
             (condp = X
               'and and-fn
               'or or-fn
               @v)))
 
+(defn value [X] (value* X 'shen.globals))
+
 (defn function [fn]
   (if (fn? fn) fn
-      (value fn)))
+      (value* fn 'shen)))
 
 (defn simple-error [String]
   (throw (RuntimeException. ^String String)))
@@ -210,9 +216,9 @@
     clj))
 
 (defn ^:private define* [name body]
-  (core/let [kl ((value 'shen-shen->kl) name body)]
+  (core/let [kl ((function 'shen-shen->kl) name body)]
             (binding [*ns* (the-ns 'shen)]
-              ((value 'eval) kl)
+              ((function 'eval) kl)
               name)))
 
 (defn ^:private shen-elim-define [X]
@@ -225,7 +231,7 @@
   (core/let [body (walk/postwalk cleanup-clj body)]
             (binding [*ns* (the-ns 'shen)]
               (->> body
-                   (map (value 'eval))
+                   (map (function 'eval))
                    last))))
 
 (core/defmacro eval-shen [& body]
@@ -237,7 +243,7 @@
 (core/defmacro define [name & body]
   `(core/let [fn# (eval-shen ~(concat ['define name] body))]
              (defn ~(with-meta name {:dynamic true})
-               [& ~'args] (apply (value fn#) ~'args))))
+               [& ~'args] (apply (function fn#) ~'args))))
 
 (doseq [[name args] '{defmacro [name] defprolog [name] prolog? [] package [name exceptions]}]
   (eval
@@ -269,7 +275,7 @@
       (catch RuntimeException e
         (if-let [s (missing-symbol (.getMessage e))]
           (do
-            (set (symbol s) nil)
+            (set* (symbol s) nil 'shen)
             (eval-and-declare-missing kl))
           (throw e))))))
 
@@ -384,11 +390,11 @@
   (print-method (vec o) w))
 
 (defn ^:private read-bytes [s]
-  ((value (intern "@p")) (map int s) ()))
+  ((function (intern "@p")) (map int s) ()))
 
 (defn parse-shen [s]
-  (core/let [<st_input> (value 'shen-<st_input>)
-             snd (value 'snd)]
+  (core/let [<st_input> (function 'shen-<st_input>)
+             snd (function 'snd)]
             (-> s read-bytes <st_input> snd)))
 
 (defn parse-and-eval-shen [s]
