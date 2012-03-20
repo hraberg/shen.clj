@@ -15,7 +15,7 @@ Shen is a portable functional programming language by [Mark Tarver](http://www.l
 
 ## This Clojure Port
 
-`[shen.clj "0.1.2"]` | [Marginalia](http://ghettojedi.org/shen.clj/)
+`[shen.clj "0.1.4]` | [Marginalia](http://ghettojedi.org/shen.clj/)
 
 Is a work in progress. Passes the Shen 3.1 test suite.
 
@@ -27,7 +27,7 @@ The script [`build`](https://github.com/hraberg/shen.clj/blob/master/build) is u
 
 #### Standalone release
 
-`java -jar `[`shen.clj-0.1.2-standalone.jar`](https://github.com/downloads/hraberg/shen.clj/shen.clj-0.1.2-standalone.jar)
+`java -jar `[`shen.clj-0.1.4-standalone.jar`](https://github.com/downloads/hraberg/shen.clj/shen.clj-0.1.4-standalone.jar)
 
 
 #### Leiningen
@@ -38,7 +38,7 @@ The script [`build`](https://github.com/hraberg/shen.clj/blob/master/build) is u
     lein repl
 
     # java:
-    java -cp lib/clojure-1.4.0-beta5.jar:shen.clj-0.1.2.jar shen
+    java -cp lib/clojure-1.4.0-beta5.jar:shen.clj-0.1.4.jar shen
 
 
 #### Plain
@@ -50,7 +50,7 @@ The script [`build`](https://github.com/hraberg/shen.clj/blob/master/build) is u
     Shen 2010, copyright (C) 2010 Mark Tarver
     www.lambdassociates.org, version 3.1
     running under Clojure, implementation: Clojure 1.4.0-beta5 [jvm 1.8.0-ea]
-    port 0.1.2 ported by Håkan Råberg
+    port 0.1.4 ported by Håkan Råberg
 
 
     (0-) (define super

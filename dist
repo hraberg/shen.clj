@@ -1,12 +1,7 @@
 #!/bin/bash -e
 
-shen=$1
-target=$shen/Platforms/Clojure
-
-if [ ! -d "$shen/Platforms" ]; then
-	echo "Please provide the path to Shen"
-	exit 1
-fi
+version=$(cat project.clj | head -n 1 | awk '{print $3}' | sed s/\"//g)
+target=shen.clj-$version
 
 echo "copying into $target"
 rm -rf "$target"
@@ -15,11 +10,5 @@ cp -a src project.clj README shen.clj shen-clj.bat shen.clj-*-standalone.jar "$t
 
 git rev-parse --short HEAD > "$target"/version.txt
 
-version=$(cat project.clj | head -n 1 | awk '{print $3}' | sed s/\"//g)
-dist=shen.clj-$version-dist.zip
-
-cd "$shen"
-rm -f $dist
-zip -qr $dist Platforms/Clojure
-cd - &> /dev/null
-mv "$shen/$dist" .
+rm -f $target.zip
+zip -qr $target.zip $target
