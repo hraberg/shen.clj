@@ -3028,8 +3028,8 @@ net.brehaut.ClojureTools = (function (SH) {
     build_tree: build_tree
   };
 })(SyntaxHighlighter);
-</script><title>shen.clj -- Marginalia</title></head><body><table><tr><td class="docs"><div class="header"><h1 class="project-name">shen.clj</h1><h2 class="project-version">0.1.2</h2><br /><p>Shen is a portable functional programming language by Mark Tarver</p>
-</div><div class="dependencies"><h3>dependencies</h3><table><tr><td class="dep-name">clojure</td><td class="dotted"><hr /></td><td class="dep-version">1.4.0-beta4</td></tr></table></div><div class="dependencies"><h3>dev dependencies</h3><table><tr><td class="dep-name">org.clojure/tools.trace</td><td class="dotted"><hr /></td><td class="dep-version">0.7.2-20120223.025622-2</td></tr><tr><td class="dep-name">marginalia</td><td class="dotted"><hr /></td><td class="dep-version">0.7.0</td></tr><tr><td class="dep-name">lein-difftest</td><td class="dotted"><hr /></td><td class="dep-version">1.3.7</td></tr></table></div></td><td class="codes" style="text-align: center; vertical-align: middle;color: #666;padding-right:20px"><br /><br /><br />(this space intentionally left almost blank)</td></tr><tr><td class="docs"><div class="toc"><a name="toc"><h3>namespaces</h3></a><ul><li><a href="#shen.install">shen.install</a></li><li><a href="#shen">shen</a></li><li><a href="#shen.primitives">shen.primitives</a></li></ul></div></td><td class="codes">&nbsp;</td></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#shen.install" name="shen.install"><h1 class="project-name">shen.install</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
+</script><title>shen.clj -- Marginalia</title></head><body><table><tr><td class="docs"><div class="header"><h1 class="project-name">shen.clj</h1><h2 class="project-version">0.1.4</h2><br /><p>Shen is a portable functional programming language by Mark Tarver</p>
+</div><div class="dependencies"><h3>dependencies</h3><table><tr><td class="dep-name">clojure</td><td class="dotted"><hr /></td><td class="dep-version">1.4.0-beta5</td></tr></table></div><div class="dependencies"><h3>dev dependencies</h3><table><tr><td class="dep-name">org.clojure/tools.trace</td><td class="dotted"><hr /></td><td class="dep-version">0.7.2-20120223.025622-2</td></tr><tr><td class="dep-name">marginalia</td><td class="dotted"><hr /></td><td class="dep-version">0.7.0</td></tr><tr><td class="dep-name">lein-difftest</td><td class="dotted"><hr /></td><td class="dep-version">1.3.7</td></tr></table></div></td><td class="codes" style="text-align: center; vertical-align: middle;color: #666;padding-right:20px"><br /><br /><br />(this space intentionally left almost blank)</td></tr><tr><td class="docs"><div class="toc"><a name="toc"><h3>namespaces</h3></a><ul><li><a href="#shen.install">shen.install</a></li><li><a href="#shen">shen</a></li><li><a href="#shen.primitives">shen.primitives</a></li></ul></div></td><td class="codes">&nbsp;</td></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#shen.install" name="shen.install"><h1 class="project-name">shen.install</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(ns shen.install
   (:use [clojure.java.io :only (file reader writer)]
         [clojure.pprint :only (pprint)])
@@ -3040,6 +3040,8 @@ net.brehaut.ClojureTools = (function (SH) {
   (:gen-class))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(def shen-namespaces '[sys writer declarations core load macros prolog reader sequent
                        toplevel track t-star printer yacc types])</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(def kl-dir (-&gt;&gt; [&quot;../../K Lambda&quot; &quot;shen/klambda&quot;]
+                 (map file) (filter #(.exists %)) first))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(def cleanup-symbols-pattern
   (re-pattern (str &quot;(\\s+|\\()(&quot;
                    (string/join &quot;|&quot; (map #(Pattern/quote %) [&quot;:&quot; &quot;;&quot; &quot;{&quot; &quot;}&quot; &quot;:-&quot; &quot;:=&quot;
@@ -3084,7 +3086,7 @@ net.brehaut.ClojureTools = (function (SH) {
 </td><td class="codes"><pre class="brush: clojure">(defn project-version []
   (-&gt; (slurp &quot;project.clj&quot;) read-string (nth 2)))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn kl-to-clj
-  ([] (kl-to-clj &quot;shen/klambda&quot;
+  ([] (kl-to-clj kl-dir
                  *compile-path*))
   ([dir to-dir]
      (.mkdirs (file to-dir))
@@ -3094,8 +3096,8 @@ net.brehaut.ClojureTools = (function (SH) {
        (write-clj-file to-dir &quot;shen&quot;
                        (concat [(header 'shen)]
                                [`(clojure.core/declare ~@(filter symbol? dcl))]
-                               ['(core/intern 'shen (core/with-meta '*language* {:dynamic true}) &quot;Clojure&quot;)]
-                               [(concat '(core/intern 'shen (core/with-meta '*port* {:dynamic true}))
+                               ['(core/intern 'shen.globals (core/with-meta '*language* {:dynamic true}) &quot;Clojure&quot;)]
+                               [(concat '(core/intern 'shen.globals (core/with-meta '*port* {:dynamic true}))
                                         [(project-version)])]
                                (map #(shen.primitives/shen-kl-to-clj %)
                                     (remove string? shen))
@@ -3131,12 +3133,12 @@ net.brehaut.ClojureTools = (function (SH) {
   (:refer-clojure :only [])
   (:use [shen.primitives])
   (:require [clojure.core :as core]))</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(def ^:dynamic *language* &quot;Clojure&quot;)
-(def ^:dynamic *implementation* (core/str &quot;Clojure &quot; (core/clojure-version)
+</td><td class="codes"><pre class="brush: clojure">(set '*language* &quot;Clojure&quot;)
+(set '*implementation* (core/str &quot;Clojure &quot; (core/clojure-version)
                                           &quot; [jvm &quot;(System/getProperty &quot;java.version&quot;)&quot;]&quot;))
-(def ^:dynamic *porters* &quot;Håkan Råberg&quot;)</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(def ^:dynamic *stinput* core/*in*)
-(def ^:dynamic *home-directory* (System/getProperty &quot;user.dir&quot;))</pre></td></tr><tr><td class="docs">
+(set '*porters* &quot;Håkan Råberg&quot;)</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(set '*stinput* core/*in*)
+(set '*home-directory* (System/getProperty &quot;user.dir&quot;))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(shen-initialise_environment)</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defun
  (intern &quot;@p&quot;)
@@ -3354,9 +3356,10 @@ net.brehaut.ClojureTools = (function (SH) {
             [clojure.java.io :as io])
   (:refer-clojure :exclude [set intern let pr type cond cons str number? string? defmacro
                             + - * / &gt; &lt; &gt;= &lt;= = and or])
-  (:import [java.io Reader Writer InputStream]
+  (:import [java.io Reader Writer InputStream OutputStream PrintWriter OutputStreamWriter]
            [java.util Arrays])
   (:gen-class))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(create-ns 'shen.globals)</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(def string? core/string?)
 (def number? core/number?)</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(core/defmacro and
@@ -3381,21 +3384,26 @@ net.brehaut.ClojureTools = (function (SH) {
                  ~@(partials F X)
                  (~(vec X) ~@Y))
                ~F)))</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(defn /
-  ([X] (partial / X))
-  ([X Y] (core/let [r (clojure.core// X Y)]
-                   (if (ratio? r) (double r) r))))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(def ^:private array-class (Class/forName &quot;[Ljava.lang.Object;&quot;))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn =
   ([X] (partial = X))
   ([X Y]
-     (if (and (identical? array-class (class X))
-              (identical? array-class (class Y)))               ;
-       (Arrays/equals #^&quot;[Ljava.lang.Object;&quot; X #^&quot;[Ljava.lang.Object;&quot; Y)
-       (core/= X Y))))</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(doseq [op '[&gt; &lt; &gt;= &lt;= + - *]
-        :let [real-op (symbol &quot;clojure.core&quot; (name op))]]
+     (core/cond
+      (and (identical? array-class (class X))
+           (identical? array-class (class Y))) (Arrays/equals #^&quot;[Ljava.lang.Object;&quot; X
+                                                              #^&quot;[Ljava.lang.Object;&quot; Y)
+           (and (number? X) (number? Y)) (== X Y)
+           :else (core/= X Y))))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defn /
+  ([X] (partial / X))
+  ([X Y] (core/let [r (clojure.core// X Y)]
+                   (if (ratio? r) (double r) r))))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defn ^:private alias-op [op real-op]
   (eval `(defun ~op ~'[X Y] (~real-op ~'X ~'Y))))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(doseq [op '[+ - *]]
+  (alias-op op (symbol &quot;clojure.core&quot; (core/str (name op) &quot;'&quot;))))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(doseq [op '[&gt; &lt; &gt;= &lt;=]]
+  (alias-op op (symbol &quot;clojure.core&quot; (name op))))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn ^:private interned? [X]
   (and (seq? X) (= 'intern (first X))))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(def ^:private slash-dot (symbol &quot;/.&quot;))</pre></td></tr><tr><td class="docs">
@@ -3456,21 +3464,23 @@ net.brehaut.ClojureTools = (function (SH) {
             (string/replace String &quot;/&quot; &quot;-slash-&quot;))))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(core/defmacro cond [&amp; CS]
   `(core/cond ~@(apply concat CS)))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defn set* [X Y ns]
+  @(core/intern (the-ns ns)
+                (with-meta X {:dynamic true :declared true})
+                Y))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn set
   ([X] (partial set X))
-  ([X Y]
-     @(core/intern (the-ns 'shen)
-                   (with-meta X {:dynamic true :declared true})
-                   Y)))</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(defn value [X]
-  (core/let [v (and (symbol? X) (ns-resolve 'shen X))]
+  ([X Y] (set* X Y 'shen.globals)))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defn ^:private value* [X ns]
+  (core/let [v (and (symbol? X) (ns-resolve ns X))]
             (condp = X
               'and and-fn
               'or or-fn
               @v)))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defn value [X] (value* X 'shen.globals))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn function [fn]
   (if (fn? fn) fn
-      (value fn)))</pre></td></tr><tr><td class="docs">
+      (value* fn 'shen)))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn simple-error [String]
   (throw (RuntimeException. ^String String)))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(core/defmacro trap-error [X F]
@@ -3515,9 +3525,9 @@ net.brehaut.ClojureTools = (function (SH) {
     char? (intern clj)
     clj))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn ^:private define* [name body]
-  (core/let [kl ((value 'shen-shen-&gt;kl) name body)]
+  (core/let [kl ((function 'shen-shen-&gt;kl) name body)]
             (binding [*ns* (the-ns 'shen)]
-              ((value 'eval) kl)
+              ((function 'eval) kl)
               name)))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn ^:private shen-elim-define [X]
   (if (seq? X)
@@ -3528,7 +3538,7 @@ net.brehaut.ClojureTools = (function (SH) {
   (core/let [body (walk/postwalk cleanup-clj body)]
             (binding [*ns* (the-ns 'shen)]
               (-&gt;&gt; body
-                   (map (value 'eval))
+                   (map (function 'eval))
                    last))))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(core/defmacro eval-shen [&amp; body]
   `(eval-shen* '~body))</pre></td></tr><tr><td class="docs">
@@ -3537,7 +3547,7 @@ net.brehaut.ClojureTools = (function (SH) {
 </td><td class="codes"><pre class="brush: clojure">(core/defmacro define [name &amp; body]
   `(core/let [fn# (eval-shen ~(concat ['define name] body))]
              (defn ~(with-meta name {:dynamic true})
-               [&amp; ~'args] (apply (value fn#) ~'args))))</pre></td></tr><tr><td class="docs">
+               [&amp; ~'args] (apply (function fn#) ~'args))))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(doseq [[name args] '{defmacro [name] defprolog [name] prolog? [] package [name exceptions]}]
   (eval
    `(core/defmacro ~name [~@args &amp; ~'body]
@@ -3562,7 +3572,7 @@ net.brehaut.ClojureTools = (function (SH) {
       (catch RuntimeException e
         (if-let [s (missing-symbol (.getMessage e))]
           (do
-            (set (symbol s) nil)
+            (set* (symbol s) nil 'shen)
             (eval-and-declare-missing kl))
           (throw e))))))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn eval-without-macros [X]
@@ -3597,9 +3607,15 @@ net.brehaut.ClojureTools = (function (SH) {
 </td><td class="codes"><pre class="brush: clojure">(defn string-&gt;n [S]
   (core/int (first S)))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(def byte-&gt;string n-&gt;string)</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(defn pr [X S]
-  (binding [*out* (if (= *in* S) *out*
-                      S)]
+</td><td class="codes"><pre class="brush: clojure">(defmulti pr (fn [_ S] (class S)))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defmethod pr Reader [X ^Reader S]
+  (if (= *in* S)
+    (pr X *out*)
+    (throw (IllegalArgumentException. (str S)))))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defmethod pr OutputStream [X ^OutputStream S]
+  (pr X (OutputStreamWriter. S)))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defmethod pr Writer [X ^Writer S]
+  (binding [*out* S]
     (print X)
     (flush)
     X))</pre></td></tr><tr><td class="docs">
@@ -3609,11 +3625,14 @@ net.brehaut.ClojureTools = (function (SH) {
 </td><td class="codes"><pre class="brush: clojure">(defmethod read-byte Reader [^Reader S]
   (.read S))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn open [Type String Direction]
-  (core/let [Path (io/file (value '*home-directory*) String)]
-            (condp = Direction
-              'in (io/input-stream Path)
-              'out (io/output-stream Path)
-              (throw (IllegalArgumentException. &quot;invalid direction&quot;)))))</pre></td></tr><tr><td class="docs">
+  (condp = Type
+    'file
+    (core/let [Path (io/file (value '*home-directory*) String)]
+              (condp = Direction
+                'in (io/input-stream Path)
+                'out (io/output-stream Path)
+                (throw (IllegalArgumentException. &quot;invalid direction&quot;))))
+    (throw (IllegalArgumentException. &quot;invalid stream type&quot;))))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn type [X MyType]
   (cast MyType X))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn close [^java.io.Closeable Stream]
@@ -3638,10 +3657,10 @@ net.brehaut.ClojureTools = (function (SH) {
 </td><td class="codes"><pre class="brush: clojure">(defmethod print-method array-class [o ^Writer w]
   (print-method (vec o) w))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn ^:private read-bytes [s]
-  ((value (intern &quot;@p&quot;)) (map int s) ()))</pre></td></tr><tr><td class="docs">
+  ((function (intern &quot;@p&quot;)) (map int s) ()))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn parse-shen [s]
-  (core/let [&lt;st_input&gt; (value 'shen-&lt;st_input&gt;)
-             snd (value 'snd)]
+  (core/let [&lt;st_input&gt; (function 'shen-&lt;st_input&gt;)
+             snd (function 'snd)]
             (-&gt; s read-bytes &lt;st_input&gt; snd)))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn parse-and-eval-shen [s]
   (eval-shen* (parse-shen s)))</pre></td></tr><tr><td class="docs">
