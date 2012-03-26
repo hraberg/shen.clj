@@ -113,6 +113,7 @@ The benchmarks can be run via:
 
 * [`strlib.shen`](http://www.shenlanguage.org/library.html) loads and type checks ok.
 * [`vectors.shen`](http://www.shenlanguage.org/library.html) loads and type checks ok.
+* [`maths-lib.shen`](http://www.shenlanguage.org/library.html) loads and type checks ok.
 * [shen-libs](https://github.com/vasil-sd/shen-libs) part of it loads, but [`file-system.shen`](https://github.com/vasil-sd/shen-libs/blob/master/file-system/file-system.shen) needs a java.io version to proceeed.
 
 
