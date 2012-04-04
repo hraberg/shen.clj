@@ -15,7 +15,7 @@ Shen is a portable functional programming language by [Mark Tarver](http://www.l
 
 ## This Clojure Port
 
-`[shen.clj "0.1.4]` | [Marginalia](http://ghettojedi.org/shen.clj/)
+`[shen.clj "0.1.4"]` | [Marginalia](http://ghettojedi.org/shen.clj/)
 
 Is a work in progress. Passes the Shen 3.1 test suite.
 
