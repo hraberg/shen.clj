@@ -55,7 +55,8 @@ For an explication of this license see http://www.lambdassociates.org/News/june1
    (shen-reassemble (fst (shen-reassemble (tl (fst V369)) (snd V369)))
     (if (and (symbol? (hd (fst V369))) (not (shen-sysfunc? (hd (fst V369)))))
      (hd (fst V369))
-     (interror "~A is not a legitimate functor.~%" (@p (hd (fst V369)) ()))))
+     (interror "~A is not a legitimate function name.~%"
+      (@p (hd (fst V369)) ()))))
    (fail))
   (if (= Result (fail)) (fail) Result)))
 
@@ -765,7 +766,7 @@ For an explication of this license see http://www.lambdassociates.org/News/june1
         (cons /.
          (cons (hd (tl (tl (hd (tl (hd V473))))))
           (cons
-           (shen-ebr (hd (tl V473)) (cons @s (tl (hd (tl (hd V473)))))
+           (shen-ebr (hd (tl V473)) (hd (tl (hd V473)))
             (hd (tl (tl (hd V473)))))
            ())))
         ())))

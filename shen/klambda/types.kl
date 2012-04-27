@@ -15,12 +15,12 @@
 
 For an explication of this license see http://www.lambdassociates.org/News/june11/license.htm which explains this license in full."
 
-(defun declare (V1651 V1652)
- (let Record (set shen-*signedfuncs* (adjoin V1651 (value shen-*signedfuncs*)))
+(defun declare (V1654 V1655)
+ (let Record (set shen-*signedfuncs* (adjoin V1654 (value shen-*signedfuncs*)))
   (let Variancy
-   (trap-error (shen-variancy-test V1651 V1652) (lambda E shen-skip))
-   (let Type (shen-rcons_form V1652)
-    (let F* (concat shen-type-signature-of- V1651)
+   (trap-error (shen-variancy-test V1654 V1655) (lambda E shen-skip))
+   (let Type (shen-rcons_form (shen-normalise-type V1655))
+    (let F* (concat shen-type-signature-of- V1654)
      (let Parameters (shen-parameters 1)
       (let Clause
        (cons (cons F* (cons X ()))
@@ -33,29 +33,42 @@ For an explication of this license see http://www.lambdassociates.org/News/june1
             (append Parameters
              (append (cons ProcessN (cons Continuation ()))
               (cons -> (cons Code ()))))))
-          (let Eval (eval-without-macros ShenDef) V1651)))))))))))
+          (let Eval (eval-without-macros ShenDef) V1654)))))))))))
 
-(defun shen-variancy-test (V1653 V1654)
- (let TypeF (shen-typecheck V1653 B)
+(defun shen-normalise-type (V766)
+ (fix (lambda X (shen-normalise-type-help X)) V766))
+
+(defun shen-normalise-type-help (V767)
+ (cond
+  ((cons? V767)
+   (shen-normalise-X (map (lambda X (shen-normalise-type-help X)) V767)))
+  (true (shen-normalise-X V767))))
+
+(defun shen-normalise-X (V768)
+ (let Val (assoc V768 (value shen-*synonyms*))
+  (if (empty? Val) V768 (tl Val))))
+
+(defun shen-variancy-test (V1656 V1657)
+ (let TypeF (shen-typecheck V1656 B)
   (let Check
    (if (= symbol TypeF) shen-skip
-    (if (shen-variant? TypeF V1654) shen-skip
+    (if (shen-variant? TypeF V1657) shen-skip
      (intoutput "warning: changing the type of ~A may create errors~%"
-      (@p V1653 ()))))
+      (@p V1656 ()))))
    shen-skip)))
 
-(defun shen-variant? (V1663 V1664)
- (cond ((= V1664 V1663) true)
-  ((and (cons? V1663) (and (cons? V1664) (= (hd V1664) (hd V1663))))
-   (shen-variant? (tl V1663) (tl V1664)))
-  ((and (cons? V1663)
-    (and (cons? V1664) (and (shen-pvar? (hd V1663)) (variable? (hd V1664)))))
-   (shen-variant? (subst shen-a (hd V1663) (tl V1663))
-    (subst shen-a (hd V1664) (tl V1664))))
-  ((and (cons? V1663)
-    (and (cons? (hd V1663)) (and (cons? V1664) (cons? (hd V1664)))))
-   (shen-variant? (append (hd V1663) (tl V1663))
-    (append (hd V1664) (tl V1664))))
+(defun shen-variant? (V1666 V1667)
+ (cond ((= V1667 V1666) true)
+  ((and (cons? V1666) (and (cons? V1667) (= (hd V1667) (hd V1666))))
+   (shen-variant? (tl V1666) (tl V1667)))
+  ((and (cons? V1666)
+    (and (cons? V1667) (and (shen-pvar? (hd V1666)) (variable? (hd V1667)))))
+   (shen-variant? (subst shen-a (hd V1666) (tl V1666))
+    (subst shen-a (hd V1667) (tl V1667))))
+  ((and (cons? V1666)
+    (and (cons? (hd V1666)) (and (cons? V1667) (cons? (hd V1667)))))
+   (shen-variant? (append (hd V1666) (tl V1666))
+    (append (hd V1667) (tl V1667))))
   (true false)))
 
 (declare absvector? (cons A (cons --> (cons boolean ()))))

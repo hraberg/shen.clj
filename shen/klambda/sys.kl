@@ -272,9 +272,9 @@ For an explication of this license see http://www.lambdassociates.org/News/june1
    (shen-@v-help V715 (+ V716 1) V717
     (shen-copyfromvector V715 V718 V716 (+ V716 1))))))
 
-(defun shen-copyfromvector (V445 V446 V447 V448)
- (trap-error (vector-> V446 V448 (<-vector V445 V447)) (lambda E V446)))
- 
+(defun shen-copyfromvector (V720 V721 V722 V723)
+ (trap-error (vector-> V721 V723 (<-vector V720 V722)) (lambda E V721)))
+
 (defun hdv (V724)
  (trap-error (<-vector V724 1)
   (lambda E
@@ -410,12 +410,13 @@ For an explication of this license see http://www.lambdassociates.org/News/june1
     (cons (hd V831) (union (tl V831) V832))))
   (true (shen-sys-error union))))
 
-(defun y-or-n? (V833)
- (let Message (intoutput "~A (y/n) " (@p V833 ()))
-  (let Input (intmake-string "~A" (@p (input) ()))
-   (if (= "y" Input) true
-    (if (= "n" Input) false
-     (do (intoutput "please answer y or n~%" ()) (y-or-n? V833)))))))
+(defun y-or-n? (V1793)
+ (let Message (intoutput V1793 ())
+  (let Y-or-N (intoutput " (y/n) " ())
+   (let Input (input)
+    (if (= y Input) true
+     (if (= n Input) false
+      (do (intoutput "please answer y or n~%" ()) (y-or-n? V1793))))))))
 
 (defun not (V834) (if V834 false true))
 
@@ -497,7 +498,7 @@ For an explication of this license see http://www.lambdassociates.org/News/june1
  (let Input (read)
   (let Check (shen-typecheck Input V911)
    (if (= false Check)
-    (do (intoutput "input is not of type ~S: please re-enter " (@p V911 ()))
+    (do (intoutput "input is not of type ~R: please re-enter " (@p V911 ()))
      (input+ : V911))
     (eval Input)))))
 

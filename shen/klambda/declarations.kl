@@ -73,10 +73,10 @@ For an explication of this license see http://www.lambdassociates.org/News/june1
    (cons @v
     (cons cons
      (cons lambda
-      (cons let
-       (cons type (cons where (cons input+ (cons set (cons open ()))))))))))))
+      (cons let (cons type (cons where (cons set (cons open ())))))))))))
 
-(set shen-*extraspecial* (cons define (cons shen-process-datatype ())))
+(set shen-*extraspecial*
+ (cons define (cons shen-process-datatype (cons input+ ()))))
 
 (set shen-*spy* false)
 
@@ -102,16 +102,16 @@ For an explication of this license see http://www.lambdassociates.org/News/june1
 
 (set shen-*catch* 0)
 
-(defun shen-initialise_arity_table (V1494)
- (cond ((= () V1494) ())
-  ((and (cons? V1494) (cons? (tl V1494)))
+(defun shen-initialise_arity_table (V1497)
+ (cond ((= () V1497) ())
+  ((and (cons? V1497) (cons? (tl V1497)))
    (let DecArity
-    (put (hd V1494) arity (hd (tl V1494)) (value shen-*property-vector*))
-    (shen-initialise_arity_table (tl (tl V1494)))))
+    (put (hd V1497) arity (hd (tl V1497)) (value shen-*property-vector*))
+    (shen-initialise_arity_table (tl (tl V1497)))))
   (true (shen-sys-error shen-initialise_arity_table))))
 
-(defun arity (V1495)
- (trap-error (get V1495 arity (value shen-*property-vector*)) (lambda E -1)))
+(defun arity (V1498)
+ (trap-error (get V1498 arity (value shen-*property-vector*)) (lambda E -1)))
 
 (shen-initialise_arity_table
  (cons adjoin
@@ -120,469 +120,464 @@ For an explication of this license see http://www.lambdassociates.org/News/june1
     (cons 2
      (cons append
       (cons 2
-       (cons apply
-        (cons 2
-         (cons arity
-          (cons 1
-           (cons assoc
-            (cons 2
-             (cons boolean?
+       (cons arity
+        (cons 1
+         (cons assoc
+          (cons 2
+           (cons boolean?
+            (cons 1
+             (cons cd
               (cons 1
-               (cons cd
-                (cons 1
-                 (cons compile
-                  (cons 3
-                   (cons concat
+               (cons compile
+                (cons 3
+                 (cons concat
+                  (cons 2
+                   (cons cons
                     (cons 2
-                     (cons cons
-                      (cons 2
-                       (cons cons?
-                        (cons 1
-                         (cons cn
+                     (cons cons?
+                      (cons 1
+                       (cons cn
+                        (cons 2
+                         (cons declare
                           (cons 2
-                           (cons declare
-                            (cons 2
-                             (cons destroy
-                              (cons 1
-                               (cons difference
+                           (cons destroy
+                            (cons 1
+                             (cons difference
+                              (cons 2
+                               (cons do
                                 (cons 2
-                                 (cons do
+                                 (cons dump
                                   (cons 2
-                                   (cons dump
+                                   (cons element?
                                     (cons 2
-                                     (cons element?
-                                      (cons 2
-                                       (cons empty?
-                                        (cons 1
-                                         (cons interror
-                                          (cons 2
-                                           (cons eval
+                                     (cons empty?
+                                      (cons 1
+                                       (cons interror
+                                        (cons 2
+                                         (cons eval
+                                          (cons 1
+                                           (cons explode
                                             (cons 1
-                                             (cons explode
+                                             (cons external
                                               (cons 1
-                                               (cons external
-                                                (cons 1
-                                                 (cons fail-if
-                                                  (cons 2
-                                                   (cons fail
-                                                    (cons 0
-                                                     (cons fix
-                                                      (cons 2
-                                                       (cons findall
-                                                        (cons 5
-                                                         (cons freeze
+                                               (cons fail-if
+                                                (cons 2
+                                                 (cons fail
+                                                  (cons 0
+                                                   (cons fix
+                                                    (cons 2
+                                                     (cons findall
+                                                      (cons 5
+                                                       (cons freeze
+                                                        (cons 1
+                                                         (cons fst
                                                           (cons 1
-                                                           (cons fst
+                                                           (cons gensym
                                                             (cons 1
-                                                             (cons gensym
-                                                              (cons 1
-                                                               (cons get
+                                                             (cons get
+                                                              (cons 3
+                                                               (cons address->
                                                                 (cons 3
                                                                  (cons
-                                                                  address->
-                                                                  (cons 3
+                                                                  <-address
+                                                                  (cons 2
                                                                    (cons
-                                                                    <-address
+                                                                    <-vector
                                                                     (cons 2
-                                                                     (cons
-                                                                      <-vector
+                                                                     (cons >
                                                                       (cons 2
                                                                        (cons
-                                                                        >
+                                                                        >=
                                                                         (cons 2
                                                                          (cons
-                                                                          >=
+                                                                          =
                                                                           (cons
                                                                            2
                                                                            (cons
-                                                                            =
+                                                                            hd
                                                                             (cons
-                                                                             2
+                                                                             1
                                                                              (cons
-                                                                              hd
+                                                                              hdv
                                                                               (cons
                                                                                1
                                                                                (cons
-                                                                                hdv
+                                                                                hdstr
                                                                                 (cons
                                                                                  1
                                                                                  (cons
-                                                                                  hdstr
+                                                                                  head
                                                                                   (cons
                                                                                    1
                                                                                    (cons
-                                                                                    head
+                                                                                    if
                                                                                     (cons
-                                                                                     1
+                                                                                     3
                                                                                      (cons
-                                                                                      if
+                                                                                      integer?
                                                                                       (cons
-                                                                                       3
+                                                                                       1
                                                                                        (cons
-                                                                                        integer?
+                                                                                        identical
                                                                                         (cons
-                                                                                         1
+                                                                                         4
                                                                                          (cons
-                                                                                          identical
+                                                                                          inferences
                                                                                           (cons
-                                                                                           4
+                                                                                           1
                                                                                            (cons
-                                                                                            inferences
+                                                                                            intoutput
                                                                                             (cons
-                                                                                             1
+                                                                                             2
                                                                                              (cons
-                                                                                              intoutput
+                                                                                              make-string
                                                                                               (cons
                                                                                                2
                                                                                                (cons
-                                                                                                make-string
+                                                                                                intersection
                                                                                                 (cons
                                                                                                  2
                                                                                                  (cons
-                                                                                                  intersection
+                                                                                                  length
                                                                                                   (cons
-                                                                                                   2
+                                                                                                   1
                                                                                                    (cons
-                                                                                                    length
+                                                                                                    lineread
                                                                                                     (cons
-                                                                                                     1
+                                                                                                     0
                                                                                                      (cons
-                                                                                                      lineread
+                                                                                                      load
                                                                                                       (cons
-                                                                                                       0
+                                                                                                       1
                                                                                                        (cons
-                                                                                                        load
+                                                                                                        <
                                                                                                         (cons
-                                                                                                         1
+                                                                                                         2
                                                                                                          (cons
-                                                                                                          <
+                                                                                                          <=
                                                                                                           (cons
                                                                                                            2
                                                                                                            (cons
-                                                                                                            <=
+                                                                                                            vector
                                                                                                             (cons
-                                                                                                             2
+                                                                                                             1
                                                                                                              (cons
-                                                                                                              vector
+                                                                                                              macroexpand
                                                                                                               (cons
                                                                                                                1
                                                                                                                (cons
-                                                                                                                macroexpand
+                                                                                                                map
                                                                                                                 (cons
-                                                                                                                 1
+                                                                                                                 2
                                                                                                                  (cons
-                                                                                                                  map
+                                                                                                                  mapcan
                                                                                                                   (cons
                                                                                                                    2
                                                                                                                    (cons
-                                                                                                                    mapcan
+                                                                                                                    intmake-string
                                                                                                                     (cons
                                                                                                                      2
                                                                                                                      (cons
-                                                                                                                      intmake-string
+                                                                                                                      maxinferences
                                                                                                                       (cons
-                                                                                                                       2
+                                                                                                                       1
                                                                                                                        (cons
-                                                                                                                        maxinferences
+                                                                                                                        not
                                                                                                                         (cons
                                                                                                                          1
                                                                                                                          (cons
-                                                                                                                          not
+                                                                                                                          nth
                                                                                                                           (cons
-                                                                                                                           1
+                                                                                                                           2
                                                                                                                            (cons
-                                                                                                                            nth
+                                                                                                                            n->string
                                                                                                                             (cons
-                                                                                                                             2
+                                                                                                                             1
                                                                                                                              (cons
-                                                                                                                              n->string
+                                                                                                                              number?
                                                                                                                               (cons
                                                                                                                                1
                                                                                                                                (cons
-                                                                                                                                number?
+                                                                                                                                output
                                                                                                                                 (cons
-                                                                                                                                 1
+                                                                                                                                 2
                                                                                                                                  (cons
-                                                                                                                                  output
+                                                                                                                                  occurs-check
                                                                                                                                   (cons
-                                                                                                                                   2
+                                                                                                                                   1
                                                                                                                                    (cons
-                                                                                                                                    occurs-check
+                                                                                                                                    occurrences
                                                                                                                                     (cons
-                                                                                                                                     1
+                                                                                                                                     2
                                                                                                                                      (cons
-                                                                                                                                      occurrences
+                                                                                                                                      occurs-check
                                                                                                                                       (cons
-                                                                                                                                       2
+                                                                                                                                       1
                                                                                                                                        (cons
-                                                                                                                                        occurs-check
+                                                                                                                                        or
                                                                                                                                         (cons
-                                                                                                                                         1
+                                                                                                                                         2
                                                                                                                                          (cons
-                                                                                                                                          or
+                                                                                                                                          package
                                                                                                                                           (cons
-                                                                                                                                           2
+                                                                                                                                           3
                                                                                                                                            (cons
-                                                                                                                                            package
+                                                                                                                                            print
                                                                                                                                             (cons
-                                                                                                                                             3
+                                                                                                                                             1
                                                                                                                                              (cons
-                                                                                                                                              print
+                                                                                                                                              profile
                                                                                                                                               (cons
                                                                                                                                                1
                                                                                                                                                (cons
-                                                                                                                                                profile
+                                                                                                                                                profile-results
                                                                                                                                                 (cons
                                                                                                                                                  1
                                                                                                                                                  (cons
-                                                                                                                                                  profile-results
+                                                                                                                                                  ps
                                                                                                                                                   (cons
                                                                                                                                                    1
                                                                                                                                                    (cons
-                                                                                                                                                    ps
+                                                                                                                                                    preclude
                                                                                                                                                     (cons
                                                                                                                                                      1
                                                                                                                                                      (cons
-                                                                                                                                                      preclude
+                                                                                                                                                      preclude-all-but
                                                                                                                                                       (cons
                                                                                                                                                        1
                                                                                                                                                        (cons
-                                                                                                                                                        preclude-all-but
+                                                                                                                                                        address->
                                                                                                                                                         (cons
-                                                                                                                                                         1
+                                                                                                                                                         3
                                                                                                                                                          (cons
-                                                                                                                                                          address->
+                                                                                                                                                          put
                                                                                                                                                           (cons
-                                                                                                                                                           3
+                                                                                                                                                           4
                                                                                                                                                            (cons
-                                                                                                                                                            put
+                                                                                                                                                            shen-reassemble
                                                                                                                                                             (cons
-                                                                                                                                                             4
+                                                                                                                                                             2
                                                                                                                                                              (cons
-                                                                                                                                                              shen-reassemble
+                                                                                                                                                              read-file-as-string
                                                                                                                                                               (cons
-                                                                                                                                                               2
+                                                                                                                                                               1
                                                                                                                                                                (cons
-                                                                                                                                                                read-file-as-string
+                                                                                                                                                                read-file
                                                                                                                                                                 (cons
                                                                                                                                                                  1
                                                                                                                                                                  (cons
-                                                                                                                                                                  read-file
+                                                                                                                                                                  read-byte
                                                                                                                                                                   (cons
                                                                                                                                                                    1
                                                                                                                                                                    (cons
-                                                                                                                                                                    read-byte
+                                                                                                                                                                    remove
                                                                                                                                                                     (cons
-                                                                                                                                                                     1
+                                                                                                                                                                     2
                                                                                                                                                                      (cons
-                                                                                                                                                                      remove
+                                                                                                                                                                      reverse
                                                                                                                                                                       (cons
-                                                                                                                                                                       2
+                                                                                                                                                                       1
                                                                                                                                                                        (cons
-                                                                                                                                                                        reverse
+                                                                                                                                                                        set
                                                                                                                                                                         (cons
-                                                                                                                                                                         1
+                                                                                                                                                                         2
                                                                                                                                                                          (cons
-                                                                                                                                                                          set
+                                                                                                                                                                          simple-error
                                                                                                                                                                           (cons
-                                                                                                                                                                           2
+                                                                                                                                                                           1
                                                                                                                                                                            (cons
-                                                                                                                                                                            simple-error
+                                                                                                                                                                            snd
                                                                                                                                                                             (cons
                                                                                                                                                                              1
                                                                                                                                                                              (cons
-                                                                                                                                                                              snd
+                                                                                                                                                                              specialise
                                                                                                                                                                               (cons
                                                                                                                                                                                1
                                                                                                                                                                                (cons
-                                                                                                                                                                                specialise
+                                                                                                                                                                                spy
                                                                                                                                                                                 (cons
                                                                                                                                                                                  1
                                                                                                                                                                                  (cons
-                                                                                                                                                                                  spy
+                                                                                                                                                                                  step
                                                                                                                                                                                   (cons
                                                                                                                                                                                    1
                                                                                                                                                                                    (cons
-                                                                                                                                                                                    step
+                                                                                                                                                                                    string->n
                                                                                                                                                                                     (cons
                                                                                                                                                                                      1
                                                                                                                                                                                      (cons
-                                                                                                                                                                                      string->n
+                                                                                                                                                                                      string?
                                                                                                                                                                                       (cons
                                                                                                                                                                                        1
                                                                                                                                                                                        (cons
-                                                                                                                                                                                        string?
+                                                                                                                                                                                        strong-warning
                                                                                                                                                                                         (cons
                                                                                                                                                                                          1
                                                                                                                                                                                          (cons
-                                                                                                                                                                                          strong-warning
+                                                                                                                                                                                          subst
                                                                                                                                                                                           (cons
-                                                                                                                                                                                           1
+                                                                                                                                                                                           3
                                                                                                                                                                                            (cons
-                                                                                                                                                                                            subst
+                                                                                                                                                                                            symbol?
                                                                                                                                                                                             (cons
-                                                                                                                                                                                             3
+                                                                                                                                                                                             1
                                                                                                                                                                                              (cons
-                                                                                                                                                                                              symbol?
+                                                                                                                                                                                              tail
                                                                                                                                                                                               (cons
                                                                                                                                                                                                1
                                                                                                                                                                                                (cons
-                                                                                                                                                                                                tail
+                                                                                                                                                                                                tl
                                                                                                                                                                                                 (cons
                                                                                                                                                                                                  1
                                                                                                                                                                                                  (cons
-                                                                                                                                                                                                  tl
+                                                                                                                                                                                                  tc
                                                                                                                                                                                                   (cons
                                                                                                                                                                                                    1
                                                                                                                                                                                                    (cons
-                                                                                                                                                                                                    tc
+                                                                                                                                                                                                    tc?
                                                                                                                                                                                                     (cons
                                                                                                                                                                                                      1
                                                                                                                                                                                                      (cons
-                                                                                                                                                                                                      tc?
+                                                                                                                                                                                                      thaw
                                                                                                                                                                                                       (cons
                                                                                                                                                                                                        1
                                                                                                                                                                                                        (cons
-                                                                                                                                                                                                        thaw
+                                                                                                                                                                                                        track
                                                                                                                                                                                                         (cons
                                                                                                                                                                                                          1
                                                                                                                                                                                                          (cons
-                                                                                                                                                                                                          track
+                                                                                                                                                                                                          trap-error
                                                                                                                                                                                                           (cons
-                                                                                                                                                                                                           1
+                                                                                                                                                                                                           2
                                                                                                                                                                                                            (cons
-                                                                                                                                                                                                            trap-error
+                                                                                                                                                                                                            tuple?
                                                                                                                                                                                                             (cons
-                                                                                                                                                                                                             2
+                                                                                                                                                                                                             1
                                                                                                                                                                                                              (cons
-                                                                                                                                                                                                              tuple?
+                                                                                                                                                                                                              type
                                                                                                                                                                                                               (cons
                                                                                                                                                                                                                1
                                                                                                                                                                                                                (cons
-                                                                                                                                                                                                                type
+                                                                                                                                                                                                                return
                                                                                                                                                                                                                 (cons
-                                                                                                                                                                                                                 1
+                                                                                                                                                                                                                 3
                                                                                                                                                                                                                  (cons
-                                                                                                                                                                                                                  return
+                                                                                                                                                                                                                  unprofile
                                                                                                                                                                                                                   (cons
-                                                                                                                                                                                                                   3
+                                                                                                                                                                                                                   1
                                                                                                                                                                                                                    (cons
-                                                                                                                                                                                                                    unprofile
+                                                                                                                                                                                                                    unify
                                                                                                                                                                                                                     (cons
-                                                                                                                                                                                                                     1
+                                                                                                                                                                                                                     4
                                                                                                                                                                                                                      (cons
-                                                                                                                                                                                                                      unify
+                                                                                                                                                                                                                      unify!
                                                                                                                                                                                                                       (cons
                                                                                                                                                                                                                        4
                                                                                                                                                                                                                        (cons
-                                                                                                                                                                                                                        unify!
+                                                                                                                                                                                                                        union
                                                                                                                                                                                                                         (cons
-                                                                                                                                                                                                                         4
+                                                                                                                                                                                                                         2
                                                                                                                                                                                                                          (cons
-                                                                                                                                                                                                                          union
+                                                                                                                                                                                                                          untrack
                                                                                                                                                                                                                           (cons
-                                                                                                                                                                                                                           2
+                                                                                                                                                                                                                           1
                                                                                                                                                                                                                            (cons
-                                                                                                                                                                                                                            untrack
+                                                                                                                                                                                                                            unspecialise
                                                                                                                                                                                                                             (cons
                                                                                                                                                                                                                              1
                                                                                                                                                                                                                              (cons
-                                                                                                                                                                                                                              unspecialise
+                                                                                                                                                                                                                              vector
                                                                                                                                                                                                                               (cons
                                                                                                                                                                                                                                1
                                                                                                                                                                                                                                (cons
-                                                                                                                                                                                                                                vector
+                                                                                                                                                                                                                                vector->
                                                                                                                                                                                                                                 (cons
-                                                                                                                                                                                                                                 1
+                                                                                                                                                                                                                                 3
                                                                                                                                                                                                                                  (cons
-                                                                                                                                                                                                                                  vector->
+                                                                                                                                                                                                                                  value
                                                                                                                                                                                                                                   (cons
-                                                                                                                                                                                                                                   3
+                                                                                                                                                                                                                                   1
                                                                                                                                                                                                                                    (cons
-                                                                                                                                                                                                                                    value
+                                                                                                                                                                                                                                    variable?
                                                                                                                                                                                                                                     (cons
                                                                                                                                                                                                                                      1
                                                                                                                                                                                                                                      (cons
-                                                                                                                                                                                                                                      variable?
+                                                                                                                                                                                                                                      version
                                                                                                                                                                                                                                       (cons
                                                                                                                                                                                                                                        1
                                                                                                                                                                                                                                        (cons
-                                                                                                                                                                                                                                        version
+                                                                                                                                                                                                                                        warn
                                                                                                                                                                                                                                         (cons
                                                                                                                                                                                                                                          1
                                                                                                                                                                                                                                          (cons
-                                                                                                                                                                                                                                          warn
+                                                                                                                                                                                                                                          write-to-file
                                                                                                                                                                                                                                           (cons
-                                                                                                                                                                                                                                           1
+                                                                                                                                                                                                                                           2
                                                                                                                                                                                                                                            (cons
-                                                                                                                                                                                                                                            write-to-file
+                                                                                                                                                                                                                                            y-or-n?
                                                                                                                                                                                                                                             (cons
-                                                                                                                                                                                                                                             2
+                                                                                                                                                                                                                                             1
                                                                                                                                                                                                                                              (cons
-                                                                                                                                                                                                                                              y-or-n?
+                                                                                                                                                                                                                                              +
                                                                                                                                                                                                                                               (cons
-                                                                                                                                                                                                                                               1
+                                                                                                                                                                                                                                               2
                                                                                                                                                                                                                                                (cons
-                                                                                                                                                                                                                                                +
+                                                                                                                                                                                                                                                *
                                                                                                                                                                                                                                                 (cons
                                                                                                                                                                                                                                                  2
                                                                                                                                                                                                                                                  (cons
-                                                                                                                                                                                                                                                  *
+                                                                                                                                                                                                                                                  /
                                                                                                                                                                                                                                                   (cons
                                                                                                                                                                                                                                                    2
                                                                                                                                                                                                                                                    (cons
-                                                                                                                                                                                                                                                    /
+                                                                                                                                                                                                                                                    -
                                                                                                                                                                                                                                                     (cons
                                                                                                                                                                                                                                                      2
                                                                                                                                                                                                                                                      (cons
-                                                                                                                                                                                                                                                      -
+                                                                                                                                                                                                                                                      ==
                                                                                                                                                                                                                                                       (cons
                                                                                                                                                                                                                                                        2
                                                                                                                                                                                                                                                        (cons
-                                                                                                                                                                                                                                                        ==
+                                                                                                                                                                                                                                                        @p
                                                                                                                                                                                                                                                         (cons
                                                                                                                                                                                                                                                          2
                                                                                                                                                                                                                                                          (cons
-                                                                                                                                                                                                                                                          @p
+                                                                                                                                                                                                                                                          @v
                                                                                                                                                                                                                                                           (cons
                                                                                                                                                                                                                                                            2
                                                                                                                                                                                                                                                            (cons
-                                                                                                                                                                                                                                                            @v
+                                                                                                                                                                                                                                                            @s
                                                                                                                                                                                                                                                             (cons
                                                                                                                                                                                                                                                              2
                                                                                                                                                                                                                                                              (cons
-                                                                                                                                                                                                                                                              @s
+                                                                                                                                                                                                                                                              preclude
                                                                                                                                                                                                                                                               (cons
-                                                                                                                                                                                                                                                               2
+                                                                                                                                                                                                                                                               1
                                                                                                                                                                                                                                                                (cons
-                                                                                                                                                                                                                                                                preclude
+                                                                                                                                                                                                                                                                include
                                                                                                                                                                                                                                                                 (cons
                                                                                                                                                                                                                                                                  1
                                                                                                                                                                                                                                                                  (cons
-                                                                                                                                                                                                                                                                  include
+                                                                                                                                                                                                                                                                  preclude-all-but
                                                                                                                                                                                                                                                                   (cons
                                                                                                                                                                                                                                                                    1
                                                                                                                                                                                                                                                                    (cons
-                                                                                                                                                                                                                                                                    preclude-all-but
+                                                                                                                                                                                                                                                                    include-all-but
                                                                                                                                                                                                                                                                     (cons
                                                                                                                                                                                                                                                                      1
                                                                                                                                                                                                                                                                      (cons
-                                                                                                                                                                                                                                                                      include-all-but
+                                                                                                                                                                                                                                                                      where
                                                                                                                                                                                                                                                                       (cons
-                                                                                                                                                                                                                                                                       1
-                                                                                                                                                                                                                                                                       (cons
-                                                                                                                                                                                                                                                                        where
-                                                                                                                                                                                                                                                                        (cons
-                                                                                                                                                                                                                                                                         2
-                                                                                                                                                                                                                                                                         ())))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
+                                                                                                                                                                                                                                                                       2
+                                                                                                                                                                                                                                                                       ())))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
 
-(defun systemf (V1496)
- (set shen-*system* (adjoin V1496 (value shen-*system*))))
+(defun systemf (V1499)
+ (set shen-*system* (adjoin V1499 (value shen-*system*))))
 
-(defun adjoin (V1497 V1498)
- (if (element? V1497 V1498) V1498 (cons V1497 V1498)))
+(defun adjoin (V1500 V1501)
+ (if (element? V1500 V1501) V1501 (cons V1500 V1501)))
 
-(map (lambda V1499 (systemf V1499))
+(map (lambda V1502 (systemf V1502))
  (cons !
   (cons }
    (cons {
@@ -605,369 +600,376 @@ For an explication of this license see http://www.lambdassociates.org/News/june1
                     (cons *maximum-print-sequence-size*
                      (cons *printer*
                       (cons *macros*
-                       (cons @v
-                        (cons @p
-                         (cons @s
-                          (cons <-
-                           (cons ->
-                            (cons <e>
-                             (cons ==
-                              (cons =
-                               (cons >=
-                                (cons >
-                                 (cons /.
-                                  (cons =!
-                                   (cons -
-                                    (cons /
-                                     (cons *
-                                      (cons +
-                                       (cons <=
-                                        (cons <
-                                         (cons >>
-                                          (cons <>
-                                           (cons y-or-n?
-                                            (cons write-to-file
-                                             (cons where
-                                              (cons when
-                                               (cons warn
-                                                (cons version
-                                                 (cons verified
-                                                  (cons variable?
-                                                   (cons value
-                                                    (cons vector->
-                                                     (cons <-vector
-                                                      (cons vector
-                                                       (cons vector?
-                                                        (cons unspecialise
-                                                         (cons untrack
-                                                          (cons union
-                                                           (cons unify
-                                                            (cons unify!
-                                                             (cons unprofile
-                                                              (cons return
-                                                               (cons type
-                                                                (cons tuple?
-                                                                 (cons true
-                                                                  (cons
-                                                                   trap-error
-                                                                   (cons track
-                                                                    (cons time
-                                                                     (cons thaw
-                                                                      (cons tc?
-                                                                       (cons tc
+                       (cons *os*
+                        (cons *release*
+                         (cons @v
+                          (cons @p
+                           (cons @s
+                            (cons <-
+                             (cons ->
+                              (cons <e>
+                               (cons ==
+                                (cons =
+                                 (cons >=
+                                  (cons >
+                                   (cons /.
+                                    (cons =!
+                                     (cons -
+                                      (cons /
+                                       (cons *
+                                        (cons +
+                                         (cons <=
+                                          (cons <
+                                           (cons >>
+                                            (cons <>
+                                             (cons y-or-n?
+                                              (cons write-to-file
+                                               (cons where
+                                                (cons when
+                                                 (cons warn
+                                                  (cons version
+                                                   (cons verified
+                                                    (cons variable?
+                                                     (cons value
+                                                      (cons vector->
+                                                       (cons <-vector
+                                                        (cons vector
+                                                         (cons vector?
+                                                          (cons unspecialise
+                                                           (cons untrack
+                                                            (cons union
+                                                             (cons unify
+                                                              (cons unify!
+                                                               (cons unprofile
+                                                                (cons return
+                                                                 (cons type
+                                                                  (cons tuple?
+                                                                   (cons true
+                                                                    (cons
+                                                                     trap-error
+                                                                     (cons
+                                                                      track
+                                                                      (cons
+                                                                       time
+                                                                       (cons
+                                                                        thaw
                                                                         (cons
-                                                                         tl
+                                                                         tc?
                                                                          (cons
-                                                                          tlstr
+                                                                          tc
                                                                           (cons
-                                                                           tlv
+                                                                           tl
                                                                            (cons
-                                                                            tail
+                                                                            tlstr
                                                                             (cons
-                                                                             systemf
+                                                                             tlv
                                                                              (cons
-                                                                              synonyms
+                                                                              tail
                                                                               (cons
-                                                                               symbol
+                                                                               systemf
                                                                                (cons
-                                                                                symbol?
+                                                                                synonyms
                                                                                 (cons
-                                                                                 sum
+                                                                                 symbol
                                                                                  (cons
-                                                                                  subst
+                                                                                  symbol?
                                                                                   (cons
-                                                                                   string?
+                                                                                   sum
                                                                                    (cons
-                                                                                    string->n
+                                                                                    subst
                                                                                     (cons
-                                                                                     stream
+                                                                                     string?
                                                                                      (cons
-                                                                                      string
+                                                                                      string->n
                                                                                       (cons
-                                                                                       stinput
+                                                                                       stream
                                                                                        (cons
-                                                                                        step
+                                                                                        string
                                                                                         (cons
-                                                                                         spy
+                                                                                         stinput
                                                                                          (cons
-                                                                                          specialise
+                                                                                          step
                                                                                           (cons
-                                                                                           snd
+                                                                                           spy
                                                                                            (cons
-                                                                                            simple-error
+                                                                                            specialise
                                                                                             (cons
-                                                                                             set
+                                                                                             snd
                                                                                              (cons
-                                                                                              save
+                                                                                              simple-error
                                                                                               (cons
-                                                                                               str
+                                                                                               set
                                                                                                (cons
-                                                                                                reverse
+                                                                                                save
                                                                                                 (cons
-                                                                                                 remove
+                                                                                                 str
                                                                                                  (cons
-                                                                                                  read
+                                                                                                  run
                                                                                                   (cons
-                                                                                                   read-file
+                                                                                                   reverse
                                                                                                    (cons
-                                                                                                    read-file-as-bytelist
+                                                                                                    remove
                                                                                                     (cons
-                                                                                                     read-file-as-string
+                                                                                                     read
                                                                                                      (cons
-                                                                                                      read-byte
+                                                                                                      read-file
                                                                                                       (cons
-                                                                                                       quit
+                                                                                                       read-file-as-bytelist
                                                                                                        (cons
-                                                                                                        put
+                                                                                                        read-file-as-string
                                                                                                         (cons
-                                                                                                         preclude
+                                                                                                         read-byte
                                                                                                          (cons
-                                                                                                          preclude-all-but
+                                                                                                          quit
                                                                                                           (cons
-                                                                                                           ps
+                                                                                                           put
                                                                                                            (cons
-                                                                                                            prolog?
+                                                                                                            preclude
                                                                                                             (cons
-                                                                                                             profile-results
+                                                                                                             preclude-all-but
                                                                                                              (cons
-                                                                                                              profile
+                                                                                                              ps
                                                                                                               (cons
-                                                                                                               print
+                                                                                                               prolog?
                                                                                                                (cons
-                                                                                                                pr
+                                                                                                                profile-results
                                                                                                                 (cons
-                                                                                                                 pos
+                                                                                                                 profile
                                                                                                                  (cons
-                                                                                                                  package
+                                                                                                                  print
                                                                                                                   (cons
-                                                                                                                   output
+                                                                                                                   pr
                                                                                                                    (cons
-                                                                                                                    out
+                                                                                                                    pos
                                                                                                                     (cons
-                                                                                                                     or
+                                                                                                                     package
                                                                                                                      (cons
-                                                                                                                      open
+                                                                                                                      output
                                                                                                                       (cons
-                                                                                                                       occurrences
+                                                                                                                       out
                                                                                                                        (cons
-                                                                                                                        occurs-check
+                                                                                                                        or
                                                                                                                         (cons
-                                                                                                                         n->string
+                                                                                                                         open
                                                                                                                          (cons
-                                                                                                                          number?
+                                                                                                                          occurrences
                                                                                                                           (cons
-                                                                                                                           number
+                                                                                                                           occurs-check
                                                                                                                            (cons
-                                                                                                                            null
+                                                                                                                            n->string
                                                                                                                             (cons
-                                                                                                                             nth
+                                                                                                                             number?
                                                                                                                              (cons
-                                                                                                                              not
+                                                                                                                              number
                                                                                                                               (cons
-                                                                                                                               nl
+                                                                                                                               null
                                                                                                                                (cons
-                                                                                                                                mode
+                                                                                                                                nth
                                                                                                                                 (cons
-                                                                                                                                 macro
+                                                                                                                                 not
                                                                                                                                  (cons
-                                                                                                                                  macroexpand
+                                                                                                                                  nl
                                                                                                                                   (cons
-                                                                                                                                   maxinferences
+                                                                                                                                   mode
                                                                                                                                    (cons
-                                                                                                                                    mapcan
+                                                                                                                                    macro
                                                                                                                                     (cons
-                                                                                                                                     map
+                                                                                                                                     macroexpand
                                                                                                                                      (cons
-                                                                                                                                      make-string
+                                                                                                                                      maxinferences
                                                                                                                                       (cons
-                                                                                                                                       load
+                                                                                                                                       mapcan
                                                                                                                                        (cons
-                                                                                                                                        loaded
+                                                                                                                                        map
                                                                                                                                         (cons
-                                                                                                                                         list
+                                                                                                                                         make-string
                                                                                                                                          (cons
-                                                                                                                                          lineread
+                                                                                                                                          load
                                                                                                                                           (cons
-                                                                                                                                           limit
+                                                                                                                                           loaded
                                                                                                                                            (cons
-                                                                                                                                            length
+                                                                                                                                            list
                                                                                                                                             (cons
-                                                                                                                                             let
+                                                                                                                                             lineread
                                                                                                                                              (cons
-                                                                                                                                              lazy
+                                                                                                                                              limit
                                                                                                                                               (cons
-                                                                                                                                               lambda
+                                                                                                                                               length
                                                                                                                                                (cons
-                                                                                                                                                is
+                                                                                                                                                let
                                                                                                                                                 (cons
-                                                                                                                                                 intersection
+                                                                                                                                                 lazy
                                                                                                                                                  (cons
-                                                                                                                                                  inferences
+                                                                                                                                                  lambda
                                                                                                                                                   (cons
-                                                                                                                                                   intern
+                                                                                                                                                   is
                                                                                                                                                    (cons
-                                                                                                                                                    integer?
+                                                                                                                                                    intersection
                                                                                                                                                     (cons
-                                                                                                                                                     input
+                                                                                                                                                     inferences
                                                                                                                                                      (cons
-                                                                                                                                                      input+
+                                                                                                                                                      intern
                                                                                                                                                       (cons
-                                                                                                                                                       include
+                                                                                                                                                       integer?
                                                                                                                                                        (cons
-                                                                                                                                                        include-all-but
+                                                                                                                                                        input
                                                                                                                                                         (cons
-                                                                                                                                                         in
+                                                                                                                                                         input+
                                                                                                                                                          (cons
-                                                                                                                                                          if
+                                                                                                                                                          include
                                                                                                                                                           (cons
-                                                                                                                                                           identical
+                                                                                                                                                           include-all-but
                                                                                                                                                            (cons
-                                                                                                                                                            head
+                                                                                                                                                            in
                                                                                                                                                             (cons
-                                                                                                                                                             hd
+                                                                                                                                                             if
                                                                                                                                                              (cons
-                                                                                                                                                              hdv
+                                                                                                                                                              identical
                                                                                                                                                               (cons
-                                                                                                                                                               hdstr
+                                                                                                                                                               head
                                                                                                                                                                (cons
-                                                                                                                                                                hash
+                                                                                                                                                                hd
                                                                                                                                                                 (cons
-                                                                                                                                                                 get
+                                                                                                                                                                 hdv
                                                                                                                                                                  (cons
-                                                                                                                                                                  get-time
+                                                                                                                                                                  hdstr
                                                                                                                                                                   (cons
-                                                                                                                                                                   gensym
+                                                                                                                                                                   hash
                                                                                                                                                                    (cons
-                                                                                                                                                                    function
+                                                                                                                                                                    get
                                                                                                                                                                     (cons
-                                                                                                                                                                     fst
+                                                                                                                                                                     get-time
                                                                                                                                                                      (cons
-                                                                                                                                                                      freeze
+                                                                                                                                                                      gensym
                                                                                                                                                                       (cons
-                                                                                                                                                                       format
+                                                                                                                                                                       function
                                                                                                                                                                        (cons
-                                                                                                                                                                        fix
+                                                                                                                                                                        fst
                                                                                                                                                                         (cons
-                                                                                                                                                                         file
+                                                                                                                                                                         freeze
                                                                                                                                                                          (cons
-                                                                                                                                                                          fail
+                                                                                                                                                                          format
                                                                                                                                                                           (cons
-                                                                                                                                                                           fail!
+                                                                                                                                                                           fix
                                                                                                                                                                            (cons
-                                                                                                                                                                            fail-if
+                                                                                                                                                                            file
                                                                                                                                                                             (cons
-                                                                                                                                                                             fwhen
+                                                                                                                                                                             fail
                                                                                                                                                                              (cons
-                                                                                                                                                                              findall
+                                                                                                                                                                              fail!
                                                                                                                                                                               (cons
-                                                                                                                                                                               false
+                                                                                                                                                                               fail-if
                                                                                                                                                                                (cons
-                                                                                                                                                                                explode
+                                                                                                                                                                                fwhen
                                                                                                                                                                                 (cons
-                                                                                                                                                                                 external
+                                                                                                                                                                                 findall
                                                                                                                                                                                  (cons
-                                                                                                                                                                                  exception
+                                                                                                                                                                                  false
                                                                                                                                                                                   (cons
-                                                                                                                                                                                   eval-without-macros
+                                                                                                                                                                                   explode
                                                                                                                                                                                    (cons
-                                                                                                                                                                                    eval
+                                                                                                                                                                                    external
                                                                                                                                                                                     (cons
-                                                                                                                                                                                     error-to-string
+                                                                                                                                                                                     exception
                                                                                                                                                                                      (cons
-                                                                                                                                                                                      error
+                                                                                                                                                                                      eval-without-macros
                                                                                                                                                                                       (cons
-                                                                                                                                                                                       empty?
+                                                                                                                                                                                       eval
                                                                                                                                                                                        (cons
-                                                                                                                                                                                        element?
+                                                                                                                                                                                        error-to-string
                                                                                                                                                                                         (cons
-                                                                                                                                                                                         dump
+                                                                                                                                                                                         error
                                                                                                                                                                                          (cons
-                                                                                                                                                                                          dumped
+                                                                                                                                                                                          empty?
                                                                                                                                                                                           (cons
-                                                                                                                                                                                           do
+                                                                                                                                                                                           element?
                                                                                                                                                                                            (cons
-                                                                                                                                                                                            difference
+                                                                                                                                                                                            dump
                                                                                                                                                                                             (cons
-                                                                                                                                                                                             destroy
+                                                                                                                                                                                             dumped
                                                                                                                                                                                              (cons
-                                                                                                                                                                                              defun
+                                                                                                                                                                                              do
                                                                                                                                                                                               (cons
-                                                                                                                                                                                               define
+                                                                                                                                                                                               difference
                                                                                                                                                                                                (cons
-                                                                                                                                                                                                defmacro
+                                                                                                                                                                                                destroy
                                                                                                                                                                                                 (cons
-                                                                                                                                                                                                 defcc
+                                                                                                                                                                                                 defun
                                                                                                                                                                                                  (cons
-                                                                                                                                                                                                  defprolog
+                                                                                                                                                                                                  define
                                                                                                                                                                                                   (cons
-                                                                                                                                                                                                   declare
+                                                                                                                                                                                                   defmacro
                                                                                                                                                                                                    (cons
-                                                                                                                                                                                                    datatype
+                                                                                                                                                                                                    defcc
                                                                                                                                                                                                     (cons
-                                                                                                                                                                                                     cut
+                                                                                                                                                                                                     defprolog
                                                                                                                                                                                                      (cons
-                                                                                                                                                                                                      cn
+                                                                                                                                                                                                      declare
                                                                                                                                                                                                       (cons
-                                                                                                                                                                                                       cons?
+                                                                                                                                                                                                       datatype
                                                                                                                                                                                                        (cons
-                                                                                                                                                                                                        cons
+                                                                                                                                                                                                        cut
                                                                                                                                                                                                         (cons
-                                                                                                                                                                                                         cond
+                                                                                                                                                                                                         cn
                                                                                                                                                                                                          (cons
-                                                                                                                                                                                                          concat
+                                                                                                                                                                                                          cons?
                                                                                                                                                                                                           (cons
-                                                                                                                                                                                                           compile
+                                                                                                                                                                                                           cons
                                                                                                                                                                                                            (cons
-                                                                                                                                                                                                            cd
+                                                                                                                                                                                                            cond
                                                                                                                                                                                                             (cons
-                                                                                                                                                                                                             cases
+                                                                                                                                                                                                             concat
                                                                                                                                                                                                              (cons
-                                                                                                                                                                                                              call
+                                                                                                                                                                                                              compile
                                                                                                                                                                                                               (cons
-                                                                                                                                                                                                               close
+                                                                                                                                                                                                               cd
                                                                                                                                                                                                                (cons
-                                                                                                                                                                                                                bind
+                                                                                                                                                                                                                cases
                                                                                                                                                                                                                 (cons
-                                                                                                                                                                                                                 bound?
+                                                                                                                                                                                                                 call
                                                                                                                                                                                                                  (cons
-                                                                                                                                                                                                                  boolean?
+                                                                                                                                                                                                                  close
                                                                                                                                                                                                                   (cons
-                                                                                                                                                                                                                   boolean
+                                                                                                                                                                                                                   bind
                                                                                                                                                                                                                    (cons
-                                                                                                                                                                                                                    bar!
+                                                                                                                                                                                                                    bound?
                                                                                                                                                                                                                     (cons
-                                                                                                                                                                                                                     assoc
+                                                                                                                                                                                                                     boolean?
                                                                                                                                                                                                                      (cons
-                                                                                                                                                                                                                      arity
+                                                                                                                                                                                                                      boolean
                                                                                                                                                                                                                       (cons
-                                                                                                                                                                                                                       apply
+                                                                                                                                                                                                                       bar!
                                                                                                                                                                                                                        (cons
-                                                                                                                                                                                                                        append
+                                                                                                                                                                                                                        assoc
                                                                                                                                                                                                                         (cons
-                                                                                                                                                                                                                         and
+                                                                                                                                                                                                                         arity
                                                                                                                                                                                                                          (cons
-                                                                                                                                                                                                                          adjoin
+                                                                                                                                                                                                                          append
                                                                                                                                                                                                                           (cons
-                                                                                                                                                                                                                           <-address
+                                                                                                                                                                                                                           and
                                                                                                                                                                                                                            (cons
-                                                                                                                                                                                                                            address->
+                                                                                                                                                                                                                            adjoin
                                                                                                                                                                                                                             (cons
-                                                                                                                                                                                                                             absvector?
+                                                                                                                                                                                                                             <-address
                                                                                                                                                                                                                              (cons
-                                                                                                                                                                                                                              absvector
+                                                                                                                                                                                                                              address->
                                                                                                                                                                                                                               (cons
-                                                                                                                                                                                                                               abort
+                                                                                                                                                                                                                               absvector?
                                                                                                                                                                                                                                (cons
-                                                                                                                                                                                                                                intmake-string
+                                                                                                                                                                                                                                absvector
                                                                                                                                                                                                                                 (cons
-                                                                                                                                                                                                                                 intoutput
+                                                                                                                                                                                                                                 abort
                                                                                                                                                                                                                                  (cons
-                                                                                                                                                                                                                                  interror
-                                                                                                                                                                                                                                  ()))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
+                                                                                                                                                                                                                                  intmake-string
+                                                                                                                                                                                                                                  (cons
+                                                                                                                                                                                                                                   intoutput
+                                                                                                                                                                                                                                   (cons
+                                                                                                                                                                                                                                    interror
+                                                                                                                                                                                                                                    ()))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
 
-(defun specialise (V1500)
- (do (set shen-*special* (cons V1500 (value shen-*special*))) V1500))
+(defun specialise (V1503)
+ (do (set shen-*special* (cons V1503 (value shen-*special*))) V1503))
 
-(defun unspecialise (V1501)
- (do (set shen-*special* (remove V1501 (value shen-*special*))) V1501))
+(defun unspecialise (V1504)
+ (do (set shen-*special* (remove V1504 (value shen-*special*))) V1504))
 

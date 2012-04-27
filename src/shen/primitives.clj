@@ -201,13 +201,13 @@
           (throw (IllegalArgumentException.
                   (core/str X " is not an atom; str cannot convert it to a string.")))))
 
-(defn ^:private vec-to-cons [[fst & rst]]
-  (if fst (list 'cons fst (vec-to-cons rst))
+(defn ^:private seq-to-cons [[fst & rst]]
+  (if fst (list 'cons fst (seq-to-cons rst))
       ()))
 
 (defn ^:private cleanup-clj [clj]
   (condp some [clj]
-    vector? (recur (vec-to-cons clj))
+    vector? (recur (seq-to-cons clj))
     coll? (if ('#{clojure.core/deref} (first clj))
             (symbol (core/str "@" (second clj)))
             clj)
@@ -226,6 +226,29 @@
     (if ('#{define} (first X)) (define* (second X) (drop 2 X))
         (map shen-elim-define X))
     X))
+
+(defn ^:private shen-proc-input+ [X]
+  (if (coll? X)
+    (if ('#{input+} (first X)) (core/let [[fst snd trd] X]
+                                         (list fst snd (seq-to-cons trd)))
+        (map shen-proc-input+ X))
+    X)
+  X)
+
+;; 87,100c87
+;; <
+;; < (DEFUN shen-proc-input+ (X)
+;; <   (COND ((AND (CONSP X) (EQ (CAR X) 'input+))
+;; <          (LIST (CAR X) (CADR X) (shen-iter-cons (CADDR X))))
+;; <         ((CONSP X) (MAPCAR 'shen-proc-input+ X))
+;; <         (T X)))
+;; <
+;; < (DEFUN shen-iter-cons (X)
+;; <   (IF (CONSP X)
+;; <       (LIST 'cons
+;; <             (shen-iter-cons (CAR X))
+;; <             (shen-iter-cons (CDR X)))
+;; <       X))
 
 (defn eval-shen* [body]
   (core/let [body (walk/postwalk cleanup-clj body)]
@@ -280,7 +303,7 @@
           (throw e))))))
 
 (defn eval-without-macros [X]
-  (core/let [kl (shen-kl-to-clj (shen-elim-define (cleanup-clj X)))]
+  (core/let [kl (shen-kl-to-clj (shen-elim-define (shen-proc-input+ (cleanup-clj X))))]
             (eval-and-declare-missing kl)))
 
 (core/defmacro lambda [X Y]

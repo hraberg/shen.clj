@@ -52,58 +52,59 @@ For an explication of this license see http://www.lambdassociates.org/News/june1
   ((cons? V1056) (cn (hd V1056) (shen-ms-h (tl V1056) V1057)))
   (true (shen-sys-error shen-ms-h))))
 
-(defun shen-ob->str (V1058 V1059)
- (cond ((= () V1059) (if (= V1058 "R") "()" "[]"))
-  ((= V1059 (vector 0)) "<>")
-  ((cons? V1059)
+(defun shen-ob->str (V1060 V1061)
+ (cond ((= () V1061) (if (= V1060 "R") "()" "[]"))
+  ((= V1061 (vector 0)) "<>")
+  ((cons? V1061)
    (shen-cn-all
-    (append (if (= V1058 "R") (cons "(" ()) (cons "[" ()))
-     (append (cons (shen-ob->str V1058 (hd V1059)) ())
+    (append (if (= V1060 "R") (cons "(" ()) (cons "[" ()))
+     (append (cons (shen-ob->str V1060 (hd V1061)) ())
       (append
        (shen-xmapcan (value *maximum-print-sequence-size*)
-        (lambda Z (cons " " (cons (shen-ob->str V1058 Z) ()))) (tl V1059))
-       (if (= V1058 "R") (cons ")" ()) (cons "]" ())))))))
-  ((vector? V1059)
-   (let L (shen-vector->list V1059 1)
+        (lambda Z (cons " " (cons (shen-ob->str V1060 Z) ()))) (tl V1061))
+       (if (= V1060 "R") (cons ")" ()) (cons "]" ())))))))
+  ((vector? V1061)
+   (let L (shen-vector->list V1061 1)
     (let E
      (tlstr
       (shen-cn-all
        (shen-xmapcan (- (value *maximum-print-sequence-size*) 1)
-        (lambda Z (cons " " (cons (shen-ob->str V1058 (shen-blank-fail Z)) ()))) L)))
+        (lambda Z
+         (cons " " (cons (shen-ob->str V1060 (shen-blank-fail Z)) ())))
+        L)))
      (let V (cn "<" (cn E ">")) V))))
-  ((and (not (string? V1059)) (absvector? V1059))
-   (trap-error (shen-ob->str "A" ((<-address V1059 0) V1059))
+  ((and (not (string? V1061)) (absvector? V1061))
+   (trap-error (shen-ob->str "A" ((<-address V1061 0) V1061))
     (lambda Ignore
-     (let L (shen-vector->list V1059 0)
+     (let L (shen-vector->list V1061 0)
       (let E
        (tlstr
         (shen-cn-all
          (shen-xmapcan (- (value *maximum-print-sequence-size*) 1)
-          (lambda Z (cons " " (cons (shen-ob->str V1058 Z) ()))) L)))
+          (lambda Z (cons " " (cons (shen-ob->str V1060 Z) ()))) L)))
        (let V (cn "<" (cn E ">")) V))))))
-  ((= V1059 shen-vector-failure-object) "...")
-  (true (if (and (= V1058 "A") (string? V1059)) V1059 (str V1059)))))
+  ((= shen-vector-failure-object V1061) "...")
+  (true (if (and (= V1060 "A") (string? V1061)) V1061 (str V1061)))))
 
-(defun shen-blank-fail (X)
-  (cond ((= X (fail)) shen-vector-failure-object)
-        (true X)))         
+(defun shen-blank-fail (V1062)
+ (cond ((= V1062 (fail)) shen-vector-failure-object) (true V1062)))
 
-(defun shen-tuple (V1060)
- (intmake-string "(@p ~S ~S)" (@p (fst V1060) (@p (snd V1060) ()))))
+(defun shen-tuple (V1063)
+ (intmake-string "(@p ~S ~S)" (@p (fst V1063) (@p (snd V1063) ()))))
 
-(defun shen-cn-all (V1061)
- (cond ((= () V1061) "")
-  ((cons? V1061) (cn (hd V1061) (shen-cn-all (tl V1061))))
+(defun shen-cn-all (V1064)
+ (cond ((= () V1064) "")
+  ((cons? V1064) (cn (hd V1064) (shen-cn-all (tl V1064))))
   (true (shen-sys-error shen-cn-all))))
 
-(defun shen-xmapcan (V1074 V1075 V1076)
- (cond ((= () V1076) ()) ((= 0 V1074) (cons "... etc" ()))
-  ((cons? V1076)
-   (append (V1075 (hd V1076)) (shen-xmapcan (- V1074 1) V1075 (tl V1076))))
-  (true (cons " |" (V1075 V1076)))))
+(defun shen-xmapcan (V1077 V1078 V1079)
+ (cond ((= () V1079) ()) ((= 0 V1077) (cons "... etc" ()))
+  ((cons? V1079)
+   (append (V1078 (hd V1079)) (shen-xmapcan (- V1077 1) V1078 (tl V1079))))
+  (true (cons " |" (V1078 V1079)))))
 
-(defun shen-vector->list (V1077 V1078)
- (let Y (trap-error (<-address V1077 V1078) (lambda E shen-out-of-range))
+(defun shen-vector->list (V1080 V1081)
+ (let Y (trap-error (<-address V1080 V1081) (lambda E shen-out-of-range))
   (if (= Y shen-out-of-range) ()
-   (cons Y (shen-vector->list V1077 (+ V1078 1))))))
+   (cons Y (shen-vector->list V1080 (+ V1081 1))))))
 
