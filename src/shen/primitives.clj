@@ -228,7 +228,7 @@
     X))
 
 (defn ^:private shen-proc-input+ [X]
-  (if (coll? X)
+  (if (seq? X)
     (if ('#{input+} (first X)) (core/let [[fst snd trd] X]
                                          (list fst snd (seq-to-cons trd)))
         (map shen-proc-input+ X))
