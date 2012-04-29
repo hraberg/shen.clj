@@ -153,8 +153,10 @@
             "/." slash-dot
             (string/replace String "/" "-slash-"))))
 
-(c/defmacro cond [& CS]
-  `(c/cond ~@(apply concat CS)))
+(c/defmacro cond [[test expr] & clauses]
+  (list 'if-kl test expr
+        (when clauses
+          (c/cons 'cond clauses))))
 
 (defn set* [X Y ns]
   @(c/intern (the-ns ns)
@@ -210,7 +212,6 @@
     (second X)
     (rest X)))
 
-                                        ; is this safe?
 (defn fail! [] (assert false))
 
 (defn cons? [X]
@@ -221,9 +222,13 @@
           (throw (IllegalArgumentException.
                   (c/str X " is not an atom; str cannot convert it to a string.")))))
 
-(defn ^:private seq-to-cons [[fst & rst]]
-  (if fst (list 'cons fst (seq-to-cons rst))
-      ()))
+(defn ^:private seq-to-cons [[fst & rst] & [recursive?]]
+  (if fst
+    (list 'cons (if (c/and recursive? (sequential? fst))
+                  (seq-to-cons fst recursive?)
+                  fst)
+          (seq-to-cons rst recursive?))
+    ()))
 
 (defn ^:private cleanup-clj [clj]
   (condp some [clj]
@@ -250,7 +255,10 @@
 (defn ^:private shen-proc-input+ [X]
   (if (seq? X)
     (if ('#{input+} (first X)) (c/let [[fst snd trd] X]
-                                         (list fst snd (seq-to-cons trd)))
+                                      (list fst snd
+                                            (if (sequential? trd)
+                                              (seq-to-cons trd :recursive)
+                                              trd)))
         (map shen-proc-input+ X))
     X)
   X)
