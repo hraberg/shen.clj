@@ -15,9 +15,11 @@
 (def string? c/string?)
 (def number? c/number?)
 
-(defn assert-boolean [x & [fmt]]
-  (if (instance? Boolean x) x
-      (throw (IllegalArgumentException. (format (c/or fmt "%s is not a boolean") x)))))
+(defn assert-boolean
+  ([x] (assert-boolean x "%s is not a boolean"))
+  ([x fmt]
+     (if (instance? Boolean x) x
+         (throw (IllegalArgumentException. (format fmt x))))))
 
 (c/defmacro if-kl
   ([test] `(c/let [test# ~test] (fn [then# else#] (if-kl test# then# else#))))
@@ -222,13 +224,15 @@
           (throw (IllegalArgumentException.
                   (c/str X " is not an atom; str cannot convert it to a string.")))))
 
-(defn ^:private seq-to-cons [[fst & rst] & [recursive?]]
-  (if fst
-    (list 'cons (if (c/and recursive? (sequential? fst))
-                  (seq-to-cons fst recursive?)
-                  fst)
-          (seq-to-cons rst recursive?))
-    ()))
+(defn ^:private seq-to-cons
+  ([x] (seq-to-cons x false))
+  ([[fst & rst] recursive?]
+     (if fst
+       (list 'cons (if (c/and recursive? (sequential? fst))
+                     (seq-to-cons fst recursive?)
+                     fst)
+             (seq-to-cons rst recursive?))
+       ())))
 
 (defn ^:private cleanup-clj [clj]
   (condp some [clj]
