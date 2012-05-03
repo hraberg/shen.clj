@@ -15,11 +15,12 @@
 (def string? c/string?)
 (def number? c/number?)
 
-(defn assert-boolean
-  ([x] (assert-boolean x "%s is not a boolean"))
+(c/defmacro assert-boolean
+  ([x] `(assert-boolean ~x "%s is not a boolean"))
   ([x fmt]
-     (if (instance? Boolean x) x
-         (throw (IllegalArgumentException. (format fmt x))))))
+     `(c/let [x# ~x]
+             (if (instance? Boolean x#) x#
+                 (throw (IllegalArgumentException. (format ~fmt x#)))))))
 
 (c/defmacro if-kl
   ([test] `(c/let [test# ~test] (fn [then# else#] (if-kl test# then# else#))))
@@ -267,21 +268,6 @@
     X)
   X)
 
-;; 87,100c87
-;; <
-;; < (DEFUN shen-proc-input+ (X)
-;; <   (COND ((AND (CONSP X) (EQ (CAR X) 'input+))
-;; <          (LIST (CAR X) (CADR X) (shen-iter-cons (CADDR X))))
-;; <         ((CONSP X) (MAPCAR 'shen-proc-input+ X))
-;; <         (T X)))
-;; <
-;; < (DEFUN shen-iter-cons (X)
-;; <   (IF (CONSP X)
-;; <       (LIST 'cons
-;; <             (shen-iter-cons (CAR X))
-;; <             (shen-iter-cons (CDR X)))
-;; <       X))
-
 (defn eval-shen* [body]
   (c/let [body (walk/postwalk cleanup-clj body)]
             (binding [*ns* (the-ns 'shen)]
@@ -356,7 +342,7 @@
 (c/defmacro freeze [X]
  `(fn [] ~X))
 
-(defn thaw [X] (X))
+(c/defmacro thaw [X] `(~X))
 
 (defn absvector [N]
   (doto (object-array (int N)) (Arrays/fill 'fail!)))
