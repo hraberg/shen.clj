@@ -448,3 +448,36 @@
 (defn exit
   ([] (exit 0))
   ([status] (System/exit status)))
+
+
+; (load "ffi.shen") ; http://www.shenlanguage.org/library.html
+; (ffi clj (@p shen->clj send-clj) (@p clj->shen receive-clj))
+
+; (call-ffi clj *clojure-version*)
+; [[:major | 1] [:minor | 4] [:incremental | 0] [:qualifier | nil]]
+
+; (call-ffi clj (System/currentTimeMillis))
+; 1336093159995
+
+
+(defn shen->clj [x]
+  (walk/postwalk #(condp some [%]
+                    #{(symbol "nil")} nil
+                    symbol? (symbol (string/replace (name %) "-slash-" "/"))
+                    %) x))
+
+(defn send-clj [x]
+  (binding [*ns* (the-ns 'clojure.core)]
+    (eval x)))
+
+(defn clj->shen [x]
+  (condp some [x]
+    nil? ()
+    x))
+
+(defn receive-clj [x] x)
+
+(c/defmacro ^:dynamic call-ffi [foreign-language code]
+  `(if-not ('~'#{clj clojure} ~foreign-language)
+     (throw (IllegalArgumentException. (c/str "we don't know how to talk to " ~foreign-language)))
+     (-> '~code shen->clj send-clj receive-clj clj->shen)))
