@@ -60,6 +60,11 @@
        (factorial 5)
        "120"
 
+       (let [n 5]
+         (神
+          (factorial n)))
+       "120"
+
        ))
 
 (deftest shen-defmacro

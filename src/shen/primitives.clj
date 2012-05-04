@@ -276,7 +276,8 @@
                    last))))
 
 (c/defmacro eval-shen [& body]
-  `(eval-shen* '~body))
+  `(c/let [env# (zipmap '~(keys &env) ~(vec (keys &env)))]
+          (eval-shen* (walk/postwalk-replace env# '~body))))
 
 (c/defmacro 神 [& body]
   `(eval-shen ~@body))
