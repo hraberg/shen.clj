@@ -11,6 +11,7 @@
            [clojure.lang Compiler$CompilerException])
   (:gen-class))
 
+(create-ns 'shen)
 (create-ns 'shen.globals)
 
 (def string? c/string?)
@@ -104,6 +105,15 @@
               (set/superset? '#{defun cond if do let}
                              (c/set path)))))
 
+(declare set*)
+
+(defn ^:private maybe-declare [kl]
+  (when (and (symbol? kl)
+             (= (name kl) (c/str kl))
+             (not (resolve kl)))
+    (set* kl nil 'shen))
+  kl)
+
 (defn ^:private maybe-apply [kl path]
   (if (= 'cond (last path)) kl
       (list 'function kl)))
@@ -136,7 +146,7 @@
                                '#{if} 'if-kl
                                (if (= 'cond (last path))
                                  (shen-kl-to-clj fst scope)
-                                 fst))
+                                 (maybe-declare fst)))
                        path (conj path fst)
                        snd (condp get fst
                              '#{defun let lambda} snd
@@ -278,38 +288,10 @@
    `(c/defmacro ~name [~@args & ~'body]
       `(eval-shen ~(concat ['~name ~@args] ~'body)))))
 
-(def ^:private missing-symbol-pattern #"Unable to resolve symbol: (.+) in this context")
-
-(defn ^:private missing-symbol [s]
-  (when-let [[_ sym] (re-find missing-symbol-pattern (c/or s ""))] sym))
-
-
-(defn ^:private fn-to-symbol [fn]
-  (-> fn class .getName
-      (string/replace "_" "-")
-      (string/split #"\$")
-      last symbol))
-
-(defn ^:private cleanup-return [x]
-  (c/or (when (fn? x)
-             (c/let [name (fn-to-symbol x)]
-                       (when (fn? (ns-resolve 'shen name)) name)))
-           x))
-
-(defn ^:private eval-and-declare-missing [kl]
-  (binding [*ns* (the-ns 'shen)]
-    (try
-      (eval kl)
-      (catch Compiler$CompilerException e
-        (if-let [s (missing-symbol (.getMessage e))]
-          (do
-            (set* (symbol s) nil 'shen)
-            (eval-and-declare-missing kl))
-          (throw e))))))
-
 (defn eval-kl [X]
   (c/let [kl (shen-kl-to-clj (cleanup-clj X))]
-         (eval-and-declare-missing kl)))
+         (binding [*ns* (the-ns 'shen)]
+           (eval kl))))
 
 (c/defmacro lambda [X Y]
   `(fn [~X & XS#] (c/let [result# ~Y]
