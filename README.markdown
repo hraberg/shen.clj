@@ -157,10 +157,12 @@ See [`shen.test`](https://github.com/hraberg/shen.clj/blob/master/test/shen/test
 
 Shen code can (but this is not very tested) access `clojure.core`, which is required as `c`:
 
-    (神
-      (c/with-out-str
-        (for [0 (+ 1) (= 10)] print)))
-    "\"0123456789\""
+```clojure
+(神
+  (c/with-out-str
+    (for [0 (+ 1) (= 10)] print)))
+"\"0123456789\""
+```
 
 ##### Shen FFI
 
