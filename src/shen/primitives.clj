@@ -7,7 +7,8 @@
   (:refer-clojure :exclude [set intern let pr type cond cons str number? string? defmacro
                             + - * / > < >= <= = and or])
   (:import [java.io Reader Writer InputStream OutputStream PrintWriter OutputStreamWriter]
-           [java.util Arrays])
+           [java.util Arrays]
+           [clojure.lang Compiler$CompilerException])
   (:gen-class))
 
 (create-ns 'shen.globals)
@@ -175,7 +176,9 @@
             (condp = X
               'and and-fn
               'or or-fn
-              @v)))
+              (if (nil? v)
+                (throw (IllegalArgumentException. (c/str "variable " X " has no value")))
+                @v))))
 
 (defn value [X] (value* X 'shen.globals))
 
@@ -297,7 +300,7 @@
   (binding [*ns* (the-ns 'shen)]
     (try
       (eval kl)
-      (catch RuntimeException e
+      (catch Compiler$CompilerException e
         (if-let [s (missing-symbol (.getMessage e))]
           (do
             (set* (symbol s) nil 'shen)
