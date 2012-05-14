@@ -66,7 +66,10 @@
   _ F X -> [" |" | (F X)])
 
 (define vector->list
-  X N -> (let Y (trap-error (<-address X N) (/. E out-of-range))
+  X N -> (vector->listh X N []))
+
+(define vector->listh
+  X N L -> (let Y (trap-error (<-address X N) (/. E out-of-range))
               (if (= Y out-of-range)
-                  []
-                  [Y | (vector->list X (+ N 1))])))
+                  L
+                  (vector->listh X (+ N 1) [Y | L]))))

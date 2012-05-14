@@ -61,7 +61,7 @@
                (defn ^:dynamic ~F
                  ~@(partials F X)
                  (~(vec X) ~@Y))
-               ~F)))
+               '~F)))
 
 (def ^:private array-class (Class/forName "[Ljava.lang.Object;"))
 
@@ -251,23 +251,6 @@
               ((function 'eval) kl)
               name)))
 
-(defn ^:private shen-elim-define [X]
-  (if (seq? X)
-    (if ('#{define} (first X)) (define* (second X) (drop 2 X))
-        (map shen-elim-define X))
-    X))
-
-(defn ^:private shen-proc-input+ [X]
-  (if (seq? X)
-    (if ('#{input+} (first X)) (c/let [[fst snd trd] X]
-                                      (list fst snd
-                                            (if (sequential? trd)
-                                              (seq-to-cons trd :recursive)
-                                              trd)))
-        (map shen-proc-input+ X))
-    X)
-  X)
-
 (defn eval-shen* [body]
   (c/let [body (walk/postwalk cleanup-clj body)]
             (binding [*ns* (the-ns 'shen)]
@@ -313,7 +296,7 @@
 (defn ^:private eval-and-declare-missing [kl]
   (binding [*ns* (the-ns 'shen)]
     (try
-      (cleanup-return (eval kl))
+      (eval kl)
       (catch RuntimeException e
         (if-let [s (missing-symbol (.getMessage e))]
           (do
@@ -321,9 +304,9 @@
             (eval-and-declare-missing kl))
           (throw e))))))
 
-(defn eval-without-macros [X]
-  (c/let [kl (shen-kl-to-clj (shen-elim-define (shen-proc-input+ (cleanup-clj X))))]
-            (eval-and-declare-missing kl)))
+(defn eval-kl [X]
+  (c/let [kl (shen-kl-to-clj (cleanup-clj X))]
+         (eval-and-declare-missing kl)))
 
 (c/defmacro lambda [X Y]
   `(fn [~X & XS#] (c/let [result# ~Y]
@@ -342,8 +325,6 @@
 
 (c/defmacro freeze [X]
  `(fn [] ~X))
-
-(c/defmacro thaw [X] `(~X))
 
 (defn absvector [N]
   (doto (object-array (int N)) (Arrays/fill 'fail!)))

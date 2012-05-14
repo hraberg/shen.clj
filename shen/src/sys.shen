@@ -1,8 +1,24 @@
+(define thaw 
+  F -> (F))
+
 (define eval
   X -> (let Macroexpand (walk (function macroexpand) X)
             (if (packaged? Macroexpand)
                 (map (function eval-without-macros) (package-contents Macroexpand))
                 (eval-without-macros Macroexpand))))
+
+(define eval-without-macros 
+  X -> (eval-kl (elim-define (proc-input+ X)))) 
+
+(define proc-input+ 
+  [input+ Colon Type] -> [input+ Colon (rcons_form Type)]
+  [X | Y] -> (map (function proc-input+) [X | Y])
+  X -> X) 
+  
+(define elim-define
+  [define F | Rest] -> (shen->kl F Rest)
+  [X | Y] -> (map (function elim-define) [X | Y])
+  X -> X)
                 
 (define packaged?
   [package P E | _] -> true
@@ -276,10 +292,11 @@
   [X | Y] Z -> (if (element? X Z) (union Y Z) [X | (union Y Z)]))
 
 (define y-or-n?
-  String -> (let Message (output "~A (y/n) " String)
-                 Input (make-string "~A" (input))
-                 (cases (= "y" Input) true 
-                        (= "n" Input) false 
+  String -> (let Message (output String)
+                 Y-or-N (output " (y/n) ")
+                 Input (input)
+                 (cases (= y Input) true 
+                        (= n Input) false 
                         true (do (output "please answer y or n~%")
                                  (y-or-n? String)))))
 
@@ -374,7 +391,7 @@
   _ Type -> (let Input (read)
                  Check (typecheck Input Type)
                  (if (= false Check)
-                     (do (output "input is not of type ~S: please re-enter " Type)
+                     (do (output "input is not of type ~R: please re-enter " Type)
                          (input+ : Type))
                      (eval Input))))
 

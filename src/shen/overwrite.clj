@@ -2,14 +2,16 @@
 (ns shen
   (:refer-clojure :only [])
   (:use [shen.primitives])
-  (:require [clojure.core :as core]))
+  (:require [clojure.core :as c]))
 
 (set '*language* "Clojure")
-(set '*implementation* (core/str "Clojure " (core/clojure-version)
-                                          " [jvm "(System/getProperty "java.version")"]"))
+(set '*implementation* (c/str "Clojure " (c/clojure-version)
+                              " [jvm "(System/getProperty "java.version")"]"))
 (set '*porters* "Håkan Råberg")
 
-(set '*stinput* core/*in*)
+(set '*stinput* c/*in*)
+(set '*stoutput* c/*out*)
+
 (set '*home-directory* (System/getProperty "user.dir"))
 
 (shen-initialise_environment)
@@ -17,17 +19,17 @@
 (defun
  (intern "@p")
  (V706 V707)
- (core/object-array ['shen-tuple V706 V707]))
+ (c/object-array ['shen-tuple V706 V707]))
 
 (defun
  variable?
  (V702)
- (and (core/symbol? V702) (Character/isUpperCase (.charAt (core/name V702) 0))))
+ (and (c/symbol? V702) (Character/isUpperCase (.charAt (c/name V702) 0))))
 
 (defun
  boolean?
  (V746)
- (core/condp = V746
+ (c/condp = V746
              true true
              false true
              (intern "true") true
@@ -39,8 +41,8 @@
   (V510)
   (let
       Y
-    (shen-compose (core/drop-while core/nil?
-                                   (core/map #(core/when-let [m (core/ns-resolve 'shen %)] @m)
+    (shen-compose (c/drop-while c/nil?
+                                   (c/map #(c/when-let [m (c/ns-resolve 'shen %)] @m)
                                              (value '*macros*))) V510)
     (if (= V510 Y) V510 (shen-walk macroexpand Y))))
 
@@ -223,8 +225,8 @@
     (write-to-file "string --> A --> string" "Writes the second input into a file named in the first input. If the file does not exist, it is created, else it is overwritten. If the second input is a string then it is written to the file without the enclosing quotes.  The first input is returned.")
     (y-or-n? "string --> boolean" "Prints the string as a question and returns true for y and false for n.")))
 
-(core/doseq [[fn sig doc] shen-doc
-             :let [v (core/resolve fn)]
+(c/doseq [[fn sig doc] shen-doc
+             :let [v (c/resolve fn)]
              :when v]
-            (core/alter-meta! v core/merge {:doc doc
-                                            :arglists (core/list (core/read-string (core/str "[" sig "]")))}))
+            (c/alter-meta! v c/merge {:doc doc
+                                            :arglists (c/list (c/read-string (c/str "[" sig "]")))}))

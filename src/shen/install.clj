@@ -38,7 +38,7 @@
 
 (defn read-kl-file [file]
   (try
-    (cons `(clojure.core/comment ~(str file)) (read-kl (slurp file)))
+    (cons `(c/comment ~(str file)) (read-kl (slurp file)))
     (catch Exception e
       (println file e))))
 
@@ -46,7 +46,7 @@
   `(~'ns ~ns
      (:refer-clojure :only [])
      (:use [shen.primitives])
-     (:require [clojure.core :as ~'core])
+     (:require [clojure.core :as ~'c])
      (:gen-class)))
 
 (def missing-declarations '#{shen-kl-to-lisp FORMAT READ-CHAR})
@@ -75,14 +75,14 @@
            dcl (declarations shen)]
        (write-clj-file to-dir "shen"
                        (concat [(header 'shen)]
-                               [`(clojure.core/declare ~@(filter symbol? dcl))]
-                               ['(core/intern 'shen.globals (core/with-meta '*language* {:dynamic true}) "Clojure")]
-                               [(concat '(core/intern 'shen.globals (core/with-meta '*port* {:dynamic true}))
+                               [`(c/declare ~@(filter symbol? dcl))]
+                               ['(c/intern 'shen.globals (c/with-meta '*language* {:dynamic true}) "Clojure")]
+                               [(concat '(c/intern 'shen.globals (c/with-meta '*port* {:dynamic true}))
                                         [(project-version)])]
                                (map #(shen.primitives/shen-kl-to-clj %)
                                     (remove string? shen))
-                               ['(clojure.core/load "shen/overwrite")]
-                               ['(core/defn -main [] (shen-shen))])))))
+                               ['(c/load "shen/overwrite")]
+                               ['(c/defn -main [] (shen-shen))])))))
 
 (defn install []
   (try

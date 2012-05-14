@@ -22,26 +22,18 @@
 (define extraspecial?
   F -> (element? F (value *extraspecial*)))
   
-\* Normalise the type by using synonyms by applying help function to generate a fixpoint. *\
-(define normalise-type
-  X -> (fix (function normalise-type-help) X))
-  
-(define normalise-type-help
-  [X | Y] -> (normalise-X (map (function normalise-type-help) [X | Y]))
-  X -> (normalise-X X))
-                 
-(define normalise-X
-  X -> (let Val (assoc X (value *synonyms*))
-           (if (empty? Val)
-               X
-               (tl Val))))
+
                  
 \* Main loop of the type checker. *\ 
 
 (defprolog t* 
           _ _ <-- (fwhen (maxinfexceeded?)) (bind Error (errormaxinfs));
+          (mode fail -) _ <-- ! (prolog-failure);
           (mode [X : A] -) Hyp <-- ! (th* X A Hyp);
-          P Hyp <-- (show P Hyps) (bind Datatypes (value *datatypes*)) (udefs* P Hyp Datatypes);)                         
+          P Hyp <-- (show P Hyps) (bind Datatypes (value *datatypes*)) (udefs* P Hyp Datatypes);)   
+
+(define prolog-failure
+  _ _ -> false)                      
 
 (define maxinfexceeded?
   -> (> (inferences skip) (value *maxinferences*)))
@@ -73,7 +65,7 @@
                                     (th* W A [[X&& : B] | Hyp]);                                        
   (mode [open file FileName Direction] -) [stream Direction] Hyp <-- ! (th* FileName string Hyp);
   (mode [type X A] -) B Hyp <-- ! (unify A B) (th* X A Hyp);
-  (mode [input+ : A] -) B Hyp <-- ! (bind C (normalise-type A)) (unify B C);
+  (mode [input+ : A] -) B Hyp <-- (bind C (normalise-type A)) (unify B C);
   (mode [where P X] -) A Hyp <-- ! (th* P boolean Hyp) ! (th* X A [[P : verified] | Hyp]);
   (mode [set Var Val] -) A Hyp <-- ! (th* [value Var] A Hyp) (th* Val A Hyp);
   (mode [fail] -) symbol _ <--;

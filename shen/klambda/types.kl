@@ -85,9 +85,6 @@ For an explication of this license see http://www.lambdassociates.org/News/june1
      (cons --> (cons (cons list (cons A ())) ())))
     ()))))
 
-(declare apply
- (cons (cons A (cons --> (cons B ())))
-  (cons --> (cons (cons A (cons --> (cons B ()))) ()))))
 
 (declare arity (cons A (cons --> (cons number ()))))
 

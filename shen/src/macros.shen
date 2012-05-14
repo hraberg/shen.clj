@@ -124,8 +124,8 @@
    [output String | Y] -> [intoutput String (tuple-up Y)]
    [make-string String | Y] -> [intmake-string String (tuple-up Y)]
    [error String | Y] -> [interror String (tuple-up Y)]
-   [pr String] -> [pr String [stinput 0]]
-   [read-byte] -> [read-byte [stinput 0]]
+   [pr String] -> [pr String [value *stoutput*]]
+   [read-byte] -> [read-byte [value *stinput*]]
    X -> X)
    
 (define tuple-up

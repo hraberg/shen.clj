@@ -417,9 +417,10 @@ For an explication of this license see http://www.lambdassociates.org/News/june1
   ((and (cons? V538)
     (and (= pr (hd V538))
      (and (cons? (tl V538)) (= () (tl (tl V538))))))
-   (cons pr (cons (hd (tl V538)) (cons (cons stinput (cons 0 ())) ()))))
+   (cons pr
+    (cons (hd (tl V538)) (cons (cons value (cons shen-*stoutput* ())) ()))))
   ((and (cons? V538) (and (= read-byte (hd V538)) (= () (tl V538))))
-   (cons read-byte (cons (cons stinput (cons 0 ())) ())))
+   (cons read-byte (cons (cons value (cons *stinput* ())) ())))
   (true V538)))
 
 (defun shen-tuple-up (V539)

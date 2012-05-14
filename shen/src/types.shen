@@ -14,7 +14,7 @@
 (define declare
   F A -> (let Record (set *signedfuncs* (adjoin F (value *signedfuncs*)))
               Variancy (trap-error (variancy-test F A) (/. E skip))
-              Type (rcons_form A)
+              Type (rcons_form (normalise-type A))
               F* (concat type-signature-of- F)
               Parameters (parameters 1)       
               Clause [[F* X] :- [[unify! X Type]]]
@@ -23,6 +23,19 @@
               ShenDef [define F* | (append Parameters [ProcessN Continuation] [-> Code])]
               Eval (eval-without-macros ShenDef)
               F)) 
+
+(define normalise-type
+  X -> (fix (function normalise-type-help) X))
+  
+(define normalise-type-help
+  [X | Y] -> (normalise-X (map (function normalise-type-help) [X | Y]))
+  X -> (normalise-X X))
+                 
+(define normalise-X
+  X -> (let Val (assoc X (value *synonyms*))
+           (if (empty? Val)
+               X
+               (tl Val))))
   
 (define variancy-test 
   F A -> (let TypeF (typecheck F B) 
@@ -41,7 +54,6 @@
 (declare absvector? [A --> boolean])
 (declare and [boolean --> [boolean --> boolean]])
 (declare append [[list A] --> [[list A] --> [list A]]])
-(declare apply [[A --> B] --> [A --> B]])
 (declare arity [A --> number])
 (declare assoc [A --> [[list [list A]] --> [list A]]])
 (declare boolean? [A --> boolean])    

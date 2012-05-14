@@ -872,7 +872,7 @@ For an explication of this license see http://www.lambdassociates.org/News/june1
                                                                                                                                                                                     (cons
                                                                                                                                                                                      exception
                                                                                                                                                                                      (cons
-                                                                                                                                                                                      eval-without-macros
+                                                                                                                                                                                      eval-kl
                                                                                                                                                                                       (cons
                                                                                                                                                                                        eval
                                                                                                                                                                                        (cons

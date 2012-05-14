@@ -121,20 +121,11 @@
   (@p [] C) -> C
   _ -> (error "syntax error with ==========~%")) 
 
-\(define rule->horn-clause
-  D [S P (@p A C)] 
-  -> (let Body (rule->horn-clause-body S P A)
-          Clause [(rule->horn-clause-head D C) :- Body]
-          Name (name-in S)
-          NewClause [(rule->horn-clause-head Name C) :- Body]
-          Prog (if (empty? Name) Name (s-prolog NewClause))
-          Clause))\
-
 (define rule->horn-clause
   D [S P (@p A C)] -> [(rule->horn-clause-head D C) :- (rule->horn-clause-body S P A)])
 
 (define rule->horn-clause-head
-  D C -> [D (mode-ify C) Context])
+  D C -> [D (mode-ify C) Context_1957])
 
 (define mode-ify
   [X : A] -> [mode [X : [mode A +]] -]  
@@ -144,7 +135,7 @@
   S P A -> (let Variables (map (function extract_vars) A)
                 Predicates (map (/. X (gensym cl)) A)
                 SearchLiterals (construct-search-literals 
-                                       Predicates Variables Context Context1)
+                                       Predicates Variables Context_1957 Context1_1957)
                 SearchClauses (construct-search-clauses Predicates A Variables)
                 SideLiterals (construct-side-literals S)
                 PremissLiterals (map (/. X (construct-premiss-literal X (empty? A))) P)
@@ -156,7 +147,7 @@
   -> (csl-help Predicates Variables Context Context1))
  
 (define csl-help
-  [] [] In _ -> [[bind ContextOut In]]
+  [] [] In _ -> [[bind ContextOut_1957 In]]
   [P | Ps] [V | Vs] In Out -> [[P In Out | V] | (csl-help Ps Vs Out (gensym Context))])
 
 (define construct-search-clauses
@@ -169,11 +160,11 @@
                          (construct-recursive-search-clause Pred A V)]))
 
 (define construct-base-search-clause
-  Pred A V -> [[Pred [(mode-ify A) | In] In | V] :- []])
+  Pred A V -> [[Pred [(mode-ify A) | In_1957] In_1957 | V] :- []])
 
 (define construct-recursive-search-clause
-  Pred A V -> [[Pred [Assumption | Assumptions] [Assumption | Out] | V] 
-                 :- [[Pred Assumptions Out | V]]])
+  Pred A V -> [[Pred [Assumption_1957 | Assumptions_1957] [Assumption_1957 | Out_1957] | V] 
+                 :- [[Pred Assumptions_1957 Out_1957 | V]]])
 
 (define construct-side-literals
   [] -> []
@@ -183,11 +174,11 @@
 
 (define construct-premiss-literal
   (@p A C) Flag -> [t* (recursive_cons_form C) (construct-context Flag A)]
-  ! _ -> [!])
+  ! _ -> [cut Throwcontrol])
 
 (define construct-context
-  true [] -> Context
-  false [] -> ContextOut
+  true [] -> Context_1957
+  false [] -> ContextOut_1957
   Flag [X | Y] -> [cons (recursive_cons_form X) (construct-context Flag Y)])
 
 (define recursive_cons_form

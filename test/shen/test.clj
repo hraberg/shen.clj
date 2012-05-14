@@ -28,7 +28,7 @@
   (are [shen out] (= out (with-out-str (shen/print shen)))
 
        (神
-        (core/with-out-str
+        (c/with-out-str
           (for [0 (+ 1) (= 10)] print)))
        "\"0123456789\""
 
@@ -39,15 +39,15 @@
 
        ))
 
-(defprolog mem
-  X [X | _] <--\;
-  X [Y | Z] <-- (mem X Z)\;)
-
-(define factorial
-  0 -> 1
-  X -> (* X (factorial (- X 1))))
-
 (deftest interop
+  (defprolog mem
+    X [X | _] <--\;
+    X [Y | Z] <-- (mem X Z)\;)
+
+  (define factorial
+    0 -> 1
+    X -> (* X (factorial (- X 1))))
+
   (are [shen out] (= out (with-out-str (shen/print shen)))
 
        (filter [0 (partial + 1) (partial = 100)]

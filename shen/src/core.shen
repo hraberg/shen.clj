@@ -11,7 +11,7 @@
 (defcc <name>
   -*- := (if (and (symbol? -*-) (not (sysfunc? -*-))) 
              -*-
-             (error "~A is not a legitimate functor.~%" -*-)))
+             (error "~A is not a legitimate function name.~%" -*-)))
 
 (define sysfunc?
   F -> (element? F (value *system*)))

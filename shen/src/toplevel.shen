@@ -12,12 +12,12 @@
 (define version
   S -> (set *version* S))
 
-(version "version 3.1")
+(version "version 4.0")
 
 \Prints credits.\
 (define credits
  -> (do (output "~%Shen 2010, copyright (C) 2010 Mark Tarver~%")
-        (output "www.lambdassociates.org, ~A~%" (value *version*)) 
+        (output "www.shenlanguage.org, ~A~%" (value *version*)) 
         (output "running under ~A, implementation: ~A" (value *language*) (value *implementation*))
         (output "~%port ~A ported by ~A~%" (value *port*) (value *porters*))))
 
