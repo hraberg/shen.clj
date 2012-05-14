@@ -15,9 +15,9 @@ Shen is a portable functional programming language by [Mark Tarver](http://www.l
 
 ## This Clojure Port
 
-`[shen.clj "0.1.4"]` | [Marginalia](http://ghettojedi.org/shen.clj/)
+`[shen.clj "0.1.6"]` | [Marginalia](http://ghettojedi.org/shen.clj/)
 
-Is a work in progress. Passes the Shen 3.1 test suite.
+Is a work in progress. Passes the Shen 4.0 test suite.
 
 Uses [Leiningen](https://github.com/technomancy/leiningen) to build.
 The script [`build`](https://github.com/hraberg/shen.clj/blob/master/build) is used for full, repeatable builds.
@@ -27,7 +27,7 @@ The script [`build`](https://github.com/hraberg/shen.clj/blob/master/build) is u
 
 #### Standalone release
 
-`java -jar `[`shen.clj-0.1.4-standalone.jar`](https://github.com/downloads/hraberg/shen.clj/shen.clj-0.1.4-standalone.jar)
+`java -jar `[`shen.clj-0.1.6-standalone.jar`](https://github.com/downloads/hraberg/shen.clj/shen.clj-0.1.6-standalone.jar)
 
 
 #### Leiningen
@@ -38,7 +38,7 @@ The script [`build`](https://github.com/hraberg/shen.clj/blob/master/build) is u
     lein repl
 
     # java:
-    java -cp lib/clojure-1.4.0-beta5.jar:shen.clj-0.1.4.jar shen
+    java -cp lib/clojure-1.4.0.jar:shen.clj-0.1.6.jar shen
 
 
 #### Plain
@@ -48,9 +48,9 @@ The script [`build`](https://github.com/hraberg/shen.clj/blob/master/build) is u
 ---
 
     Shen 2010, copyright (C) 2010 Mark Tarver
-    www.lambdassociates.org, version 3.1
-    running under Clojure, implementation: Clojure 1.4.0-beta5 [jvm 1.8.0-ea]
-    port 0.1.4 ported by Håkan Råberg
+    www.lambdassociates.org, version 4.0
+    running under Clojure, implementation: Clojure 1.4.0 [jvm 1.8.0-ea]
+    port 0.1.6 ported by Håkan Råberg
 
 
     (0-) (define super
@@ -94,7 +94,7 @@ The Shen test suite is now running, slowly but surely:
     ok
     0
 
-    run time: 19.022 secs
+    run time: 18.239 secs
     loaded
 
 The suite can be run via:
@@ -104,7 +104,7 @@ The suite can be run via:
 
 The benchmarks can be run via:
 
-    JAVA_OPTS="-Xss4m" lein run -m shen.benchmarks
+    JAVA_OPTS="-Xss6m" lein run -m shen.benchmarks
 
 
 * Performance is not a goal for 0.1.x, but some tuning has been made to ease development.
@@ -153,12 +153,30 @@ See [`shen.test`](https://github.com/hraberg/shen.clj/blob/master/test/shen/test
 
 #### Shen calling Clojure
 
-Shen code can (but this is not very tested) access `clojure.core`, which is required as `core`:
+##### Embedded
+
+Shen code can (but this is not very tested) access `clojure.core`, which is required as `c`:
 
     (神
-      (core/with-out-str
+      (c/with-out-str
         (for [0 (+ 1) (= 10)] print)))
     "\"0123456789\""
+
+##### Shen FFI
+
+[Shen FFI](http://www.shenlanguage.org/library.html) can be used for (basic) interaction with Clojure from Shen:
+
+    (load "ffi.shen")
+    (ffi clj (@p shen->clj send-clj) (@p clj->shen receive-clj))
+
+    ; Clojure map entries as Shen lists
+    (call-ffi clj *clojure-version*)
+    [[:major | 1] [:minor | 4] [:incremental | 0] [:qualifier | nil]]
+
+    ; Calling Java
+    (call-ffi clj (System/currentTimeMillis))
+    1336093159995
+
 
 More advanced mixing and requiring of Clojure packages isn't supported yet.
 
