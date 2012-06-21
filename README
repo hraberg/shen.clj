@@ -2,7 +2,7 @@ shen.clj
 
 To run, execute:
 
-	java -jar shen.clj-0.1.4-standalone.jar
+	java -jar shen.clj-0.1.6-standalone.jar
 
 Windows:
 

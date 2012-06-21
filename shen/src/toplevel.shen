@@ -12,7 +12,7 @@
 (define version
   S -> (set *version* S))
 
-(version "version 4.0")
+(version "version 4.1")
 
 \Prints credits.\
 (define credits

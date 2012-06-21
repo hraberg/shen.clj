@@ -431,13 +431,13 @@ For an explication of this license see http://www.lambdassociates.org/News/june1
     (cons (hd V836) (union (tl V836) V837))))
   (true (shen-sys-error union))))
 
-(defun y-or-n? (V838)
- (let Message (intoutput V838 ())
+(defun y-or-n? (V469)
+ (let Message (intoutput V469 ())
   (let Y-or-N (intoutput " (y/n) " ())
-   (let Input (input)
-    (if (= shen-y Input) true
-     (if (= shen-n Input) false
-      (do (intoutput "please answer y or n~%" ()) (y-or-n? V838))))))))
+   (let Input (intmake-string "~S" (@p (input) ()))
+    (if (= "y" Input) true
+     (if (= "n" Input) false
+      (do (intoutput "please answer y or n~%" ()) (y-or-n? V469))))))))
 
 (defun not (V839) (if V839 false true))
 

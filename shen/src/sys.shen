@@ -294,9 +294,9 @@
 (define y-or-n?
   String -> (let Message (output String)
                  Y-or-N (output " (y/n) ")
-                 Input (input)
-                 (cases (= y Input) true 
-                        (= n Input) false 
+                 Input (make-string "~S" (input))
+                 (cases (= "y" Input) true 
+                        (= "n" Input) false 
                         true (do (output "please answer y or n~%")
                                  (y-or-n? String)))))
 
