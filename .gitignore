@@ -10,3 +10,4 @@
 /.lein-deps-sum
 /shen/platforms
 *~
+stale

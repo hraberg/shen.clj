@@ -1,12 +1,15 @@
-(defproject shen.clj "0.1.6-SNAPSHOT"
+(defproject shen.clj/shen.clj "0.1.6-SNAPSHOT"
   :description "Shen is a portable functional programming language by Mark Tarver"
   :license {:name "Shen License"
             :url "http://www.shenlanguage.org/license.html"}
   :url "https://github.com/hraberg/shen.clj"
-  :dependencies [[clojure "1.4.0"]]
-  :dev-dependencies [[marginalia "0.7.0"]
-                     [lein-difftest "1.3.7"]]
-  :repositories [["sonatype snapshots"
-                  "https://oss.sonatype.org/content/repositories/snapshots/"]]
+  :repositories {"sonatype snapshots"
+                 "https://oss.sonatype.org/content/repositories/snapshots/"}
+  :dependencies [[org.clojure/clojure "1.4.0"]]
+  :profiles {:dev {:dependencies [[marginalia "0.7.1"]]}}
+  :plugins [[lein-difftest "1.3.8"]]
+  :compile-path "classes"
+  :target-path ""
+  :aot [shen.primitives shen.install shen]
   :main shen.install
-  :aot [shen.primitives shen.install shen])
+  :min-lein-version "2.0.0")
