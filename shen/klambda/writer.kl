@@ -107,6 +107,6 @@ For an explication of this license see http://www.lambdassociates.org/News/june1
 
 (defun shen-vector->listh (V1087 V1088 V1089)
  (let Y (trap-error (<-address V1087 V1088) (lambda E shen-out-of-range))
-  (if (= Y shen-out-of-range) V1089
+  (if (= Y shen-out-of-range) (reverse V1089)
    (shen-vector->listh V1087 (+ V1088 1) (cons Y V1089)))))
 

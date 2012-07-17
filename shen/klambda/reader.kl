@@ -72,7 +72,7 @@ For an explication of this license see http://www.lambdassociates.org/News/june1
 (address-> (value shen-*symbolcodes*) 97 "a")
 
 (address-> (value shen-*symbolcodes*) 96
- (if (= (value *language*) "Common Lisp") "_backquote" "`"))
+ (if (= (value *language*) "Common Lis") "_backquote1957" "`"))
 
 (address-> (value shen-*symbolcodes*) 95 "_")
 
@@ -169,7 +169,7 @@ For an explication of this license see http://www.lambdassociates.org/News/june1
 (address-> (value shen-*symbolcodes*) 42 "*")
 
 (address-> (value shen-*symbolcodes*) 39
- (if (= (value *language*) "Common Lisp") "_quote" "'"))
+ (if (= (value *language*) "Common Lis") "_quote1957" "'"))
 
 (address-> (value shen-*symbolcodes*) 38 "&")
 
@@ -178,7 +178,7 @@ For an explication of this license see http://www.lambdassociates.org/News/june1
 (address-> (value shen-*symbolcodes*) 36 "$")
 
 (address-> (value shen-*symbolcodes*) 35
- (if (= (value *language*) "Common Lisp") "_hash" "#"))
+ (if (= (value *language*) "Common Lis") "_hash1957" "#"))
 
 (address-> (value shen-*symbolcodes*) 33 "!")
 

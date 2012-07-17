@@ -1,6 +1,5 @@
 (package shen- []
 
-\* Typechecker; passes the problem to Prolog. *\  
 (define typecheck
   X A -> (let Curry (curry X) 
               ProcessN (start-new-prolog-process)
@@ -8,7 +7,6 @@
               Continuation (freeze (return Type ProcessN void))
               (th* Curry Type [] ProcessN Continuation)))
             
-\* Curry the expression. *\             
 (define curry
   [F | X] -> [F | (map (function curry) X)]   where (special? F)
   [Def F | X] -> [Def F | X] where (extraspecial? Def)
@@ -21,11 +19,7 @@
 
 (define extraspecial?
   F -> (element? F (value *extraspecial*)))
-  
-
-                 
-\* Main loop of the type checker. *\ 
-
+               
 (defprolog t* 
           _ _ <-- (fwhen (maxinfexceeded?)) (bind Error (errormaxinfs));
           (mode fail -) _ <-- ! (prolog-failure);
@@ -73,9 +67,7 @@
   (mode [define F | X] -) A Hyp <-- ! (t*-def [define F | X] A Hyp);
   (mode [process-datatype | _] -) symbol _ <--;
   (mode [synonyms-help | _] -) symbol _ <--;
-  X A Hyp <-- (bind Datatypes (value *datatypes*))  (udefs* [X : A] Hyp Datatypes);)                               
-           
-\* Splits assumptions about lists, vectors, strings and tuples. *\            
+  X A Hyp <-- (bind Datatypes (value *datatypes*))  (udefs* [X : A] Hyp Datatypes);) 
  
 (defprolog t*-hyps
     (mode [[[cons X Y] : (mode [list A] +)] | Hyp] -) Out <-- (bind Out [[X : A] [Y : [list A]] | Hyp]);
@@ -84,7 +76,6 @@
     (mode [[[@s X Y] : (mode string +)] | Hyp] -) Out <-- (bind Out [[X : string] [Y : string] | Hyp]);
     (mode [X | Hyp] -) Out <-- (bind Out [X | NewHyps]) (t*-hyps Hyp NewHyps);) 
              
-\* Allows the user to trace the type checker. *\
 (define show
   P Hyps ProcessN Continuation 
    -> (do (line)
@@ -97,13 +88,11 @@
           (thaw Continuation))   where (value *spy*)
    _ _ _ Continuation -> (thaw Continuation))
 
-\* Print a demarcation. *\          
 (define line
   -> (let Infs (inferences _)
        (output "____________________________________________________________ ~A inference~A ~%?- " 
                 Infs (if (= 1 Infs) "" "s"))))
                              
-\* Print a formula. *\                  
 (define show-p 
   [X : A] -> (output "~R : ~R" X A)
   P -> (output "~R" P))
@@ -119,7 +108,6 @@
    -> (let I (FORMAT [] "~C" (READ-CHAR)) (if (= I "a") (error "input aborted~%") (nl)))
    _ -> (let I (read-char) (if (= I "a") (error "input aborted~%") (nl)))) 
 
-\* Why does this not work? *\
 (define read-char
   -> (read-char-h (read-byte) 0))
   

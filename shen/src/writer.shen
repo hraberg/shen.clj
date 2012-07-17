@@ -71,5 +71,5 @@
 (define vector->listh
   X N L -> (let Y (trap-error (<-address X N) (/. E out-of-range))
               (if (= Y out-of-range)
-                  L
+                  (reverse L)
                   (vector->listh X (+ N 1) [Y | L]))))

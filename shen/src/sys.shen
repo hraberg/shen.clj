@@ -312,8 +312,11 @@
   Path -> (set *home-directory* (if (= Path "") "" (make-string "~A/" Path))))
 
 (define map
-  _ [] -> []
-  F [X | Y] -> [(F X) | (map F Y)])
+  F X -> (map-h F X []))
+
+(define map-h
+  _ [] X -> (reverse X)
+  F [X | Y] Z -> (map-h F Y [(F X) | Z]))
 
 (define length
   X -> (length-h X 0))

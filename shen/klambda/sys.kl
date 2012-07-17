@@ -450,9 +450,11 @@ For an explication of this license see http://www.lambdassociates.org/News/june1
  (set *home-directory*
   (if (= V852 "") "" (intmake-string "~A/" (@p V852 ())))))
 
-(defun map (V855 V856)
- (cond ((= () V856) ())
-  ((cons? V856) (cons (V855 (hd V856)) (map V855 (tl V856))))
+(defun map (V855 V856) (map-h V855 V856 ()))
+ 
+(defun map-h (V443 V444 V445)
+ (cond ((= () V444) (reverse V445))
+  ((cons? V444) (map-h V443 (tl V444) (cons (V443 (hd V444)) V445)))
   (true (shen-sys-error map))))
 
 (defun length (V857) (shen-length-h V857 0))

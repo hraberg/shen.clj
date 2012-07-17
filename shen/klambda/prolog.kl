@@ -545,10 +545,12 @@ For an explication of this license see http://www.lambdassociates.org/News/june1
    (let Free (remove Throwcontrol (difference VBody VTerms))
     (shen-cc_help Free V1256)))))
 
-(defun remove (V1259 V1260)
- (cond ((= () V1260) ())
-  ((and (cons? V1260) (= (hd V1260) V1259)) (remove (hd V1260) (tl V1260)))
-  ((cons? V1260) (cons (hd V1260) (remove V1259 (tl V1260))))
+(defun remove (V454 V455) (remove-h V454 V455 ())) 
+
+(defun remove-h (V454 V455 V456)
+ (cond ((= () V455) (reverse V456))
+  ((and (cons? V455) (= (hd V455) V454)) (remove-h (hd V455) (tl V455) V456))
+  ((cons? V455) (remove-h V454 (tl V455) (cons (hd V455) V456)))
   (true (shen-sys-error remove))))
 
 (defun shen-cc_help (V1262 V1263)

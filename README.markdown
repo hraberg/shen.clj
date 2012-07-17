@@ -17,7 +17,7 @@ Shen is a portable functional programming language by [Mark Tarver](http://www.l
 
 `[shen.clj "0.1.6"]` | [Marginalia](http://ghettojedi.org/shen.clj/)
 
-Is a work in progress. Passes the Shen 4.1 test suite.
+Is a work in progress. Passes the Shen 4.2 test suite.
 
 Uses [Leiningen 2](https://github.com/technomancy/leiningen) to build.
 The script [`build`](https://github.com/hraberg/shen.clj/blob/master/build) is used for full, repeatable builds.
@@ -48,7 +48,7 @@ The script [`build`](https://github.com/hraberg/shen.clj/blob/master/build) is u
 ---
 
     Shen 2010, copyright (C) 2010 Mark Tarver
-    www.lambdassociates.org, version 4.1
+    www.lambdassociates.org, version 4.2
     running under Clojure, implementation: Clojure 1.4.0 [jvm 1.8.0-ea]
     port 0.1.6 ported by Håkan Råberg
 

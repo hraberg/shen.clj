@@ -7,21 +7,17 @@
           (trap-error (read-evaluate-print) (/. E (pr (error-to-string E) (value *stinput*)))) 
           (loop)))
 
-\The current version.\
-
 (define version
   S -> (set *version* S))
 
 (version "version 4.1")
 
-\Prints credits.\
 (define credits
  -> (do (output "~%Shen 2010, copyright (C) 2010 Mark Tarver~%")
         (output "www.shenlanguage.org, ~A~%" (value *version*)) 
         (output "running under ~A, implementation: ~A" (value *language*) (value *implementation*))
         (output "~%port ~A ported by ~A~%" (value *port*) (value *porters*))))
 
-\Initialise environment - set calls to 0 for trace package; set logical inferences to 0 \
 (define initialise_environment 
   -> (multiple-set [*call* 0 *infs* 0 *dumped* [] *process-counter* 0 *catch* 0]))  
 

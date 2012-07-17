@@ -6,7 +6,7 @@
 (set *varcounter* (vector 1000))
 (set *prologvectors* (vector 1000))
 (set *reader-macros* [])
-(set *printer* [sys-print])
+(set *printer* [])
 (set *home-directory* [])
 (set *gensym* 0)
 (set *tracking* [])

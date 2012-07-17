@@ -27,9 +27,7 @@
 (address-> (value *symbolcodes*)  99  "c")
 (address-> (value *symbolcodes*)  98  "b")
 (address-> (value *symbolcodes*)  97  "a")
-(address-> (value *symbolcodes*)  96  (if (= (value *language*) "Common Lisp") 
-                                            "_backquote"
-                                            "`"))
+(address-> (value *symbolcodes*)  96  "`")
 (address-> (value *symbolcodes*)  95  "_")
 (address-> (value *symbolcodes*)  90  "Z")
 (address-> (value *symbolcodes*)  89  "Y")
@@ -77,15 +75,11 @@
 (address-> (value *symbolcodes*)  45  "-")
 (address-> (value *symbolcodes*)  43  "+")
 (address-> (value *symbolcodes*)  42  "*")
-(address-> (value *symbolcodes*)  39  (if (= (value *language*) "Common Lisp") 
-                                            "_quote"
-                                            "'"))
+(address-> (value *symbolcodes*)  39  "'")
 (address-> (value *symbolcodes*)  38  "&")
 (address-> (value *symbolcodes*)  37  "%")
 (address-> (value *symbolcodes*)  36  "$")
-(address-> (value *symbolcodes*)  35  (if (= (value *language*) "Common Lisp") 
-                                           "_hash"
-                                           "#"))
+(address-> (value *symbolcodes*)  35  "#")
 (address-> (value *symbolcodes*)  33  "!")     
 
 (define lineread

@@ -31,7 +31,7 @@ For an explication of this license see http://www.lambdassociates.org/News/june1
 
 (set shen-*reader-macros* ())
 
-(set *printer* (cons shen-sys-print ()))
+(set *printer* ())
 
 (set *home-directory* ())
 

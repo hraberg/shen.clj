@@ -8,7 +8,7 @@
   (:gen-class))
 
 (def shen-namespaces '[sys writer declarations core load macros prolog reader sequent
-                       toplevel track t-star printer yacc types])
+                       toplevel track t-star yacc types])
 
 (def kl-dir (->> ["../../K Lambda" "shen/klambda"]
                  (map file) (filter #(.exists %)) first))

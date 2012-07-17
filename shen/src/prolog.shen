@@ -221,9 +221,12 @@
                      (cc_help Free Body)))                
                  
 (define remove
-  _ [] -> []
-  X [X | Y] -> (remove X Y)
-  X [Y | Z] -> [Y | (remove X Z)])
+  X Y -> (remove-h X Y []))
+
+(define remove-h
+  _ [] X -> (reverse X)
+  X [X | Y] Z -> (remove-h X Y Z)
+  X [Y | Z] W -> (remove-h X Z [Y | W]))
 
 (define cc_help
    [] [] -> [pop the stack]  

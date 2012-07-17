@@ -20,8 +20,6 @@
            Tr (set *tracking* [Ob | (value *tracking*)])
            Ob))
 
-\Increment the call counter, print the inputs, evaluate the body, store the result,
- print the result and decrement the call counter.\
 (define insert-tracking-code
   F Params Body -> [do [set *call* [+ [value *call*] 1]]
                        [do [input-track [value *call*] F (cons_form Params)]
@@ -34,30 +32,25 @@
 
 (set *step* false)
 
-\Sets the trace stepper.\
 (define step 
   + -> (set *step* true)
   - -> (set *step* false)
   _ -> (error "step expects a + or a -.~%"))
 
-\Sets the spy stepper.\
 (define spy 
   + -> (set *spy* true)
   - -> (set *spy* false)
   _ -> (error "spy expects a + or a -.~%"))
 
-\Forks the printing to a new line or waits for the user if stepping is needed.\
 (define terpri-or-read-char
   -> (if (value *step*) 
          (check-byte (read-byte (value *stinput*))) 
          (nl)))
 
-\Abort on request.\
 (define check-byte
   C -> (error "aborted")   where (= C (hat))
   _ -> true)
 
-\Prints inputs to function.\
 (define input-track
   N F Args
   -> (do (output "~%~A<~A> Inputs to ~A ~%~A" (spaces N) N F (spaces N) Args)
@@ -67,26 +60,18 @@
   [] -> (output " ==>")
   [X | Y] -> (do (print X) (do (output ", ") (recursively-print Y))))
 
-\Makes the right number of spaces.\
 (define spaces
  0 -> ""
  N -> (cn " " (spaces (- N 1))))
 
-\Prints the output of the function.\
 (define output-track
   N F Result -> (output "~%~A<~A> Output from ~A ~%~A==> ~S" (spaces N) N F (spaces N) Result))
 
-\Grab the old source code and compile back in again.\
 (define untrack
   F -> (eval (ps F)))
 
-\Profile code.\
 (define profile
   Func -> (profile-help (ps Func)))
-
-\Grab the source code, and place in profiling code
- Create a copy of the original function that actually
- does the processing.  Then compile the lot to byte code.\ 
 
 (define profile-help
   [defun F Params Code]
@@ -98,11 +83,9 @@
            F)
   _ -> (error "Cannot profile.~%"))
 
-\Reinstate the original code.\
 (define unprofile
    Func -> (untrack Func))
 
-\Insert profiling code.\
 (define profile-func 
   F Params Code -> [let Start [get-time run]
                      [let Result Code
@@ -111,7 +94,6 @@
                               [put-profile F [+ [get-profile F] Finish]]
                               Result]]]])
 
-\Print the profile results.\
 (define profile-results 
    F -> (let Results (get-profile F) 
              Initialise (put-profile F 0)
