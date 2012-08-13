@@ -234,7 +234,7 @@
   (c/and (coll? X) (not (empty? X))))
 
 (defn str [X]
-  (if-not (coll? X) (c/pr-str X)
+  (if-not ((some-fn coll? fn?) X) (c/pr-str X)
           (throw (IllegalArgumentException.
                   (c/str X " is not an atom; str cannot convert it to a string.")))))
 
@@ -389,8 +389,9 @@
 (def ^:private internal-start-time (System/currentTimeMillis))
 
 (defn get-time [Time]
-  (if (= Time 'run)
-    (/ (- (System/currentTimeMillis) internal-start-time) 1000)
+  (condp = Time
+    'run (/ (- (System/currentTimeMillis) internal-start-time) 1000)
+    'unix (long (/ (System/currentTimeMillis) 1000))
     (throw (IllegalArgumentException.
             (c/str "get-time does not understand the parameter " Time)))))
 

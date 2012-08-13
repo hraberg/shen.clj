@@ -15,132 +15,135 @@
 
 For an explication of this license see http://www.lambdassociates.org/News/june11/license.htm which explains this license in full."
 
-(defun thaw (V567) (V567))
+(defun thaw (V4294) (V4294))
 
-(defun eval (V629)
- (let Macroexpand (shen-walk (lambda V630 (macroexpand V630)) V629)
+(defun eval (V4295)
+ (let Macroexpand (shen-walk (lambda V4296 (macroexpand V4296)) V4295)
   (if (shen-packaged? Macroexpand)
-   (map (lambda V631 (eval-without-macros V631))
+   (map (lambda V4297 (shen-eval-without-macros V4297))
     (shen-package-contents Macroexpand))
-   (eval-without-macros Macroexpand))))
+   (shen-eval-without-macros Macroexpand))))
 
-(defun eval-without-macros (V632)
- (eval-kl (shen-elim-define (shen-proc-input+ V632))))
+(defun shen-eval-without-macros (V4298)
+ (eval-kl (shen-elim-define (shen-proc-input+ V4298))))
 
-(defun shen-proc-input+ (V633)
+(defun shen-proc-input+ (V4299)
  (cond
-  ((and (cons? V633)
-    (and (= input+ (hd V633))
-     (and (cons? (tl V633))
-      (and (cons? (tl (tl V633))) (= () (tl (tl (tl V633))))))))
+  ((and (cons? V4299)
+    (and (= input+ (hd V4299))
+     (and (cons? (tl V4299))
+      (and (cons? (tl (tl V4299))) (= () (tl (tl (tl V4299))))))))
    (cons input+
-    (cons (hd (tl V633)) (cons (shen-rcons_form (hd (tl (tl V633)))) ()))))
-  ((cons? V633) (map (lambda V634 (shen-proc-input+ V634)) V633)) (true V633)))
+    (cons (hd (tl V4299)) (cons (shen-rcons_form (hd (tl (tl V4299)))) ()))))
+  ((cons? V4299) (map (lambda V4300 (shen-proc-input+ V4300)) V4299))
+  (true V4299)))
 
-(defun shen-elim-define (V635)
+(defun shen-elim-define (V4301)
  (cond
-  ((and (cons? V635) (and (= define (hd V635)) (cons? (tl V635))))
-   (shen-shen->kl (hd (tl V635)) (tl (tl V635))))
-  ((cons? V635) (map (lambda V636 (shen-elim-define V636)) V635)) (true V635)))
+  ((and (cons? V4301) (and (= define (hd V4301)) (cons? (tl V4301))))
+   (shen-shen->kl (hd (tl V4301)) (tl (tl V4301))))
+  ((cons? V4301) (map (lambda V4302 (shen-elim-define V4302)) V4301))
+  (true V4301)))
 
-(defun shen-packaged? (V643)
+(defun shen-packaged? (V4309)
  (cond
-  ((and (cons? V643)
-    (and (= package (hd V643))
-     (and (cons? (tl V643)) (cons? (tl (tl V643))))))
+  ((and (cons? V4309)
+    (and (= package (hd V4309))
+     (and (cons? (tl V4309)) (cons? (tl (tl V4309))))))
    true)
   (true false)))
 
-(defun external (V644)
- (trap-error (get V644 shen-external-symbols (value shen-*property-vector*))
+(defun external (V4310)
+ (trap-error (get V4310 shen-external-symbols (value shen-*property-vector*))
   (lambda E (interror "package ~A has not been used.~" ()))))
 
-(defun shen-package-contents (V647)
+(defun shen-package-contents (V4313)
  (cond
-  ((and (cons? V647)
-    (and (= package (hd V647))
-     (and (cons? (tl V647))
-      (and (= null (hd (tl V647))) (cons? (tl (tl V647)))))))
-   (tl (tl (tl V647))))
-  ((and (cons? V647)
-    (and (= package (hd V647))
-     (and (cons? (tl V647)) (cons? (tl (tl V647))))))
-   (shen-packageh (hd (tl V647)) (hd (tl (tl V647))) Code))
+  ((and (cons? V4313)
+    (and (= package (hd V4313))
+     (and (cons? (tl V4313))
+      (and (= null (hd (tl V4313))) (cons? (tl (tl V4313)))))))
+   (tl (tl (tl V4313))))
+  ((and (cons? V4313)
+    (and (= package (hd V4313))
+     (and (cons? (tl V4313)) (cons? (tl (tl V4313))))))
+   (shen-packageh (hd (tl V4313)) (hd (tl (tl V4313))) Code))
   (true (shen-sys-error shen-package-contents))))
 
-(defun shen-walk (V648 V649)
- (cond ((cons? V649) (V648 (map (lambda Z (shen-walk V648 Z)) V649)))
-  (true (V648 V649))))
+(defun shen-walk (V4314 V4315)
+ (cond ((cons? V4315) (V4314 (map (lambda Z (shen-walk V4314 Z)) V4315)))
+  (true (V4314 V4315))))
 
-(defun compile (V650 V651 V652)
- (let O (V650 (@p V651 ()))
-  (if (or (= (fail) O) (not (empty? (fst O)))) (shen-compile-error O V652)
+(defun compile (V4316 V4317 V4318)
+ (let O (V4316 (@p V4317 ()))
+  (if (or (= (fail) O) (not (empty? (fst O)))) (shen-compile-error O V4318)
    (snd O))))
 
-(defun shen-compile-error (V665 V666)
- (cond ((= () V666) (fail))
-  ((and (tuple? V665) (cons? (fst V665))) (V666 (fst V665)))
+(defun shen-compile-error (V4331 V4332)
+ (cond ((= () V4332) (fail))
+  ((and (tuple? V4331) (cons? (fst V4331))) (V4332 (fst V4331)))
   (true (interror "syntax error~%" ()))))
 
-(defun <e> (V671)
- (cond ((tuple? V671) (@p (fst V671) ())) (true (shen-sys-error <e>))))
+(defun <e> (V4337)
+ (cond ((tuple? V4337) (@p (fst V4337) ())) (true (shen-sys-error <e>))))
 
-(defun fail-if (V672 V673) (if (V672 V673) (fail) V673))
+(defun fail-if (V4338 V4339) (if (V4338 V4339) (fail) V4339))
 
-(defun @s (V674 V675) (cn V674 V675))
+(defun @s (V4340 V4341) (cn V4340 V4341))
 
-(defun tc? (V680) (value shen-*tc*))
+(defun tc? (V4346) (value shen-*tc*))
 
-(defun ps (V681)
- (trap-error (get V681 shen-source (value shen-*property-vector*))
-  (lambda E (interror "~A not found.~%" (@p V681 ())))))
+(defun ps (V4347)
+ (trap-error (get V4347 shen-source (value shen-*property-vector*))
+  (lambda E (interror "~A not found.~%" (@p V4347 ())))))
 
-(defun explode (V682)
- (if (string? V682) (shen-explode-string V682)
-  (explode (intmake-string "~A" (@p V682 ())))))
+(defun explode (V4348)
+ (if (string? V4348) (shen-explode-string V4348)
+  (explode (intmake-string "~A" (@p V4348 ())))))
 
-(defun shen-explode-string (V683)
- (cond ((= "" V683) ())
+(defun shen-explode-string (V4349)
+ (cond ((= "" V4349) ())
   (true
-   (let S (pos V683 0)
-    (let Ss (tlstr V683)
+   (let S (pos V4349 0)
+    (let Ss (tlstr V4349)
      (if (= Ss shen-eos) () (cons S (shen-explode-string Ss))))))))
 
-(defun stinput (V688) (value *stinput*))
+(defun stinput (V4354) (value *stinput*))
 
-(defun shen-+vector? (V689)
- (and (absvector? V689) (> (<-address V689 0) 0)))
+(defun shen-+vector? (V4355)
+ (and (absvector? V4355) (> (<-address V4355 0) 0)))
 
-(defun vector (V690)
- (let Vector (absvector (+ V690 1)) (address-> Vector 0 V690)))
+(defun vector (V4356)
+ (let Vector (absvector (+ V4356 1)) (address-> Vector 0 V4356)))
 
-(defun shen-fillvector (V693 V694 V695 V696)
- (cond ((= V695 V694) V693)
-  (true (shen-fillvector (address-> V693 V694 V696) (+ 1 V694) V695 V696))))
+(defun shen-fillvector (V4359 V4360 V4361 V4362)
+ (cond ((= V4361 V4360) V4359)
+  (true
+   (shen-fillvector (address-> V4359 V4360 V4362) (+ 1 V4360) V4361 V4362))))
 
-(defun vector? (V698)
- (and (absvector? V698)
-  (trap-error (>= (<-address V698 0) 0) (lambda E false))))
+(defun vector? (V4364)
+ (and (absvector? V4364)
+  (trap-error (>= (<-address V4364 0) 0) (lambda E false))))
 
-(defun vector-> (V699 V700 V701)
- (if (= V700 0) (interror "cannot access 0th element of a vector~%" ())
-  (address-> V699 V700 V701)))
+(defun vector-> (V4365 V4366 V4367)
+ (if (= V4366 0) (interror "cannot access 0th element of a vector~%" ())
+  (address-> V4365 V4366 V4367)))
 
-(defun <-vector (V702 V703)
- (if (= V703 0) (interror "cannot access 0th element of a vector~%" ())
-  (let VectorElement (<-address V702 V703)
+(defun <-vector (V4368 V4369)
+ (if (= V4369 0) (interror "cannot access 0th element of a vector~%" ())
+  (let VectorElement (<-address V4368 V4369)
    (if (= VectorElement (fail)) (interror "vector element not found~%" ())
     VectorElement))))
 
-(defun shen-posint? (V704) (and (integer? V704) (>= V704 0)))
+(defun shen-posint? (V4370) (and (integer? V4370) (>= V4370 0)))
 
-(defun limit (V705) (<-address V705 0))
+(defun limit (V4371) (<-address V4371 0))
 
-(defun symbol? (V706)
- (cond ((or (boolean? V706) (number? V706)) false)
+(defun symbol? (V4372)
+ (cond ((or (boolean? V4372) (number? V4372)) false)
   (true
    (trap-error
-    (let String (str V706)
+    (let String (str V4372)
      (let Unit (pos String 0)
       (element? Unit
        (cons "A"
@@ -221,12 +224,20 @@ For an explication of this license see http://www.lambdassociates.org/News/june1
                                                                              ":"
                                                                              (cons
                                                                               ";"
-                                                                              ()))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
+                                                                              (cons
+                                                                               "`"
+                                                                               (cons
+                                                                                "#"
+                                                                                (cons
+                                                                                 "'"
+                                                                                 (cons
+                                                                                  "."
+                                                                                  ()))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
     (lambda E false)))))
 
-(defun variable? (V707)
+(defun variable? (V4373)
  (trap-error
-  (let String (str V707)
+  (let String (str V4373)
    (let Unit (pos String 0)
     (element? Unit
      (cons "A"
@@ -257,259 +268,268 @@ For an explication of this license see http://www.lambdassociates.org/News/june1
                               (cons "Z" ())))))))))))))))))))))))))))))
   (lambda E false)))
 
-(defun gensym (V708)
- (concat V708 (set shen-*gensym* (+ 1 (value shen-*gensym*)))))
+(defun gensym (V4374)
+ (concat V4374 (set shen-*gensym* (+ 1 (value shen-*gensym*)))))
 
-(defun concat (V709 V710) (intern (cn (str V709) (str V710))))
+(defun concat (V4375 V4376) (intern (cn (str V4375) (str V4376))))
 
-(defun @p (V711 V712)
+(defun @p (V4377 V4378)
  (let Vector (absvector 3)
   (let Tag (address-> Vector 0 shen-tuple)
-   (let Fst (address-> Vector 1 V711)
-    (let Snd (address-> Vector 2 V712) Vector)))))
+   (let Fst (address-> Vector 1 V4377)
+    (let Snd (address-> Vector 2 V4378) Vector)))))
 
-(defun fst (V713) (<-address V713 1))
+(defun fst (V4379) (<-address V4379 1))
 
-(defun snd (V714) (<-address V714 2))
+(defun snd (V4380) (<-address V4380 2))
 
-(defun tuple? (V715)
- (trap-error (and (absvector? V715) (= shen-tuple (<-address V715 0)))
+(defun tuple? (V4381)
+ (trap-error (and (absvector? V4381) (= shen-tuple (<-address V4381 0)))
   (lambda E false)))
 
-(defun append (V716 V717)
- (cond ((= () V716) V717)
-  ((cons? V716) (cons (hd V716) (append (tl V716) V717)))
+(defun append (V4382 V4383)
+ (cond ((= () V4382) V4383)
+  ((cons? V4382) (cons (hd V4382) (append (tl V4382) V4383)))
   (true (shen-sys-error append))))
 
-(defun @v (V718 V719)
- (let Limit (limit V719)
+(defun @v (V4384 V4385)
+ (let Limit (limit V4385)
   (let NewVector (vector (+ Limit 1))
-   (let X+NewVector (vector-> NewVector 1 V718)
-    (if (= Limit 0) X+NewVector (shen-@v-help V719 1 Limit X+NewVector))))))
+   (let X+NewVector (vector-> NewVector 1 V4384)
+    (if (= Limit 0) X+NewVector
+     (shen-@v-help V4385 1 Limit X+NewVector))))))
 
-(defun shen-@v-help (V720 V721 V722 V723)
- (cond ((= V722 V721) (shen-copyfromvector V720 V723 V722 (+ V722 1)))
+(defun shen-@v-help (V4386 V4387 V4388 V4389)
+ (cond ((= V4388 V4387) (shen-copyfromvector V4386 V4389 V4388 (+ V4388 1)))
   (true
-   (shen-@v-help V720 (+ V721 1) V722
-    (shen-copyfromvector V720 V723 V721 (+ V721 1))))))
+   (shen-@v-help V4386 (+ V4387 1) V4388
+    (shen-copyfromvector V4386 V4389 V4387 (+ V4387 1))))))
 
-(defun shen-copyfromvector (V725 V726 V727 V728)
- (trap-error (vector-> V726 V728 (<-vector V725 V727)) (lambda E V726)))
+(defun shen-copyfromvector (V4391 V4392 V4393 V4394)
+ (trap-error (vector-> V4392 V4394 (<-vector V4391 V4393)) (lambda E V4392)))
 
-(defun hdv (V729)
- (trap-error (<-vector V729 1)
+(defun hdv (V4395)
+ (trap-error (<-vector V4395 1)
   (lambda E
    (interror "hdv needs a non-empty vector as an argument; not ~S~%"
-    (@p V729 ())))))
+    (@p V4395 ())))))
 
-(defun tlv (V730)
- (let Limit (limit V730)
+(defun tlv (V4396)
+ (let Limit (limit V4396)
   (if (= Limit 0)
    (interror "cannot take the tail of the empty vector~%" ())
    (if (= Limit 1) (vector 0)
     (let NewVector (vector (- Limit 1))
-     (shen-tlv-help V730 2 Limit (vector (- Limit 1))))))))
+     (shen-tlv-help V4396 2 Limit (vector (- Limit 1))))))))
 
-(defun shen-tlv-help (V731 V732 V733 V734)
- (cond ((= V733 V732) (shen-copyfromvector V731 V734 V733 (- V733 1)))
+(defun shen-tlv-help (V4397 V4398 V4399 V4400)
+ (cond ((= V4399 V4398) (shen-copyfromvector V4397 V4400 V4399 (- V4399 1)))
   (true
-   (shen-tlv-help V731 (+ V732 1) V733
-    (shen-copyfromvector V731 V734 V732 (- V732 1))))))
+   (shen-tlv-help V4397 (+ V4398 1) V4399
+    (shen-copyfromvector V4397 V4400 V4398 (- V4398 1))))))
 
-(defun assoc (V744 V745)
- (cond ((= () V745) ())
-  ((and (cons? V745) (and (cons? (hd V745)) (= (hd (hd V745)) V744)))
-   (hd V745))
-  ((cons? V745) (assoc V744 (tl V745))) (true (shen-sys-error assoc))))
+(defun assoc (V4410 V4411)
+ (cond ((= () V4411) ())
+  ((and (cons? V4411) (and (cons? (hd V4411)) (= (hd (hd V4411)) V4410)))
+   (hd V4411))
+  ((cons? V4411) (assoc V4410 (tl V4411))) (true (shen-sys-error assoc))))
 
-(defun boolean? (V751)
- (cond ((= true V751) true) ((= false V751) true) (true false)))
+(defun boolean? (V4417)
+ (cond ((= true V4417) true) ((= false V4417) true) (true false)))
 
-(defun nl (V752)
- (cond ((= 0 V752) 0) (true (do (intoutput "~%" ()) (nl (- V752 1))))))
+(defun nl (V4418)
+ (cond ((= 0 V4418) 0) (true (do (intoutput "~%" ()) (nl (- V4418 1))))))
 
-(defun difference (V755 V756)
- (cond ((= () V755) ())
-  ((cons? V755)
-   (if (element? (hd V755) V756) (difference (tl V755) V756)
-    (cons (hd V755) (difference (tl V755) V756))))
+(defun difference (V4421 V4422)
+ (cond ((= () V4421) ())
+  ((cons? V4421)
+   (if (element? (hd V4421) V4422) (difference (tl V4421) V4422)
+    (cons (hd V4421) (difference (tl V4421) V4422))))
   (true (shen-sys-error difference))))
 
-(defun do (V757 V758) V758)
+(defun do (V4423 V4424) V4424)
 
-(defun element? (V767 V768)
- (cond ((= () V768) false) ((and (cons? V768) (= (hd V768) V767)) true)
-  ((cons? V768) (element? V767 (tl V768))) (true (shen-sys-error element?))))
+(defun element? (V4433 V4434)
+ (cond ((= () V4434) false)
+  ((and (cons? V4434) (= (hd V4434) V4433)) true)
+  ((cons? V4434) (element? V4433 (tl V4434)))
+  (true (shen-sys-error element?))))
 
-(defun empty? (V774) (cond ((= () V774) true) (true false)))
+(defun empty? (V4440) (cond ((= () V4440) true) (true false)))
 
-(defun fix (V775 V776) (shen-fix-help V775 V776 (V775 V776)))
+(defun fix (V4441 V4442) (shen-fix-help V4441 V4442 (V4441 V4442)))
 
-(defun shen-fix-help (V783 V784 V785)
- (cond ((= V785 V784) V785) (true (shen-fix-help V783 V785 (V783 V785)))))
+(defun shen-fix-help (V4449 V4450 V4451)
+ (cond ((= V4451 V4450) V4451)
+  (true (shen-fix-help V4449 V4451 (V4449 V4451)))))
 
-(defun put (V787 V788 V789 V790)
- (let N (hash V787 (limit V790))
-  (let Entry (trap-error (<-vector V790 N) (lambda E ()))
+(defun put (V4453 V4454 V4455 V4456)
+ (let N (hash V4453 (limit V4456))
+  (let Entry (trap-error (<-vector V4456 N) (lambda E ()))
    (let Change
-    (vector-> V790 N (shen-change-pointer-value V787 V788 V789 Entry)) V789))))
+    (vector-> V4456 N (shen-change-pointer-value V4453 V4454 V4455 Entry))
+    V4455))))
 
-(defun shen-change-pointer-value (V793 V794 V795 V796)
- (cond ((= () V796) (cons (cons (cons V793 (cons V794 ())) V795) ()))
-  ((and (cons? V796)
-    (and (cons? (hd V796))
-     (and (cons? (hd (hd V796)))
-      (and (cons? (tl (hd (hd V796))))
-       (and (= () (tl (tl (hd (hd V796)))))
-        (and (= (hd (tl (hd (hd V796)))) V794)
-         (= (hd (hd (hd V796))) V793)))))))
-   (cons (cons (hd (hd V796)) V795) (tl V796)))
-  ((cons? V796)
-   (cons (hd V796) (shen-change-pointer-value V793 V794 V795 (tl V796))))
+(defun shen-change-pointer-value (V4459 V4460 V4461 V4462)
+ (cond ((= () V4462) (cons (cons (cons V4459 (cons V4460 ())) V4461) ()))
+  ((and (cons? V4462)
+    (and (cons? (hd V4462))
+     (and (cons? (hd (hd V4462)))
+      (and (cons? (tl (hd (hd V4462))))
+       (and (= () (tl (tl (hd (hd V4462)))))
+        (and (= (hd (tl (hd (hd V4462)))) V4460)
+         (= (hd (hd (hd V4462))) V4459)))))))
+   (cons (cons (hd (hd V4462)) V4461) (tl V4462)))
+  ((cons? V4462)
+   (cons (hd V4462) (shen-change-pointer-value V4459 V4460 V4461 (tl V4462))))
   (true (shen-sys-error shen-change-pointer-value))))
 
-(defun get (V799 V800 V801)
- (let N (hash V799 (limit V801))
+(defun get (V4465 V4466 V4467)
+ (let N (hash V4465 (limit V4467))
   (let Entry
-   (trap-error (<-vector V801 N)
+   (trap-error (<-vector V4467 N)
     (lambda E (interror "pointer not found~%" ())))
-   (let Result (assoc (cons V799 (cons V800 ())) Entry)
+   (let Result (assoc (cons V4465 (cons V4466 ())) Entry)
     (if (empty? Result) (interror "value not found~%" ()) (tl Result))))))
 
-(defun hash (V802 V803)
+(defun hash (V4468 V4469)
  (let Hash
-  (shen-mod (sum (map (lambda V804 (string->n V804)) (explode V802))) V803)
+  (shen-mod (sum (map (lambda V4470 (string->n V4470)) (explode V4468))) V4469)
   (if (= 0 Hash) 1 Hash)))
 
-(defun shen-mod (V805 V806)
- (shen-modh V805 (shen-multiples V805 (cons V806 ()))))
+(defun shen-mod (V4471 V4472)
+ (shen-modh V4471 (shen-multiples V4471 (cons V4472 ()))))
 
-(defun shen-multiples (V807 V808)
- (cond ((and (cons? V808) (> (hd V808) V807)) (tl V808))
-  ((cons? V808) (shen-multiples V807 (cons (* 2 (hd V808)) V808)))
+(defun shen-multiples (V4473 V4474)
+ (cond ((and (cons? V4474) (> (hd V4474) V4473)) (tl V4474))
+  ((cons? V4474) (shen-multiples V4473 (cons (* 2 (hd V4474)) V4474)))
   (true (shen-sys-error shen-multiples))))
 
-(defun shen-modh (V811 V812)
- (cond ((= 0 V811) 0) ((= () V812) V811)
-  ((and (cons? V812) (> (hd V812) V811))
-   (if (empty? (tl V812)) V811 (shen-modh V811 (tl V812))))
-  ((cons? V812) (shen-modh (- V811 (hd V812)) V812))
+(defun shen-modh (V4477 V4478)
+ (cond ((= 0 V4477) 0) ((= () V4478) V4477)
+  ((and (cons? V4478) (> (hd V4478) V4477))
+   (if (empty? (tl V4478)) V4477 (shen-modh V4477 (tl V4478))))
+  ((cons? V4478) (shen-modh (- V4477 (hd V4478)) V4478))
   (true (shen-sys-error shen-modh))))
 
-(defun sum (V813)
- (cond ((= () V813) 0) ((cons? V813) (+ (hd V813) (sum (tl V813))))
+(defun sum (V4479)
+ (cond ((= () V4479) 0) ((cons? V4479) (+ (hd V4479) (sum (tl V4479))))
   (true (shen-sys-error sum))))
 
-(defun head (V820)
- (cond ((cons? V820) (hd V820))
+(defun head (V4486)
+ (cond ((cons? V4486) (hd V4486))
   (true (interror "head expects a non-empty list" ()))))
 
-(defun tail (V827)
- (cond ((cons? V827) (tl V827))
+(defun tail (V4493)
+ (cond ((cons? V4493) (tl V4493))
   (true (interror "tail expects a non-empty list" ()))))
 
-(defun hdstr (V828) (pos V828 0))
+(defun hdstr (V4494) (pos V4494 0))
 
-(defun intersection (V831 V832)
- (cond ((= () V831) ())
-  ((cons? V831)
-   (if (element? (hd V831) V832) (cons (hd V831) (intersection (tl V831) V832))
-    (intersection (tl V831) V832)))
+(defun intersection (V4497 V4498)
+ (cond ((= () V4497) ())
+  ((cons? V4497)
+   (if (element? (hd V4497) V4498)
+    (cons (hd V4497) (intersection (tl V4497) V4498))
+    (intersection (tl V4497) V4498)))
   (true (shen-sys-error intersection))))
 
-(defun reverse (V833) (shen-reverse_help V833 ()))
+(defun reverse (V4499) (shen-reverse_help V4499 ()))
 
-(defun shen-reverse_help (V834 V835)
- (cond ((= () V834) V835)
-  ((cons? V834) (shen-reverse_help (tl V834) (cons (hd V834) V835)))
+(defun shen-reverse_help (V4500 V4501)
+ (cond ((= () V4500) V4501)
+  ((cons? V4500) (shen-reverse_help (tl V4500) (cons (hd V4500) V4501)))
   (true (shen-sys-error shen-reverse_help))))
 
-(defun union (V836 V837)
- (cond ((= () V836) V837)
-  ((cons? V836)
-   (if (element? (hd V836) V837) (union (tl V836) V837)
-    (cons (hd V836) (union (tl V836) V837))))
+(defun union (V4502 V4503)
+ (cond ((= () V4502) V4503)
+  ((cons? V4502)
+   (if (element? (hd V4502) V4503) (union (tl V4502) V4503)
+    (cons (hd V4502) (union (tl V4502) V4503))))
   (true (shen-sys-error union))))
 
-(defun y-or-n? (V469)
- (let Message (intoutput V469 ())
+(defun y-or-n? (V4504)
+ (let Message (intoutput V4504 ())
   (let Y-or-N (intoutput " (y/n) " ())
    (let Input (intmake-string "~S" (@p (input) ()))
     (if (= "y" Input) true
      (if (= "n" Input) false
-      (do (intoutput "please answer y or n~%" ()) (y-or-n? V469))))))))
+      (do (intoutput "please answer y or n~%" ()) (y-or-n? V4504))))))))
 
-(defun not (V839) (if V839 false true))
+(defun not (V4505) (if V4505 false true))
 
-(defun subst (V848 V849 V850)
- (cond ((= V850 V849) V848)
-  ((cons? V850) (cons (subst V848 V849 (hd V850)) (subst V848 V849 (tl V850))))
-  (true V850)))
+(defun subst (V4514 V4515 V4516)
+ (cond ((= V4516 V4515) V4514)
+  ((cons? V4516)
+   (cons (subst V4514 V4515 (hd V4516)) (subst V4514 V4515 (tl V4516))))
+  (true V4516)))
 
-(defun cd (V852)
+(defun cd (V4518)
  (set *home-directory*
-  (if (= V852 "") "" (intmake-string "~A/" (@p V852 ())))))
+  (if (= V4518 "") "" (intmake-string "~A/" (@p V4518 ())))))
 
-(defun map (V855 V856) (map-h V855 V856 ()))
- 
-(defun map-h (V443 V444 V445)
- (cond ((= () V444) (reverse V445))
-  ((cons? V444) (map-h V443 (tl V444) (cons (V443 (hd V444)) V445)))
-  (true (shen-sys-error map))))
+(defun map (V4519 V4520) (shen-map-h V4519 V4520 ()))
 
-(defun length (V857) (shen-length-h V857 0))
+(defun shen-map-h (V4523 V4524 V4525)
+ (cond ((= () V4524) (reverse V4525))
+  ((cons? V4524) (shen-map-h V4523 (tl V4524) (cons (V4523 (hd V4524)) V4525)))
+  (true (shen-sys-error shen-map-h))))
 
-(defun shen-length-h (V858 V859)
- (cond ((= () V858) V859) (true (shen-length-h (tl V858) (+ V859 1)))))
+(defun length (V4526) (shen-length-h V4526 0))
 
-(defun occurrences (V868 V869)
- (cond ((= V869 V868) 1)
-  ((cons? V869) (+ (occurrences V868 (hd V869)) (occurrences V868 (tl V869))))
+(defun shen-length-h (V4527 V4528)
+ (cond ((= () V4527) V4528) (true (shen-length-h (tl V4527) (+ V4528 1)))))
+
+(defun occurrences (V4537 V4538)
+ (cond ((= V4538 V4537) 1)
+  ((cons? V4538)
+   (+ (occurrences V4537 (hd V4538)) (occurrences V4537 (tl V4538))))
   (true 0)))
 
-(defun nth (V877 V878)
- (cond ((and (= 1 V877) (cons? V878)) (hd V878))
-  ((cons? V878) (nth (- V877 1) (tl V878))) (true (shen-sys-error nth))))
+(defun nth (V4546 V4547)
+ (cond ((and (= 1 V4546) (cons? V4547)) (hd V4547))
+  ((cons? V4547) (nth (- V4546 1) (tl V4547))) (true (shen-sys-error nth))))
 
-(defun integer? (V879)
- (and (number? V879)
-  (let Abs (shen-abs V879) (shen-integer-test? Abs (shen-magless Abs 1)))))
+(defun integer? (V4548)
+ (and (number? V4548)
+  (let Abs (shen-abs V4548) (shen-integer-test? Abs (shen-magless Abs 1)))))
 
-(defun shen-abs (V880) (if (> V880 0) V880 (- 0 V880)))
+(defun shen-abs (V4549) (if (> V4549 0) V4549 (- 0 V4549)))
 
-(defun shen-magless (V881 V882)
- (let Nx2 (* V882 2) (if (> Nx2 V881) V882 (shen-magless V881 Nx2))))
+(defun shen-magless (V4550 V4551)
+ (let Nx2 (* V4551 2) (if (> Nx2 V4550) V4551 (shen-magless V4550 Nx2))))
 
-(defun shen-integer-test? (V886 V887)
- (cond ((= 0 V886) true) ((> 1 V886) false)
+(defun shen-integer-test? (V4555 V4556)
+ (cond ((= 0 V4555) true) ((> 1 V4555) false)
   (true
-   (let Abs-N (- V886 V887)
-    (if (> 0 Abs-N) (integer? V886) (shen-integer-test? Abs-N V887))))))
+   (let Abs-N (- V4555 V4556)
+    (if (> 0 Abs-N) (integer? V4555) (shen-integer-test? Abs-N V4556))))))
 
-(defun mapcan (V890 V891)
- (cond ((= () V891) ())
-  ((cons? V891) (append (V890 (hd V891)) (mapcan V890 (tl V891))))
+(defun mapcan (V4559 V4560)
+ (cond ((= () V4560) ())
+  ((cons? V4560) (append (V4559 (hd V4560)) (mapcan V4559 (tl V4560))))
   (true (shen-sys-error mapcan))))
 
-(defun read-file-as-bytelist (V892)
- (let Stream (open file V892 in)
+(defun read-file-as-bytelist (V4561)
+ (let Stream (open file V4561 in)
   (let Byte (read-byte Stream)
    (let Bytes (shen-read-file-as-bytelist-help Stream Byte ())
     (let Close (close Stream) (reverse Bytes))))))
 
-(defun shen-read-file-as-bytelist-help (V893 V894 V895)
- (cond ((= -1 V894) V895)
+(defun shen-read-file-as-bytelist-help (V4562 V4563 V4564)
+ (cond ((= -1 V4563) V4564)
   (true
-   (shen-read-file-as-bytelist-help V893 (read-byte V893) (cons V894 V895)))))
+   (shen-read-file-as-bytelist-help V4562 (read-byte V4562)
+    (cons V4563 V4564)))))
 
-(defun read-file-as-string (V896)
- (let Stream (open file V896 in) (shen-rfas-h Stream (read-byte Stream) "")))
+(defun read-file-as-string (V4565)
+ (let Stream (open file V4565 in) (shen-rfas-h Stream (read-byte Stream) "")))
 
-(defun shen-rfas-h (V897 V898 V899)
- (cond ((= -1 V898) (do (close V897) V899))
-  (true (shen-rfas-h V897 (read-byte V897) (cn V899 (n->string V898))))))
+(defun shen-rfas-h (V4566 V4567 V4568)
+ (cond ((= -1 V4567) (do (close V4566) V4568))
+  (true (shen-rfas-h V4566 (read-byte V4566) (cn V4568 (n->string V4567))))))
 
-(defun == (V908 V909) (cond ((= V909 V908) true) (true false)))
+(defun == (V4577 V4578) (cond ((= V4578 V4577) true) (true false)))
 
 (defun abort () (simple-error ""))
 
@@ -517,29 +537,31 @@ For an explication of this license see http://www.lambdassociates.org/News/june1
 
 (defun input () (eval (read)))
 
-(defun input+ (V915 V916)
+(defun input+ (V4584 V4585)
  (let Input (read)
-  (let Check (shen-typecheck Input V916)
+  (let Check (shen-typecheck Input V4585)
    (if (= false Check)
-    (do (intoutput "input is not of type ~R: please re-enter " (@p V916 ()))
-     (input+ : V916))
+    (do (intoutput "input is not of type ~R: please re-enter " (@p V4585 ()))
+     (input+ : V4585))
     (eval Input)))))
 
-(defun bound? (V917)
- (and (symbol? V917)
-  (let Val (trap-error (value V917) (lambda E shen-this-symbol-is-unbound))
+(defun bound? (V4586)
+ (and (symbol? V4586)
+  (let Val (trap-error (value V4586) (lambda E shen-this-symbol-is-unbound))
    (if (= Val shen-this-symbol-is-unbound) false true))))
 
-(defun shen-string->bytes (V918)
- (cond ((= "" V918) ())
-  (true (cons (string->n (pos V918 0)) (shen-string->bytes (tlstr V918))))))
+(defun shen-string->bytes (V4587)
+ (cond ((= "" V4587) ())
+  (true (cons (string->n (pos V4587 0)) (shen-string->bytes (tlstr V4587))))))
 
-(defun maxinferences (V919) (set shen-*maxinferences* V919))
+(defun maxinferences (V4588) (set shen-*maxinferences* V4588))
 
-(defun inferences (V924) (value shen-*infs*))
+(defun inferences (V4593) (value shen-*infs*))
 
-(defun shen-hush (V929)
- (cond ((= + V929) (set shen-*hush* shen-hushed))
-  ((= - V929) (set shen-*hush* shen-unhushed))
+(defun shen-hush (V4598)
+ (cond ((= + V4598) (set shen-*hush* shen-hushed))
+  ((= - V4598) (set shen-*hush* shen-unhushed))
   (true (interror "'hush' expects a + or a -~%" ()))))
+
+(defun protect (V4599) V4599)
 

@@ -239,8 +239,8 @@
 
 (use-fixtures :once (fn [suite]
                       (defmacro clj-exec-macro
-                        [clj-exec Expr] -> [trap-error [time Expr] [λ E failed]])
-                      (parse-and-eval-shen "(defmacro parsed-exec-macro [parsed-exec Expr] -> [trap-error [time Expr] [/. E failed]])")
+                        [clj-exec Expr] -> [trap-error [time Expr] [λ _ failed]])
+                      (parse-and-eval-shen "(defmacro parsed-exec-macro [parsed-exec Expr] -> [trap-error [time Expr] [/. _ failed]])")
 
                       (suite)
 

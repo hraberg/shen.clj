@@ -245,7 +245,6 @@
   -*- := (if (= -*- 34) skip (fail));)    
   
 (defcc <strcontents>
-  <backslash> <byte> <strcontents> := [<byte> | <strcontents>];
   <strc> <strcontents> := [<strc> | <strcontents>];
   <e> := [];)
   

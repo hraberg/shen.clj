@@ -11,7 +11,7 @@
           Name))
 
 (define selector-types
-  _ [] [] -> (gensym X)
+  _ [] [] -> (gensym (protect X))
   Name [Attribute | Attributes] [Type | Types] 
   -> (let Selector (concat Name (concat - Attribute))
           SelectorType [Name --> Type] 
@@ -40,11 +40,11 @@
     Name Attribute 
     -> (let SelectorName (concat Name (concat - Attribute))
            (eval [define SelectorName
-                   Structure -> [let LookUp [assoc Attribute Structure]
-                                     [if [empty? LookUp]
+                   (protect Structure) -> [let (protect LookUp) [assoc Attribute (protect Structure)]
+                                     [if [empty? (protect LookUp)]
                                          [error "~A is not an attribute of ~A.~%" 
                                                     Attribute Name]
-                                         [tail LookUp]]]])))
+                                         [tail (protect LookUp)]]]])))
 
 (define constructor
    Name Attributes 
@@ -58,7 +58,7 @@
 
 (define params
    [] -> []
-   [_ | Attributes] -> [(gensym X) | (params Attributes)])
+   [_ | Attributes] -> [(gensym (protect X)) | (params Attributes)])
 
 (define make-association-list
    [] [] -> []

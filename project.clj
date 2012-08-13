@@ -7,7 +7,8 @@
                  "https://oss.sonatype.org/content/repositories/snapshots/"}
   :dependencies [[org.clojure/clojure "1.4.0"]]
   :profiles {:dev {:dependencies [[marginalia "0.7.1"]]}}
-  :plugins [[lein-difftest "1.3.8"]]
+  :plugins [[lein-swank "1.4.4"]
+            [lein-difftest "1.3.8"]]
   :compile-path "classes"
   :target-path ""
   :aot [shen.primitives shen.install shen]

@@ -228,7 +228,7 @@
    (compile <find-digit> [a v f g 6 y u]) [6]
    (compile <vp> [chases the cat]) [chases the cat]
    (compile <des> [[d] [e e]]) [d e e]
-   (compile <sent'> [the cat likes the dog]) [Is it true that your father likes the dog ?]
+   (compile <sent'> [the cat likes the dog]) [is it true that your father likes the dog ?]
    (compile <as> [a a a]) [a a a]
    (compile <find-digit'> [a v f g 6 y u]) [6 y u]
    (compile <asbs'cs> [a v f g 6 y u]) (fail)

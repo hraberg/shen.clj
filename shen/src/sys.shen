@@ -119,8 +119,9 @@
                                          "a" "b" "c" "d" "e" "f" "g" "h" "i" "j" "k" "l" "m" 
                                          "n" "o" "p" "q" "r" "s" "t" "u" "v" "w" "x" "y" "z"
                                           "=" "*" "/" "+" "-" "_" "?" "$" "!" "@" "~" ">" "<" 
-                                          "&" "%" "{" "}" ":" ";"])) (/. E false)))
-                          
+                                          "&" "%" "{" "}" ":" ";" "`" "#" "'" "."])) 
+                                          (/. E false)))
+                              
 (define variable?
   X -> (trap-error (let String (str X)
                         Unit (pos String 0)
@@ -419,3 +420,6 @@
   + -> (set *hush* hushed)
   - -> (set *hush* unhushed)
   _ -> (error "'hush' expects a + or a -~%"))
+
+(define protect
+  X -> X)

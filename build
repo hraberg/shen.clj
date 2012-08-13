@@ -9,4 +9,4 @@ echo "(exit)" | ./shen.clj
 echo
 
 yes | lein trampoline run -m shen.test 2>&1 | tee test.log
-grep "pass rate ...100%" test.log > /dev/null
+grep -q "failed; continue? (y/n)" test.log && exit 1

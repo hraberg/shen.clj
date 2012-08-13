@@ -39,31 +39,8 @@
   F -> (do (set *signedfuncs* (remove F (value *signedfuncs*))) F))       
                 
 (defcc <sig+rest>
-  <signature> <any> := <signature>;)  
-  
-(define dump
-   File Language -> (let Shen (read-file File)
-                         KL (map (function shen-out) Shen)
-                         ObjectFile (cn File (cn "." Language))
-                         Stream (open file ObjectFile out)
-                         Dump (dump-target Stream Language KL)
-                         Close (close Stream)
-                         ObjectFile))
-
-(define shen-out
-  [define F | Code] -> (shen->kl F Code)
-  Shen -> Shen)
-
-(define dump-target
-  Stream "kl" KL -> (write-object-code-to-file Stream KL)
-  Stream "cl" KL -> (write-object-code-to-file Stream (map (/. X (kl-to-lisp [] X)) KL))
-  _ Language _ -> (error "~A is not known as a platform~%" Language))
-
-(define write-object-code-to-file
-   Stream KL -> (map (/. X (let String (make-string "~R~%~%" X)
-                                (pr String Stream))) KL)) 
-
-                        
+  <signature> <any> := <signature>;) 
+                   
 (define write-to-file
    File Text -> (let AbsPath (make-string "~A~A" (value *home-directory*) File)
                      Stream (open file AbsPath out)

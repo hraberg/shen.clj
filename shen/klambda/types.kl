@@ -15,12 +15,12 @@
 
 For an explication of this license see http://www.lambdassociates.org/News/june11/license.htm which explains this license in full."
 
-(defun declare (V1654 V1655)
- (let Record (set shen-*signedfuncs* (adjoin V1654 (value shen-*signedfuncs*)))
+(defun declare (V5318 V5319)
+ (let Record (set shen-*signedfuncs* (adjoin V5318 (value shen-*signedfuncs*)))
   (let Variancy
-   (trap-error (shen-variancy-test V1654 V1655) (lambda E shen-skip))
-   (let Type (shen-rcons_form (shen-normalise-type V1655))
-    (let F* (concat shen-type-signature-of- V1654)
+   (trap-error (shen-variancy-test V5318 V5319) (lambda E shen-skip))
+   (let Type (shen-rcons_form (shen-normalise-type V5319))
+    (let F* (concat shen-type-signature-of- V5318)
      (let Parameters (shen-parameters 1)
       (let Clause
        (cons (cons F* (cons X ()))
@@ -33,45 +33,54 @@ For an explication of this license see http://www.lambdassociates.org/News/june1
             (append Parameters
              (append (cons ProcessN (cons Continuation ()))
               (cons -> (cons Code ()))))))
-          (let Eval (eval-without-macros ShenDef) V1654)))))))))))
+          (let Eval (shen-eval-without-macros ShenDef) V5318)))))))))))
 
-(defun shen-normalise-type (V766)
- (fix (lambda X (shen-normalise-type-help X)) V766))
+(defun shen-normalise-type (V5320)
+ (fix (lambda V5321 (shen-normalise-type-help V5321)) V5320))
 
-(defun shen-normalise-type-help (V767)
+(defun shen-normalise-type-help (V5322)
  (cond
-  ((cons? V767)
-   (shen-normalise-X (map (lambda X (shen-normalise-type-help X)) V767)))
-  (true (shen-normalise-X V767))))
+  ((cons? V5322)
+   (shen-normalise-X
+    (map (lambda V5323 (shen-normalise-type-help V5323)) V5322)))
+  (true (shen-normalise-X V5322))))
 
-(defun shen-normalise-X (V768)
- (let Val (assoc V768 (value shen-*synonyms*))
-  (if (empty? Val) V768 (tl Val))))
+(defun shen-normalise-X (V5324)
+ (let Val (assoc V5324 (value shen-*synonyms*))
+  (if (empty? Val) V5324 (tl Val))))
 
-(defun shen-variancy-test (V1656 V1657)
- (let TypeF (shen-typecheck V1656 B)
+(defun shen-variancy-test (V5325 V5326)
+ (let TypeF (shen-typecheck V5325 B)
   (let Check
    (if (= symbol TypeF) shen-skip
-    (if (shen-variant? TypeF V1657) shen-skip
+    (if (shen-variant? TypeF V5326) shen-skip
      (intoutput "warning: changing the type of ~A may create errors~%"
-      (@p V1656 ()))))
+      (@p V5325 ()))))
    shen-skip)))
 
-(defun shen-variant? (V1666 V1667)
- (cond ((= V1667 V1666) true)
-  ((and (cons? V1666) (and (cons? V1667) (= (hd V1667) (hd V1666))))
-   (shen-variant? (tl V1666) (tl V1667)))
-  ((and (cons? V1666)
-    (and (cons? V1667) (and (shen-pvar? (hd V1666)) (variable? (hd V1667)))))
-   (shen-variant? (subst shen-a (hd V1666) (tl V1666))
-    (subst shen-a (hd V1667) (tl V1667))))
-  ((and (cons? V1666)
-    (and (cons? (hd V1666)) (and (cons? V1667) (cons? (hd V1667)))))
-   (shen-variant? (append (hd V1666) (tl V1666))
-    (append (hd V1667) (tl V1667))))
+(defun shen-variant? (V5335 V5336)
+ (cond ((= V5336 V5335) true)
+  ((and (cons? V5335) (and (cons? V5336) (= (hd V5336) (hd V5335))))
+   (shen-variant? (tl V5335) (tl V5336)))
+  ((and (cons? V5335)
+    (and (cons? V5336) (and (shen-pvar? (hd V5335)) (variable? (hd V5336)))))
+   (shen-variant? (subst shen-a (hd V5335) (tl V5335))
+    (subst shen-a (hd V5336) (tl V5336))))
+  ((and (cons? V5335)
+    (and (cons? (hd V5335)) (and (cons? V5336) (cons? (hd V5336)))))
+   (shen-variant? (append (hd V5335) (tl V5335))
+    (append (hd V5336) (tl V5336))))
   (true false)))
 
 (declare absvector? (cons A (cons --> (cons boolean ()))))
+
+(declare adjoin
+ (cons A
+  (cons -->
+   (cons
+    (cons (cons list (cons A ()))
+     (cons --> (cons (cons list (cons A ())) ())))
+    ()))))
 
 (declare and
  (cons boolean
@@ -84,7 +93,6 @@ For an explication of this license see http://www.lambdassociates.org/News/june1
     (cons (cons list (cons A ()))
      (cons --> (cons (cons list (cons A ())) ())))
     ()))))
-
 
 (declare arity (cons A (cons --> (cons number ()))))
 
@@ -129,10 +137,6 @@ For an explication of this license see http://www.lambdassociates.org/News/june1
     ()))))
 
 (declare do (cons A (cons --> (cons (cons B (cons --> (cons B ()))) ()))))
-
-(declare dump
- (cons string
-  (cons --> (cons (cons string (cons --> (cons string ()))) ()))))
 
 (declare element?
  (cons A
@@ -230,8 +234,6 @@ For an explication of this license see http://www.lambdassociates.org/News/june1
 (declare intmake-string
  (cons string (cons --> (cons (cons A (cons --> (cons string ()))) ()))))
 
-(declare intern (cons string (cons --> (cons symbol ()))))
-
 (declare map
  (cons (cons A (cons --> (cons B ())))
   (cons -->
@@ -296,6 +298,8 @@ For an explication of this license see http://www.lambdassociates.org/News/june1
   (cons --> (cons (cons list (cons symbol ())) ()))))
 
 (declare profile-results (cons A (cons --> (cons symbol ()))))
+
+(declare protect (cons symbol (cons --> (cons symbol ()))))
 
 (declare preclude-all-but
  (cons (cons list (cons symbol ()))

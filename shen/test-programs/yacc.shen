@@ -12,7 +12,7 @@ the; a;)
 cat; dog;)  
 
 (defcc <name1>
-Bill; Ben;) 
+ -*- := (if (element? -*- [(protect Bill) (protect Ben)]) -*- (fail));) 
 
 (defcc <vp>
 <vtrans> <np>;) 
@@ -35,7 +35,7 @@ likes; chases;)
 <np> <vp> := (question <np> <vp>);) 
 
 (define question
-NP VP -> (append [Is it true that your father] VP [?]))
+NP VP -> (append [is it true that your father] VP [?]))
 
 (defcc <as->bs>
   a <a->bs> := [b | <a->bs>];

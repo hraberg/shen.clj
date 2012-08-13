@@ -94,7 +94,7 @@
   Name Rules -> (let Arity (aritycheck Name Rules)
                      Free (map (/. Rule (free_variable_check Name Rule)) Rules)
                      Variables (parameters Arity)
-                     Linear (map linearise Rules)
+                     Linear (map linearise (strip-protect Rules))
                      Abstractions (map (function abstract_rule) Linear)
                      Applications 
                        (map (/. X (application_build Variables X))
@@ -112,6 +112,7 @@
   X -> [])
 
 (define extract_free_vars
+  Bound [protect _] -> []
   Bound X -> [X]	where (and (variable? X) (not (element? X Bound)))
   Bound [lambda X Y] -> (extract_free_vars [X | Bound] Y)
   Bound [let X Y Z] -> (union (extract_free_vars Bound Y) 
@@ -122,12 +123,16 @@
 
 (define free_variable_warnings
   _ [] -> _
-  Name Vs -> (let Warning (output "~%The following variables are free in ~A: " Name)
-                  (list_variables Vs)))
+  Name Vs -> (error "error: the following variables are free in ~A: ~A" Name (list_variables Vs)))
 
 (define list_variables
-  [V] -> (output "~A~%" V)
-  [V | Vs] -> (do (output "~A, " V) (list_variables Vs)))
+  [V] -> (cn (str V) ".")
+  [V | Vs] -> (cn (str V) (cn ", " (list_variables Vs))))
+
+(define strip-protect
+  [protect X] -> X
+  [X | Y] -> [(strip-protect X) | (strip-protect Y)]
+  X -> X)
                         
 (define linearise
   [Patts Action] -> (linearise_help (flatten Patts) Patts Action))

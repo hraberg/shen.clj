@@ -15,9 +15,10 @@ following.
   -> (set *passed* (set *failed* 0)))
 
 (defmacro exec-macro
-  [exec Name Expr Prediction] -> [trap-error [let Output [output "~%~A: ~R = ~S" Name (rcons Expr) Prediction]
-                                                   Result [time Expr]
-                                                   [if [= Result Prediction] [passed] [failed Result]]] [/. E [err E]]])
+  [exec Name Expr Prediction] -> [trap-error [let (protect Output) [output "~%~A: ~R = ~S" Name (rcons Expr) Prediction]
+                                                  (protect Result) [time Expr]
+                                                  [if [= (protect Result) Prediction] [passed] [failed (protect Result)]]] 
+                                                      [/. (protect E) [err (protect E)]]])
                                               
 (define rcons
   [X | Y] -> [cons (rcons X) (rcons Y)] 

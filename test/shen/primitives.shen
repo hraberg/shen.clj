@@ -130,9 +130,9 @@
 (test-is (= (<-address (value v) 2) 5))
 
 "testing eval-without-macros, freeze & thaw"
-(test-is (= (eval-without-macros (+ 4 5)) 9))
-(test-is (= (eval-without-macros 4) (+ 2 2)))
-(test-is (= (eval-without-macros hello) hello))
+(test-is (= (shen-eval-without-macros (+ 4 5)) 9))
+(test-is (= (shen-eval-without-macros 4) (+ 2 2)))
+(test-is (= (shen-eval-without-macros hello) hello))
 (test-is (= (= 4 (freeze (+ 2 2))) false))
 (test-is (= 4 (thaw (freeze (+ 2 2)))))
 
@@ -188,7 +188,9 @@
 "Strings"
 (test-is (= (str hello) "hello"))
 (test-is (= (str 5) "5"))
-(test-is (= (str "hello") "\"hello\""))
+
+(test-is (= (str "hello") "c#34;helloc#34;"))
+
 (test-is (string? (str 5)))
 (test-is (string? (str hello)))
 (test-is (string? (str "hello")))
