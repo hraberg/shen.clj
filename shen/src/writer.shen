@@ -1,5 +1,5 @@
 (define print 
-  X -> (do (pr (ms-h ["~" "S"] (@p X skip)) (stinput 0)) X))
+  X -> (do (pr (ms-h ["~" "S"] (@p X skip)) (stoutput 0)) X))
 
 (define format
   true String Args -> (output String Args)
@@ -9,7 +9,7 @@
 (define intoutput
   _ _ -> "Shen hushed"   where (= (value *hush*) "Shen hushed")
   "Shen unhushed" _ -> "Shen unhushed"
-  String Args -> (pr (ms-h (explode-string String) Args) (stinput 0)))
+  String Args -> (pr (ms-h (explode-string String) Args) (stoutput 0)))
 
 (define interror
   String Args -> (simple-error (ms-h (explode-string String) Args))) 

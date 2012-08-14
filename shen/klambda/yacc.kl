@@ -15,139 +15,180 @@
 
 For an explication of this license see http://www.lambdassociates.org/News/june11/license.htm which explains this license in full."
 
-(defun shen-yacc (V3955)
+(defun shen-yacc (V293)
  (cond
-  ((and (cons? V3955) (and (= defcc (hd V3955)) (cons? (tl V3955))))
-   (shen-yacc->shen (hd (tl V3955)) (tl (tl V3955))))
+  ((and (cons? V293) (and (= defcc (hd V293)) (cons? (tl V293))))
+   (shen-yacc->shen (hd (tl V293)) (tl (tl V293))
+    (shen-extract-segvars (tl (tl V293)))))
   (true (shen-sys-error shen-yacc))))
 
-(defun shen-yacc->shen (V3956 V3957)
- (cons define
-  (cons V3956
-   (shen-yacc_cases
-    (map (lambda V3958 (shen-cc_body V3958))
-     (shen-split_cc_rules V3957 ()))))))
+(defun shen-extract-segvars (V298)
+ (cond ((shen-segvar? V298) (cons V298 ()))
+  ((cons? V298)
+   (union (shen-extract-segvars (hd V298)) (shen-extract-segvars (tl V298))))
+  (true ())))
 
-(defun shen-yacc_cases (V3959)
- (append (mapcan (lambda Case (cons Stream (cons <- (cons Case ())))) V3959)
+(defun shen-yacc->shen (V299 V300 V301)
+ (let Main
+  (cons define
+   (cons V299
+    (shen-yacc_cases
+     (map (lambda V302 (shen-cc_body V302)) (shen-split_cc_rules V300 ())))))
+  (if (empty? V301) Main
+   (cons package
+    (cons null
+     (cons () (cons Main (map (lambda V303 (shen-segdef V303)) V301))))))))
+
+(defun shen-segdef (V304)
+ (cons define
+  (cons V304
+   (cons (cons @p (cons In (cons Out ())))
+    (cons Continuation
+     (cons ->
+      (cons
+       (cons let
+        (cons Continue
+         (cons
+          (cons Continuation
+           (cons (cons reverse (cons Out ()))
+            (cons (cons @p (cons In (cons () ()))) ())))
+          (cons
+           (cons if
+            (cons
+             (cons and
+              (cons (cons = (cons Continue (cons (cons fail ()) ())))
+               (cons (cons cons? (cons In ())) ())))
+             (cons
+              (cons V304
+               (cons
+                (cons @p
+                 (cons (cons tl (cons In ()))
+                  (cons
+                   (cons cons (cons (cons hd (cons In ())) (cons Out ())))
+                   ())))
+                (cons Continuation ())))
+              (cons Continue ()))))
+           ()))))
+       ())))))))
+
+(defun shen-yacc_cases (V305)
+ (append (mapcan (lambda Case (cons Stream (cons <- (cons Case ())))) V305)
   (cons _ (cons -> (cons (cons fail ()) ())))))
 
-(defun shen-first_n (V3964 V3965)
- (cond ((= 0 V3964) ()) ((= () V3965) ())
-  ((cons? V3965) (cons (hd V3965) (shen-first_n (- V3964 1) (tl V3965))))
+(defun shen-first_n (V310 V311)
+ (cond ((= 0 V310) ()) ((= () V311) ())
+  ((cons? V311) (cons (hd V311) (shen-first_n (- V310 1) (tl V311))))
   (true (shen-sys-error shen-first_n))))
 
-(defun shen-split_cc_rules (V3966 V3967)
- (cond ((and (= () V3966) (= () V3967)) ())
-  ((= () V3966) (cons (shen-split_cc_rule (reverse V3967) ()) ()))
-  ((and (cons? V3966) (= ; (hd V3966)))
-   (cons (shen-split_cc_rule (reverse V3967) ())
-    (shen-split_cc_rules (tl V3966) ())))
-  ((cons? V3966) (shen-split_cc_rules (tl V3966) (cons (hd V3966) V3967)))
+(defun shen-split_cc_rules (V312 V313)
+ (cond ((and (= () V312) (= () V313)) ())
+  ((= () V312) (cons (shen-split_cc_rule (reverse V313) ()) ()))
+  ((and (cons? V312) (= ; (hd V312)))
+   (cons (shen-split_cc_rule (reverse V313) ())
+    (shen-split_cc_rules (tl V312) ())))
+  ((cons? V312) (shen-split_cc_rules (tl V312) (cons (hd V312) V313)))
   (true (shen-sys-error shen-split_cc_rules))))
 
-(defun shen-split_cc_rule (V3968 V3969)
+(defun shen-split_cc_rule (V314 V315)
  (cond
-  ((and (cons? V3968)
-    (and (= := (hd V3968))
-     (and (cons? (tl V3968)) (= () (tl (tl V3968))))))
-   (cons (reverse V3969) (tl V3968)))
-  ((and (cons? V3968) (= := (hd V3968)))
-   (cons (reverse V3969) (cons (shen-cons_form (tl V3968)) ())))
-  ((= () V3968)
+  ((and (cons? V314)
+    (and (= := (hd V314))
+     (and (cons? (tl V314)) (= () (tl (tl V314))))))
+   (cons (reverse V315) (tl V314)))
+  ((and (cons? V314) (= := (hd V314)))
+   (cons (reverse V315) (cons (shen-cons_form (tl V314)) ())))
+  ((= () V314)
    (do (intoutput "warning: " ())
-    (do (map (lambda X (intoutput "~A " (@p X ()))) (reverse V3969))
+    (do (map (lambda X (intoutput "~A " (@p X ()))) (reverse V315))
      (do (intoutput "has no semantics.~%" ())
       (shen-split_cc_rule
-       (cons := (cons (shen-default_semantics (reverse V3969)) ())) V3969)))))
-  ((cons? V3968) (shen-split_cc_rule (tl V3968) (cons (hd V3968) V3969)))
+       (cons := (cons (shen-default_semantics (reverse V315)) ())) V315)))))
+  ((cons? V314) (shen-split_cc_rule (tl V314) (cons (hd V314) V315)))
   (true (shen-sys-error shen-split_cc_rule))))
 
-(defun shen-default_semantics (V3970)
- (cond ((= () V3970) ())
-  ((and (cons? V3970) (shen-grammar_symbol? (hd V3970)))
-   (let PS (cons snd (cons (concat Parse_ (hd V3970)) ()))
-    (if (empty? (tl V3970)) PS
-     (cons append (cons PS (cons (shen-default_semantics (tl V3970)) ()))))))
-  ((cons? V3970)
-   (cons cons
-    (cons (hd V3970) (cons (shen-default_semantics (tl V3970)) ()))))
+(defun shen-default_semantics (V316)
+ (cond ((= () V316) ())
+  ((and (cons? V316) (shen-grammar_symbol? (hd V316)))
+   (let PS (cons snd (cons (concat Parse_ (hd V316)) ()))
+    (if (empty? (tl V316)) PS
+     (cons append (cons PS (cons (shen-default_semantics (tl V316)) ()))))))
+  ((cons? V316)
+   (cons cons (cons (hd V316) (cons (shen-default_semantics (tl V316)) ()))))
   (true (shen-sys-error shen-default_semantics))))
 
-(defun shen-cc_body (V3971)
+(defun shen-cc_body (V317)
  (cond
-  ((and (cons? V3971) (and (cons? (tl V3971)) (= () (tl (tl V3971)))))
-   (shen-syntax (hd V3971) Stream (hd (tl V3971))))
+  ((and (cons? V317) (and (cons? (tl V317)) (= () (tl (tl V317)))))
+   (shen-syntax (hd V317) Stream (hd (tl V317))))
   (true (shen-sys-error shen-cc_body))))
 
-(defun shen-syntax (V3972 V3973 V3974)
+(defun shen-syntax (V318 V319 V320)
  (cond
-  ((= () V3972)
+  ((= () V318)
    (cons shen-reassemble
-    (cons (cons fst (cons V3973 ())) (cons (shen-semantics V3974) ()))))
-  ((cons? V3972)
-   (if (shen-grammar_symbol? (hd V3972))
-    (shen-recursive_descent V3972 V3973 V3974)
-    (if (shen-terminal? (hd V3972)) (shen-check_stream V3972 V3973 V3974)
-     (if (shen-jump_stream? (hd V3972)) (shen-jump_stream V3972 V3973 V3974)
-      (if (shen-list_stream? (hd V3972))
-       (shen-list_stream (shen-decons (hd V3972)) (tl V3972) V3973 V3974)
-       (interror "~A is not legal syntax~%" (@p (hd V3972) ())))))))
+    (cons (cons fst (cons V319 ())) (cons (shen-semantics V320) ()))))
+  ((cons? V318)
+   (if (shen-grammar_symbol? (hd V318)) (shen-recursive_descent V318 V319 V320)
+    (if (shen-segvar? (hd V318)) (shen-segment-match V318 V319 V320)
+     (if (shen-terminal? (hd V318)) (shen-check_stream V318 V319 V320)
+      (if (shen-jump_stream? (hd V318)) (shen-jump_stream V318 V319 V320)
+       (if (shen-list_stream? (hd V318))
+        (shen-list_stream (shen-decons (hd V318)) (tl V318) V319 V320)
+        (interror "~A is not legal syntax~%" (@p (hd V318) ()))))))))
   (true (shen-sys-error shen-syntax))))
 
-(defun shen-list_stream? (V3983) (cond ((cons? V3983) true) (true false)))
+(defun shen-list_stream? (V329) (cond ((cons? V329) true) (true false)))
 
-(defun shen-decons (V3984)
+(defun shen-decons (V330)
  (cond
-  ((and (cons? V3984)
-    (and (= cons (hd V3984))
-     (and (cons? (tl V3984))
-      (and (cons? (tl (tl V3984))) (= () (tl (tl (tl V3984))))))))
-   (cons (hd (tl V3984)) (shen-decons (hd (tl (tl V3984))))))
-  (true V3984)))
+  ((and (cons? V330)
+    (and (= cons (hd V330))
+     (and (cons? (tl V330))
+      (and (cons? (tl (tl V330))) (= () (tl (tl (tl V330))))))))
+   (cons (hd (tl V330)) (shen-decons (hd (tl (tl V330))))))
+  (true V330)))
 
-(defun shen-list_stream (V3985 V3986 V3987 V3988)
+(defun shen-list_stream (V331 V332 V333 V334)
  (let Test
   (cons and
-   (cons (cons cons? (cons (cons fst (cons V3987 ())) ()))
+   (cons (cons cons? (cons (cons fst (cons V333 ())) ()))
     (cons
-     (cons cons? (cons (cons hd (cons (cons fst (cons V3987 ())) ())) ()))
+     (cons cons? (cons (cons hd (cons (cons fst (cons V333 ())) ())) ()))
      ())))
   (let Action
    (cons shen-snd-or-fail
     (cons
-     (shen-syntax V3985
+     (shen-syntax V331
       (cons shen-reassemble
-       (cons (cons hd (cons (cons fst (cons V3987 ())) ()))
-        (cons (cons snd (cons V3987 ())) ())))
+       (cons (cons hd (cons (cons fst (cons V333 ())) ()))
+        (cons (cons snd (cons V333 ())) ())))
       (cons shen-leave!
        (cons
-        (shen-syntax V3986
+        (shen-syntax V332
          (cons shen-reassemble
-          (cons (cons tl (cons (cons fst (cons V3987 ())) ()))
-           (cons (cons snd (cons V3987 ())) ())))
-         V3988)
+          (cons (cons tl (cons (cons fst (cons V333 ())) ()))
+           (cons (cons snd (cons V333 ())) ())))
+         V334)
         ())))
      ()))
    (let Else (cons fail ())
     (cons if (cons Test (cons Action (cons Else ()))))))))
 
-(defun shen-snd-or-fail (V3995)
- (cond ((tuple? V3995) (snd V3995)) (true (fail))))
+(defun shen-snd-or-fail (V341) (cond ((tuple? V341) (snd V341)) (true (fail))))
 
-(defun shen-grammar_symbol? (V3996)
- (and (symbol? V3996)
-  (let Cs (explode V3996)
+(defun shen-grammar_symbol? (V342)
+ (and (symbol? V342)
+  (let Cs (explode V342)
    (and (= (hd Cs) "<") (= (hd (reverse Cs)) ">")))))
 
-(defun shen-recursive_descent (V3997 V3998 V3999)
+(defun shen-recursive_descent (V343 V344 V345)
  (cond
-  ((cons? V3997)
-   (let Test (cons (hd V3997) (cons V3998 ()))
-    (let Action (shen-syntax (tl V3997) (concat Parse_ (hd V3997)) V3999)
+  ((cons? V343)
+   (let Test (cons (hd V343) (cons V344 ()))
+    (let Action (shen-syntax (tl V343) (concat Parse_ (hd V343)) V345)
      (let Else (cons fail ())
       (cons let
-       (cons (concat Parse_ (hd V3997))
+       (cons (concat Parse_ (hd V343))
         (cons Test
          (cons
           (cons if
@@ -155,68 +196,85 @@ For an explication of this license see http://www.lambdassociates.org/News/june1
             (cons not
              (cons
               (cons =
-               (cons (cons fail ()) (cons (concat Parse_ (hd V3997)) ())))
+               (cons (cons fail ()) (cons (concat Parse_ (hd V343)) ())))
               ()))
             (cons Action (cons Else ()))))
           ()))))))))
   (true (shen-sys-error shen-recursive_descent))))
 
-(defun shen-terminal? (V4008)
- (cond ((cons? V4008) false) ((= -*- V4008) false) (true true)))
+(defun shen-segvar? (V346) (and (symbol? V346) (= (hd (explode V346)) "?")))
 
-(defun shen-jump_stream? (V4013) (cond ((= -*- V4013) true) (true false)))
-
-(defun shen-check_stream (V4014 V4015 V4016)
+(defun shen-segment-match (V347 V348 V349)
  (cond
-  ((cons? V4014)
+  ((cons? V347)
+   (let Continuation
+    (cons lambda
+     (cons (hd V347)
+      (cons
+       (cons lambda
+        (cons Restart (cons (shen-syntax (tl V347) Restart V349) ())))
+       ())))
+    (cons (hd V347) (cons V348 (cons Continuation ())))))
+  (true (shen-sys-error shen-segment-match))))
+
+(defun shen-terminal? (V358)
+ (cond ((cons? V358) false) ((= -*- V358) false) (true true)))
+
+(defun shen-jump_stream? (V363) (cond ((= -*- V363) true) (true false)))
+
+(defun shen-check_stream (V364 V365 V366)
+ (cond
+  ((cons? V364)
    (let Test
     (cons and
-     (cons (cons cons? (cons (cons fst (cons V4015 ())) ()))
+     (cons (cons cons? (cons (cons fst (cons V365 ())) ()))
       (cons
        (cons =
-        (cons (hd V4014)
-         (cons (cons hd (cons (cons fst (cons V4015 ())) ())) ())))
+        (cons (hd V364)
+         (cons (cons hd (cons (cons fst (cons V365 ())) ())) ())))
        ())))
     (let Action
-     (shen-syntax (tl V4014)
+     (shen-syntax (tl V364)
       (cons shen-reassemble
-       (cons (cons tl (cons (cons fst (cons V4015 ())) ()))
-        (cons (cons snd (cons V4015 ())) ())))
-      V4016)
+       (cons (cons tl (cons (cons fst (cons V365 ())) ()))
+        (cons (cons snd (cons V365 ())) ())))
+      V366)
      (let Else (cons fail ())
       (cons if (cons Test (cons Action (cons Else ()))))))))
   (true (shen-sys-error shen-check_stream))))
 
-(defun shen-reassemble (V4018 V4019)
- (cond ((= V4019 (fail)) V4019) (true (@p V4018 V4019))))
+(defun shen-reassemble (V368 V369)
+ (cond ((= V369 (fail)) V369) (true (@p V368 V369))))
 
-(defun shen-jump_stream (V4020 V4021 V4022)
+(defun shen-jump_stream (V370 V371 V372)
  (cond
-  ((cons? V4020)
-   (let Test (cons cons? (cons (cons fst (cons V4021 ())) ()))
+  ((cons? V370)
+   (let Test (cons cons? (cons (cons fst (cons V371 ())) ()))
     (let Action
-     (shen-syntax (tl V4020)
+     (shen-syntax (tl V370)
       (cons shen-reassemble
-       (cons (cons tl (cons (cons fst (cons V4021 ())) ()))
-        (cons (cons snd (cons V4021 ())) ())))
-      V4022)
+       (cons (cons tl (cons (cons fst (cons V371 ())) ()))
+        (cons (cons snd (cons V371 ())) ())))
+      V372)
      (let Else (cons fail ())
       (cons if (cons Test (cons Action (cons Else ()))))))))
   (true (shen-sys-error shen-jump_stream))))
 
-(defun shen-semantics (V4023)
+(defun shen-semantics (V373)
  (cond
-  ((and (cons? V4023)
-    (and (= shen-leave! (hd V4023))
-     (and (cons? (tl V4023)) (= () (tl (tl V4023))))))
-   (hd (tl V4023)))
-  ((= () V4023) ())
-  ((shen-grammar_symbol? V4023) (cons snd (cons (concat Parse_ V4023) ())))
-  ((= -o- V4023) (cons snd (cons Stream ())))
-  ((= -*- V4023) (cons hd (cons (cons fst (cons Stream ())) ())))
-  ((= -s- V4023) (cons fst (cons Stream ())))
-  ((cons? V4023) (map (lambda V4024 (shen-semantics V4024)) V4023))
-  (true V4023)))
+  ((and (cons? V373)
+    (and (= shen-leave! (hd V373))
+     (and (cons? (tl V373)) (= () (tl (tl V373))))))
+   (hd (tl V373)))
+  ((= () V373) ())
+  ((shen-grammar_symbol? V373) (cons snd (cons (concat Parse_ V373) ())))
+  ((= -o- V373) (cons snd (cons Stream ())))
+  ((= -*- V373) (cons hd (cons (cons fst (cons Stream ())) ())))
+  ((= -s- V373) (cons fst (cons Stream ())))
+  ((cons? V373) (map (lambda V374 (shen-semantics V374)) V373)) (true V373)))
 
 (defun fail () fail!)
+
+(defun <!> (V379)
+ (cond ((tuple? V379) (@p () (fst V379))) (true (shen-sys-error <!>))))
 

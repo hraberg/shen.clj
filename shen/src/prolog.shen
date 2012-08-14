@@ -529,6 +529,6 @@
 (define initialise-prolog
   N -> (let Vector (address-> (value *prologvectors*) 
                                N
-                               (fillvector (vector 10) 1 11 -null-))
+                               (fillvector (vector 10) 1 10 -null-))
             Counter (address-> (value *varcounter*) N 1)
             N))

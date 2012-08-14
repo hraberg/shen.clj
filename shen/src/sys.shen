@@ -80,12 +80,14 @@
 (define +vector? 
  X -> (and (absvector? X) (> (<-address X 0) 0)))
 
- (define vector
+(define vector
    N -> (let Vector (absvector (+ N 1))
-            (address-> Vector 0 N)))
+             ZeroStamp (address-> Vector 0 N)
+             Standard (if (= N 0) ZeroStamp (fillvector ZeroStamp 1 N (fail)))
+             Standard))
                             
 (define fillvector 
-  Vector N N _ -> Vector
+  Vector N N X -> (address-> Vector N X)
   Vector Counter N X -> (fillvector (address-> Vector Counter X) (+ 1 Counter) N X))
 
 (define vector? 
@@ -423,3 +425,6 @@
 
 (define protect
   X -> X)
+
+(define stoutput
+  _ -> (value *stoutput*))

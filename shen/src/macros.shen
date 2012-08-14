@@ -86,7 +86,7 @@
    X -> X)
 
 (define yacc-macro
-  [defcc F | X] -> (yacc->shen F X)
+  [defcc F | X] -> (yacc->shen F X (extract-segvars X))
   X -> X)
    
 (define assoc-macro   
@@ -124,8 +124,8 @@
    [output String | Y] -> [intoutput String (tuple-up Y)]
    [make-string String | Y] -> [intmake-string String (tuple-up Y)]
    [error String | Y] -> [interror String (tuple-up Y)]
-   [pr String] -> [pr String [value *stoutput*]]
-   [read-byte] -> [read-byte [value *stinput*]]
+   [pr String] -> [pr String [stoutput 0]]
+   [read-byte] -> [read-byte [stinput 0]]
    X -> X)
    
 (define tuple-up

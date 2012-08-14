@@ -7,8 +7,8 @@
            [java.util.regex Pattern])
   (:gen-class))
 
-(def shen-namespaces '[sys writer declarations core load macros prolog reader sequent
-                       toplevel track t-star yacc types])
+(def shen-namespaces '[sys writer core prolog yacc declarations load macros reader
+                       sequent toplevel track t-star types])
 
 (def kl-dir (->> ["../../K Lambda" "shen/klambda"]
                  (map file) (filter #(.exists %)) first))

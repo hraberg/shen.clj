@@ -15,12 +15,12 @@
 
 For an explication of this license see http://www.lambdassociates.org/News/june11/license.htm which explains this license in full."
 
-(defun declare (V5318 V5319)
- (let Record (set shen-*signedfuncs* (adjoin V5318 (value shen-*signedfuncs*)))
+(defun declare (V1677 V1678)
+ (let Record (set shen-*signedfuncs* (adjoin V1677 (value shen-*signedfuncs*)))
   (let Variancy
-   (trap-error (shen-variancy-test V5318 V5319) (lambda E shen-skip))
-   (let Type (shen-rcons_form (shen-normalise-type V5319))
-    (let F* (concat shen-type-signature-of- V5318)
+   (trap-error (shen-variancy-test V1677 V1678) (lambda E shen-skip))
+   (let Type (shen-rcons_form (shen-normalise-type V1678))
+    (let F* (concat shen-type-signature-of- V1677)
      (let Parameters (shen-parameters 1)
       (let Clause
        (cons (cons F* (cons X ()))
@@ -33,43 +33,43 @@ For an explication of this license see http://www.lambdassociates.org/News/june1
             (append Parameters
              (append (cons ProcessN (cons Continuation ()))
               (cons -> (cons Code ()))))))
-          (let Eval (shen-eval-without-macros ShenDef) V5318)))))))))))
+          (let Eval (shen-eval-without-macros ShenDef) V1677)))))))))))
 
-(defun shen-normalise-type (V5320)
- (fix (lambda V5321 (shen-normalise-type-help V5321)) V5320))
+(defun shen-normalise-type (V1679)
+ (fix (lambda V1680 (shen-normalise-type-help V1680)) V1679))
 
-(defun shen-normalise-type-help (V5322)
+(defun shen-normalise-type-help (V1681)
  (cond
-  ((cons? V5322)
+  ((cons? V1681)
    (shen-normalise-X
-    (map (lambda V5323 (shen-normalise-type-help V5323)) V5322)))
-  (true (shen-normalise-X V5322))))
+    (map (lambda V1682 (shen-normalise-type-help V1682)) V1681)))
+  (true (shen-normalise-X V1681))))
 
-(defun shen-normalise-X (V5324)
- (let Val (assoc V5324 (value shen-*synonyms*))
-  (if (empty? Val) V5324 (tl Val))))
+(defun shen-normalise-X (V1683)
+ (let Val (assoc V1683 (value shen-*synonyms*))
+  (if (empty? Val) V1683 (tl Val))))
 
-(defun shen-variancy-test (V5325 V5326)
- (let TypeF (shen-typecheck V5325 B)
+(defun shen-variancy-test (V1684 V1685)
+ (let TypeF (shen-typecheck V1684 B)
   (let Check
    (if (= symbol TypeF) shen-skip
-    (if (shen-variant? TypeF V5326) shen-skip
+    (if (shen-variant? TypeF V1685) shen-skip
      (intoutput "warning: changing the type of ~A may create errors~%"
-      (@p V5325 ()))))
+      (@p V1684 ()))))
    shen-skip)))
 
-(defun shen-variant? (V5335 V5336)
- (cond ((= V5336 V5335) true)
-  ((and (cons? V5335) (and (cons? V5336) (= (hd V5336) (hd V5335))))
-   (shen-variant? (tl V5335) (tl V5336)))
-  ((and (cons? V5335)
-    (and (cons? V5336) (and (shen-pvar? (hd V5335)) (variable? (hd V5336)))))
-   (shen-variant? (subst shen-a (hd V5335) (tl V5335))
-    (subst shen-a (hd V5336) (tl V5336))))
-  ((and (cons? V5335)
-    (and (cons? (hd V5335)) (and (cons? V5336) (cons? (hd V5336)))))
-   (shen-variant? (append (hd V5335) (tl V5335))
-    (append (hd V5336) (tl V5336))))
+(defun shen-variant? (V1694 V1695)
+ (cond ((= V1695 V1694) true)
+  ((and (cons? V1694) (and (cons? V1695) (= (hd V1695) (hd V1694))))
+   (shen-variant? (tl V1694) (tl V1695)))
+  ((and (cons? V1694)
+    (and (cons? V1695) (and (shen-pvar? (hd V1694)) (variable? (hd V1695)))))
+   (shen-variant? (subst shen-a (hd V1694) (tl V1694))
+    (subst shen-a (hd V1695) (tl V1695))))
+  ((and (cons? V1694)
+    (and (cons? (hd V1694)) (and (cons? V1695) (cons? (hd V1695)))))
+   (shen-variant? (append (hd V1694) (tl V1694))
+    (append (hd V1695) (tl V1695))))
   (true false)))
 
 (declare absvector? (cons A (cons --> (cons boolean ()))))
@@ -335,7 +335,10 @@ For an explication of this license see http://www.lambdassociates.org/News/june1
 
 (declare step (cons symbol (cons --> (cons boolean ()))))
 
-(declare stinput (cons A (cons --> (cons (cons stream (cons B ())) ()))))
+(declare stinput (cons A (cons --> (cons (cons stream (cons in ())) ()))))
+
+(declare shen-stoutput
+ (cons A (cons --> (cons (cons stream (cons out ())) ()))))
 
 (declare string? (cons A (cons --> (cons boolean ()))))
 

@@ -343,7 +343,9 @@
   (pr X (OutputStreamWriter. S)))
 
 (defmethod pr Writer [X ^Writer S]
-  (binding [*out* S]
+  (binding [*out* (if (= S (value '*stoutput*))
+                    *out*
+                    S)]
     (print X)
     (flush)
     X))

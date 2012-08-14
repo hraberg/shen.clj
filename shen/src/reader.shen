@@ -361,6 +361,7 @@
   [X | Y] -> [cons X (cons_form Y)])  
  
 (define package-macro
+    [$ S] Stream -> (append (explode S) Stream)
     [package null _ | Code] Stream -> (append Code Stream)
     [package PackageName Exceptions | Code] Stream
      -> (let ListofExceptions (eval-without-macros Exceptions)

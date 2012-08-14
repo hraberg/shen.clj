@@ -15,10 +15,10 @@
 
 For an explication of this license see http://www.lambdassociates.org/News/june11/license.htm which explains this license in full."
 
-(defun load (V5288)
+(defun load (V1647)
  (let Load
   (let Start (get-time run)
-   (let Result (shen-load-help (value shen-*tc*) (read-file V5288))
+   (let Result (shen-load-help (value shen-*tc*) (read-file V1647))
     (let Finish (get-time run)
      (let Time (- Finish Start)
       (let Message (intoutput "~%run time: ~A secs~%" (@p Time ()))
@@ -29,55 +29,55 @@ For an explication of this license see http://www.lambdassociates.org/News/june1
     shen-skip)
    loaded)))
 
-(defun shen-load-help (V5293 V5294)
+(defun shen-load-help (V1652 V1653)
  (cond
-  ((= false V5293)
+  ((= false V1652)
    (map (lambda X (intoutput "~S~%" (@p (shen-eval-without-macros X) ())))
-    V5294))
+    V1653))
   (true
    (let RemoveSynonyms
-    (mapcan (lambda V5295 (shen-remove-synonyms V5295)) V5294)
-    (let Table (mapcan (lambda V5296 (shen-typetable V5296)) RemoveSynonyms)
-     (let Assume (map (lambda V5297 (shen-assumetype V5297)) Table)
+    (mapcan (lambda V1654 (shen-remove-synonyms V1654)) V1653)
+    (let Table (mapcan (lambda V1655 (shen-typetable V1655)) RemoveSynonyms)
+     (let Assume (map (lambda V1656 (shen-assumetype V1656)) Table)
       (trap-error
-       (map (lambda V5298 (shen-typecheck-and-load V5298)) RemoveSynonyms)
+       (map (lambda V1657 (shen-typecheck-and-load V1657)) RemoveSynonyms)
        (lambda E (shen-unwind-types E Table)))))))))
 
-(defun shen-remove-synonyms (V5299)
+(defun shen-remove-synonyms (V1658)
  (cond
-  ((and (cons? V5299) (= shen-synonyms-help (hd V5299)))
-   (do (eval V5299) ()))
-  (true (cons V5299 ()))))
+  ((and (cons? V1658) (= shen-synonyms-help (hd V1658)))
+   (do (eval V1658) ()))
+  (true (cons V1658 ()))))
 
-(defun shen-typecheck-and-load (V5300)
- (do (nl 1) (shen-typecheck-and-evaluate V5300 (gensym A))))
+(defun shen-typecheck-and-load (V1659)
+ (do (nl 1) (shen-typecheck-and-evaluate V1659 (gensym A))))
 
-(defun shen-typetable (V5305)
+(defun shen-typetable (V1664)
  (cond
-  ((and (cons? V5305) (and (= define (hd V5305)) (cons? (tl V5305))))
+  ((and (cons? V1664) (and (= define (hd V1664)) (cons? (tl V1664))))
    (let Sig
-    (compile (lambda V5306 (shen-<sig+rest> V5306)) (tl (tl V5305)) ())
+    (compile (lambda V1665 (shen-<sig+rest> V1665)) (tl (tl V1664)) ())
     (if (= Sig fail!)
-     (interror "~A lacks a proper signature.~%" (@p (hd (tl V5305)) ()))
-     (cons (cons (hd (tl V5305)) Sig) ()))))
+     (interror "~A lacks a proper signature.~%" (@p (hd (tl V1664)) ()))
+     (cons (cons (hd (tl V1664)) Sig) ()))))
   (true ())))
 
-(defun shen-assumetype (V5307)
- (cond ((cons? V5307) (declare (hd V5307) (tl V5307)))
+(defun shen-assumetype (V1666)
+ (cond ((cons? V1666) (declare (hd V1666) (tl V1666)))
   (true (shen-sys-error shen-assumetype))))
 
-(defun shen-unwind-types (V5312 V5313)
- (cond ((= () V5313) (simple-error (error-to-string V5312)))
-  ((and (cons? V5313) (cons? (hd V5313)))
-   (do (shen-remtype (hd (hd V5313))) (shen-unwind-types V5312 (tl V5313))))
+(defun shen-unwind-types (V1671 V1672)
+ (cond ((= () V1672) (simple-error (error-to-string V1671)))
+  ((and (cons? V1672) (cons? (hd V1672)))
+   (do (shen-remtype (hd (hd V1672))) (shen-unwind-types V1671 (tl V1672))))
   (true (shen-sys-error shen-unwind-types))))
 
-(defun shen-remtype (V5314)
- (do (set shen-*signedfuncs* (remove V5314 (value shen-*signedfuncs*))) V5314))
+(defun shen-remtype (V1673)
+ (do (set shen-*signedfuncs* (remove V1673 (value shen-*signedfuncs*))) V1673))
 
-(defun shen-<sig+rest> (V5315)
+(defun shen-<sig+rest> (V1674)
  (let Result
-  (let Parse_<signature> (shen-<signature> V5315)
+  (let Parse_<signature> (shen-<signature> V1674)
    (if (not (= (fail) Parse_<signature>))
     (let Parse_<any> (shen-<any> Parse_<signature>)
      (if (not (= (fail) Parse_<any>))
@@ -85,10 +85,10 @@ For an explication of this license see http://www.lambdassociates.org/News/june1
     (fail)))
   (if (= Result (fail)) (fail) Result)))
 
-(defun write-to-file (V5316 V5317)
+(defun write-to-file (V1675 V1676)
  (let AbsPath
-  (intmake-string "~A~A" (@p (value *home-directory*) (@p V5316 ())))
+  (intmake-string "~A~A" (@p (value *home-directory*) (@p V1675 ())))
   (let Stream (open file AbsPath out)
-   (let String (intmake-string "~S~%~%" (@p V5317 ()))
-    (let Write (pr String Stream) (let Close (close Stream) V5317))))))
+   (let String (intmake-string "~S~%~%" (@p V1676 ()))
+    (let Write (pr String Stream) (let Close (close Stream) V1676))))))
 

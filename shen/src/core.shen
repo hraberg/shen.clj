@@ -94,7 +94,7 @@
   Name Rules -> (let Arity (aritycheck Name Rules)
                      Free (map (/. Rule (free_variable_check Name Rule)) Rules)
                      Variables (parameters Arity)
-                     Linear (map linearise (strip-protect Rules))
+                     Linear (map (function linearise) (strip-protect Rules))
                      Abstractions (map (function abstract_rule) Linear)
                      Applications 
                        (map (/. X (application_build Variables X))
