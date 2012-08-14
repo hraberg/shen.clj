@@ -167,6 +167,8 @@
             "/." slash-dot
             (string/replace String "/" "-slash-"))))
 
+(c/alter-var-root #'intern c/memoize)
+
 (c/defmacro cond [[test expr] & clauses]
   (list 'if-kl test expr
         (when clauses
@@ -231,7 +233,7 @@
 (defn fail! [] (assert false))
 
 (defn cons? [X]
-  (c/and (coll? X) (not (empty? X))))
+  (c/and (coll? X) (not (.isEmpty ^java.util.Collection X))))
 
 (defn str [X]
   (if-not ((some-fn coll? fn?) X) (c/pr-str X)

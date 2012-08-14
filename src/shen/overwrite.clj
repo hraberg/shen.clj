@@ -37,13 +37,23 @@
              false))
 
 (defun
+  shen-compose
+  (V532 V533)
+  (c/reduce #(%2 %) V533 V532))
+
+(defun
+ element?
+ (V787 ^java.util.Collection V788)
+ (.contains V788 V787))
+
+(defun
   macroexpand
   (V510)
   (let
       Y
     (shen-compose (c/drop-while c/nil?
                                    (c/map #(c/when-let [m (c/ns-resolve 'shen %)] @m)
-                                             (value '*macros*))) V510)
+                                          (value '*macros*))) V510)
     (if (= V510 Y) V510 (shen-walk macroexpand Y))))
 
 ;; Based on [Shen Mode](https://github.com/eschulte/shen-mode) by Eric Schulte.

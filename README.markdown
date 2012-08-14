@@ -38,7 +38,7 @@ The script [`build`](https://github.com/hraberg/shen.clj/blob/master/build) is u
     lein repl
 
     # java:
-    java -cp lib/clojure-1.4.0.jar:shen.clj-0.1.6.jar shen
+    java -cp lib/clojure-1.4.0.jar:shen.clj-0.1.6-SNAPSHOT.jar shen
 
 
 #### Plain
@@ -94,7 +94,7 @@ The Shen test suite is now running, slowly but surely:
     ok
     0
 
-    run time: 18.239 secs
+    run time: 16.713 secs
     loaded
 
 The suite can be run via:
