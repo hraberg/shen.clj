@@ -15,40 +15,40 @@
 
 For an explication of this license see http://www.lambdassociates.org/News/june11/license.htm which explains this license in full."
 
-(defun shen-f_error (V1119)
- (do (intoutput "partial function ~A;~%" (@p V1119 ()))
+(defun shen-f_error (V1123)
+ (do (intoutput "partial function ~A;~%" (@p V1123 ()))
   (do
    (if
-    (and (not (shen-tracked? V1119))
-     (y-or-n? (intmake-string "track ~A? " (@p V1119 ()))))
-    (shen-track-function (ps V1119)) shen-ok)
+    (and (not (shen-tracked? V1123))
+     (y-or-n? (intmake-string "track ~A? " (@p V1123 ()))))
+    (shen-track-function (ps V1123)) shen-ok)
    (simple-error "aborted"))))
 
-(defun shen-tracked? (V1120) (element? V1120 (value shen-*tracking*)))
+(defun shen-tracked? (V1124) (element? V1124 (value shen-*tracking*)))
 
-(defun track (V1121) (let Source (ps V1121) (shen-track-function Source)))
+(defun track (V1125) (let Source (ps V1125) (shen-track-function Source)))
 
-(defun shen-track-function (V1122)
+(defun shen-track-function (V1126)
  (cond
-  ((and (cons? V1122)
-    (and (= defun (hd V1122))
-     (and (cons? (tl V1122))
-      (and (cons? (tl (tl V1122)))
-       (and (cons? (tl (tl (tl V1122))))
-        (= () (tl (tl (tl (tl V1122))))))))))
+  ((and (cons? V1126)
+    (and (= defun (hd V1126))
+     (and (cons? (tl V1126))
+      (and (cons? (tl (tl V1126)))
+       (and (cons? (tl (tl (tl V1126))))
+        (= () (tl (tl (tl (tl V1126))))))))))
    (let KL
     (cons defun
-     (cons (hd (tl V1122))
-      (cons (hd (tl (tl V1122)))
+     (cons (hd (tl V1126))
+      (cons (hd (tl (tl V1126)))
        (cons
-        (shen-insert-tracking-code (hd (tl V1122)) (hd (tl (tl V1122)))
-         (hd (tl (tl (tl V1122)))))
+        (shen-insert-tracking-code (hd (tl V1126)) (hd (tl (tl V1126)))
+         (hd (tl (tl (tl V1126)))))
         ()))))
     (let Ob (eval KL)
      (let Tr (set shen-*tracking* (cons Ob (value shen-*tracking*))) Ob))))
   (true (shen-sys-error shen-track-function))))
 
-(defun shen-insert-tracking-code (V1123 V1124 V1125)
+(defun shen-insert-tracking-code (V1127 V1128 V1129)
  (cons do
   (cons
    (cons set
@@ -60,20 +60,20 @@ For an explication of this license see http://www.lambdassociates.org/News/june1
      (cons
       (cons shen-input-track
        (cons (cons value (cons shen-*call* ()))
-        (cons V1123 (cons (shen-cons_form V1124) ()))))
+        (cons V1127 (cons (shen-cons_form V1128) ()))))
       (cons
        (cons do
         (cons (cons shen-terpri-or-read-char ())
          (cons
           (cons let
            (cons Result
-            (cons V1125
+            (cons V1129
              (cons
               (cons do
                (cons
                 (cons shen-output-track
                  (cons (cons value (cons shen-*call* ()))
-                  (cons V1123 (cons Result ()))))
+                  (cons V1127 (cons Result ()))))
                 (cons
                  (cons do
                   (cons
@@ -96,85 +96,85 @@ For an explication of this license see http://www.lambdassociates.org/News/june1
 
 (set shen-*step* false)
 
-(defun step (V1130)
- (cond ((= + V1130) (set shen-*step* true))
-  ((= - V1130) (set shen-*step* false))
+(defun step (V1134)
+ (cond ((= + V1134) (set shen-*step* true))
+  ((= - V1134) (set shen-*step* false))
   (true (interror "step expects a + or a -.~%" ()))))
 
-(defun spy (V1135)
- (cond ((= + V1135) (set shen-*spy* true))
-  ((= - V1135) (set shen-*spy* false))
+(defun spy (V1139)
+ (cond ((= + V1139) (set shen-*spy* true))
+  ((= - V1139) (set shen-*spy* false))
   (true (interror "spy expects a + or a -.~%" ()))))
 
 (defun shen-terpri-or-read-char ()
  (if (value shen-*step*) (shen-check-byte (read-byte (value *stinput*)))
   (nl 1)))
 
-(defun shen-check-byte (V1140)
- (cond ((= V1140 (shen-hat)) (interror "aborted" ())) (true true)))
+(defun shen-check-byte (V1144)
+ (cond ((= V1144 (shen-hat)) (interror "aborted" ())) (true true)))
 
-(defun shen-input-track (V1141 V1142 V1143)
+(defun shen-input-track (V1145 V1146 V1147)
  (do
   (intoutput "~%~A<~A> Inputs to ~A ~%~A"
-   (@p (shen-spaces V1141)
-    (@p V1141 (@p V1142 (@p (shen-spaces V1141) (@p V1143 ()))))))
-  (shen-recursively-print V1143)))
+   (@p (shen-spaces V1145)
+    (@p V1145 (@p V1146 (@p (shen-spaces V1145) (@p V1147 ()))))))
+  (shen-recursively-print V1147)))
 
-(defun shen-recursively-print (V1144)
- (cond ((= () V1144) (intoutput " ==>" ()))
-  ((cons? V1144)
-   (do (print (hd V1144))
-    (do (intoutput ", " ()) (shen-recursively-print (tl V1144)))))
+(defun shen-recursively-print (V1148)
+ (cond ((= () V1148) (intoutput " ==>" ()))
+  ((cons? V1148)
+   (do (print (hd V1148))
+    (do (intoutput ", " ()) (shen-recursively-print (tl V1148)))))
   (true (shen-sys-error shen-recursively-print))))
 
-(defun shen-spaces (V1145)
- (cond ((= 0 V1145) "") (true (cn " " (shen-spaces (- V1145 1))))))
+(defun shen-spaces (V1149)
+ (cond ((= 0 V1149) "") (true (cn " " (shen-spaces (- V1149 1))))))
 
-(defun shen-output-track (V1146 V1147 V1148)
+(defun shen-output-track (V1150 V1151 V1152)
  (intoutput "~%~A<~A> Output from ~A ~%~A==> ~S"
-  (@p (shen-spaces V1146)
-   (@p V1146 (@p V1147 (@p (shen-spaces V1146) (@p V1148 ())))))))
+  (@p (shen-spaces V1150)
+   (@p V1150 (@p V1151 (@p (shen-spaces V1150) (@p V1152 ())))))))
 
-(defun untrack (V1149) (eval (ps V1149)))
+(defun untrack (V1153) (eval (ps V1153)))
 
-(defun profile (V1150) (shen-profile-help (ps V1150)))
+(defun profile (V1154) (shen-profile-help (ps V1154)))
 
-(defun shen-profile-help (V1155)
+(defun shen-profile-help (V1159)
  (cond
-  ((and (cons? V1155)
-    (and (= defun (hd V1155))
-     (and (cons? (tl V1155))
-      (and (cons? (tl (tl V1155)))
-       (and (cons? (tl (tl (tl V1155))))
-        (= () (tl (tl (tl (tl V1155))))))))))
+  ((and (cons? V1159)
+    (and (= defun (hd V1159))
+     (and (cons? (tl V1159))
+      (and (cons? (tl (tl V1159)))
+       (and (cons? (tl (tl (tl V1159))))
+        (= () (tl (tl (tl (tl V1159))))))))))
    (let G (gensym shen-f)
     (let Profile
      (cons defun
-      (cons (hd (tl V1155))
-       (cons (hd (tl (tl V1155)))
+      (cons (hd (tl V1159))
+       (cons (hd (tl (tl V1159)))
         (cons
-         (shen-profile-func (hd (tl V1155)) (hd (tl (tl V1155)))
-          (cons G (hd (tl (tl V1155)))))
+         (shen-profile-func (hd (tl V1159)) (hd (tl (tl V1159)))
+          (cons G (hd (tl (tl V1159)))))
          ()))))
      (let Def
       (cons defun
        (cons G
-        (cons (hd (tl (tl V1155)))
-         (cons (subst G (hd (tl V1155)) (hd (tl (tl (tl V1155))))) ()))))
+        (cons (hd (tl (tl V1159)))
+         (cons (subst G (hd (tl V1159)) (hd (tl (tl (tl V1159))))) ()))))
       (let CompileProfile (shen-eval-without-macros Profile)
-       (let CompileG (shen-eval-without-macros Def) (hd (tl V1155))))))))
+       (let CompileG (shen-eval-without-macros Def) (hd (tl V1159))))))))
   (true (interror "Cannot profile.~%" ()))))
 
-(defun unprofile (V1156) (untrack V1156))
+(defun unprofile (V1160) (untrack V1160))
 
-(defun shen-profile-func (V1157 V1158 V1159)
+(defun shen-profile-func (V1161 V1162 V1163)
  (cons let
   (cons Start
    (cons (cons get-time (cons run ()))
     (cons
      (cons let
       (cons Result
-       (cons V1159
+       (cons V1163
         (cons
          (cons let
           (cons Finish
@@ -185,10 +185,10 @@ For an explication of this license see http://www.lambdassociates.org/News/june1
               (cons Record
                (cons
                 (cons shen-put-profile
-                 (cons V1157
+                 (cons V1161
                   (cons
                    (cons +
-                    (cons (cons shen-get-profile (cons V1157 ()))
+                    (cons (cons shen-get-profile (cons V1161 ()))
                      (cons Finish ())))
                    ())))
                 (cons Result ()))))
@@ -196,13 +196,13 @@ For an explication of this license see http://www.lambdassociates.org/News/june1
          ()))))
      ())))))
 
-(defun profile-results (V1160)
- (let Results (shen-get-profile V1160)
-  (let Initialise (shen-put-profile V1160 0) (@p V1160 Results))))
+(defun profile-results (V1164)
+ (let Results (shen-get-profile V1164)
+  (let Initialise (shen-put-profile V1164 0) (@p V1164 Results))))
 
-(defun shen-get-profile (V1161)
- (trap-error (get V1161 profile (value shen-*property-vector*)) (lambda E 0)))
+(defun shen-get-profile (V1165)
+ (trap-error (get V1165 profile (value shen-*property-vector*)) (lambda E 0)))
 
-(defun shen-put-profile (V1162 V1163)
- (put V1162 profile V1163 (value shen-*property-vector*)))
+(defun shen-put-profile (V1166 V1167)
+ (put V1166 profile V1167 (value shen-*property-vector*)))
 

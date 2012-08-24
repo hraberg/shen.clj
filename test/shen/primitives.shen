@@ -222,8 +222,8 @@
 
 "Absvectors"
 (set x (absvector 100))
-(test-is (= (<-address (value x) 1) (fail)))
-(test-is (= (<-address (value x) 99) (fail)))
+(test-is (= (<-address (value x) 1) fail!))
+(test-is (= (<-address (value x) 99) fail!))
 (test-is (= (trap-error (<-address (value x) 100) (/. E -1)) -1))
 (address-> (value x) 10 100)
 (test-is (= (<-address (value x) 10) 100))

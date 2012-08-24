@@ -10,7 +10,7 @@
 (define version
   S -> (set *version* S))
 
-(version "version 6.0")
+(version "version 6.1")
 
 (define credits
  -> (do (output "~%Shen 2010, copyright (C) 2010 Mark Tarver~%")
@@ -19,7 +19,7 @@
         (output "~%port ~A ported by ~A~%" (value *port*) (value *porters*))))
 
 (define initialise_environment 
-  -> (multiple-set [*call* 0 *infs* 0 *dumped* [] *process-counter* 0 *catch* 0]))  
+  -> (multiple-set [*call* 0 *infs* 0 *process-counter* 0 *catch* 0]))  
 
 (define multiple-set
   [] -> []
@@ -71,7 +71,7 @@
 (define toplineread_loop
   Byte _ -> (error "line read aborted")  where (= Byte (hat))
   Byte Bytes -> (let Line (compile (function <st_input>) Bytes)
-                    (if (or (= Line fail!) (empty? Line))
+                    (if (or (= Line (fail)) (empty? Line))
                         (toplineread_loop (read-byte) (append Bytes [Byte]))
                         (@p Line Bytes)))
                             	where (element? Byte [(newline) (carriage-return)])
@@ -148,13 +148,11 @@
 (define toplevel_evaluate
   [X : A] true -> (typecheck-and-evaluate X A)  
   [X Y | Z] Boolean -> (do (toplevel_evaluate [X] Boolean)
-                            (if (= (value *hush*) hushed) skip (nl))
+                            (nl)
                             (toplevel_evaluate [Y | Z] Boolean))
   [X] true -> (typecheck-and-evaluate X (gensym A))
   [X] false -> (let Eval (eval-without-macros X)
-                   (if (or (= (value *hush*) hushed) (= Eval unhushed))
-                       skip
-                       (print Eval))))
+                    (print Eval)))
 
 (define typecheck-and-evaluate
   X A -> (let Typecheck (typecheck X A)
@@ -162,9 +160,7 @@
                   (error "type error~%")
                   (let Eval (eval-without-macros X)
                        Type (pretty-type Typecheck)
-                       (if (or (= (value *hush*) hushed) (= X unhushed))
-                           skip
-                           (output "~S : ~R" Eval Type))))))
+                       (output "~S : ~R" Eval Type)))))
 
 (define pretty-type
   Type -> (mult_subst (value *alphabet*) (extract-pvars Type) Type))

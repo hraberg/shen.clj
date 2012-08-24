@@ -7,8 +7,6 @@
   Stream String Args -> (pr (ms-h (explode String) Args) Stream))
   
 (define intoutput
-  _ _ -> "Shen hushed"   where (= (value *hush*) "Shen hushed")
-  "Shen unhushed" _ -> "Shen unhushed"
   String Args -> (pr (ms-h (explode-string String) Args) (stoutput 0)))
 
 (define interror
@@ -26,6 +24,7 @@
 
 
 (define ob->str
+  _ X -> "..."   where (= X (fail))
   C [] -> (if (= C "R") "()" "[]")
   C V ->  "<>"	where (= V (vector 0))
   C [X | Y] -> (cn-all (append (if (= C "R") ["("] ["["]) 

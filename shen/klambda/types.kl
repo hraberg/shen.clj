@@ -15,12 +15,12 @@
 
 For an explication of this license see http://www.lambdassociates.org/News/june11/license.htm which explains this license in full."
 
-(defun declare (V1677 V1678)
- (let Record (set shen-*signedfuncs* (adjoin V1677 (value shen-*signedfuncs*)))
+(defun declare (V1681 V1682)
+ (let Record (set shen-*signedfuncs* (adjoin V1681 (value shen-*signedfuncs*)))
   (let Variancy
-   (trap-error (shen-variancy-test V1677 V1678) (lambda E shen-skip))
-   (let Type (shen-rcons_form (shen-normalise-type V1678))
-    (let F* (concat shen-type-signature-of- V1677)
+   (trap-error (shen-variancy-test V1681 V1682) (lambda E shen-skip))
+   (let Type (shen-rcons_form (shen-normalise-type V1682))
+    (let F* (concat shen-type-signature-of- V1681)
      (let Parameters (shen-parameters 1)
       (let Clause
        (cons (cons F* (cons X ()))
@@ -33,43 +33,43 @@ For an explication of this license see http://www.lambdassociates.org/News/june1
             (append Parameters
              (append (cons ProcessN (cons Continuation ()))
               (cons -> (cons Code ()))))))
-          (let Eval (shen-eval-without-macros ShenDef) V1677)))))))))))
+          (let Eval (shen-eval-without-macros ShenDef) V1681)))))))))))
 
-(defun shen-normalise-type (V1679)
- (fix (lambda V1680 (shen-normalise-type-help V1680)) V1679))
+(defun shen-normalise-type (V1683)
+ (fix (lambda V1684 (shen-normalise-type-help V1684)) V1683))
 
-(defun shen-normalise-type-help (V1681)
+(defun shen-normalise-type-help (V1685)
  (cond
-  ((cons? V1681)
+  ((cons? V1685)
    (shen-normalise-X
-    (map (lambda V1682 (shen-normalise-type-help V1682)) V1681)))
-  (true (shen-normalise-X V1681))))
+    (map (lambda V1686 (shen-normalise-type-help V1686)) V1685)))
+  (true (shen-normalise-X V1685))))
 
-(defun shen-normalise-X (V1683)
- (let Val (assoc V1683 (value shen-*synonyms*))
-  (if (empty? Val) V1683 (tl Val))))
+(defun shen-normalise-X (V1687)
+ (let Val (assoc V1687 (value shen-*synonyms*))
+  (if (empty? Val) V1687 (tl Val))))
 
-(defun shen-variancy-test (V1684 V1685)
- (let TypeF (shen-typecheck V1684 B)
+(defun shen-variancy-test (V1688 V1689)
+ (let TypeF (shen-typecheck V1688 B)
   (let Check
    (if (= symbol TypeF) shen-skip
-    (if (shen-variant? TypeF V1685) shen-skip
+    (if (shen-variant? TypeF V1689) shen-skip
      (intoutput "warning: changing the type of ~A may create errors~%"
-      (@p V1684 ()))))
+      (@p V1688 ()))))
    shen-skip)))
 
-(defun shen-variant? (V1694 V1695)
- (cond ((= V1695 V1694) true)
-  ((and (cons? V1694) (and (cons? V1695) (= (hd V1695) (hd V1694))))
-   (shen-variant? (tl V1694) (tl V1695)))
-  ((and (cons? V1694)
-    (and (cons? V1695) (and (shen-pvar? (hd V1694)) (variable? (hd V1695)))))
-   (shen-variant? (subst shen-a (hd V1694) (tl V1694))
-    (subst shen-a (hd V1695) (tl V1695))))
-  ((and (cons? V1694)
-    (and (cons? (hd V1694)) (and (cons? V1695) (cons? (hd V1695)))))
-   (shen-variant? (append (hd V1694) (tl V1694))
-    (append (hd V1695) (tl V1695))))
+(defun shen-variant? (V1698 V1699)
+ (cond ((= V1699 V1698) true)
+  ((and (cons? V1698) (and (cons? V1699) (= (hd V1699) (hd V1698))))
+   (shen-variant? (tl V1698) (tl V1699)))
+  ((and (cons? V1698)
+    (and (cons? V1699) (and (shen-pvar? (hd V1698)) (variable? (hd V1699)))))
+   (shen-variant? (subst shen-a (hd V1698) (tl V1698))
+    (subst shen-a (hd V1699) (tl V1699))))
+  ((and (cons? V1698)
+    (and (cons? (hd V1698)) (and (cons? V1699) (cons? (hd V1699)))))
+   (shen-variant? (append (hd V1698) (tl V1698))
+    (append (hd V1699) (tl V1699))))
   (true false)))
 
 (declare absvector? (cons A (cons --> (cons boolean ()))))
@@ -144,6 +144,9 @@ For an explication of this license see http://www.lambdassociates.org/News/june1
    (cons (cons (cons list (cons A ())) (cons --> (cons boolean ()))) ()))))
 
 (declare empty? (cons A (cons --> (cons boolean ()))))
+
+(declare external
+ (cons symbol (cons --> (cons (cons list (cons symbol ())) ()))))
 
 (declare interror
  (cons string (cons --> (cons (cons A (cons --> (cons B ()))) ()))))

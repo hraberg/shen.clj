@@ -23,7 +23,7 @@
                  
 (define typetable
   [define F | X] -> (let Sig (compile (function <sig+rest>) X [])
-                        (if (= Sig fail!)
+                        (if (= Sig (fail))
                             (error "~A lacks a proper signature.~%" F)
                             [[F | Sig]]))
   _ -> [])

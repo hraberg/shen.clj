@@ -27,7 +27,7 @@ For an explication of this license see http://www.lambdassociates.org/News/june1
 
 (defun version (V568) (set *version* V568))
 
-(version "version 6.0")
+(version "version 6.1")
 
 (defun shen-credits ()
  (do (intoutput "~%Shen 2010, copyright (C) 2010 Mark Tarver~%" ())
@@ -44,10 +44,8 @@ For an explication of this license see http://www.lambdassociates.org/News/june1
    (cons 0
     (cons shen-*infs*
      (cons 0
-      (cons shen-*dumped*
-       (cons ()
-        (cons shen-*process-counter*
-         (cons 0 (cons shen-*catch* (cons 0 ()))))))))))))
+      (cons shen-*process-counter*
+       (cons 0 (cons shen-*catch* (cons 0 ()))))))))))
 
 (defun shen-multiple-set (V569)
  (cond ((= () V569) ())
@@ -107,7 +105,7 @@ For an explication of this license see http://www.lambdassociates.org/News/june1
  (cond ((= V586 (shen-hat)) (interror "line read aborted" ()))
   ((element? V586 (cons (shen-newline) (cons (shen-carriage-return) ())))
    (let Line (compile (lambda V588 (shen-<st_input> V588)) V587 ())
-    (if (or (= Line fail!) (empty? Line))
+    (if (or (= Line (fail)) (empty? Line))
      (shen-toplineread_loop (read-byte (stinput 0))
       (append V587 (cons V586 ())))
      (@p Line V587))))
@@ -194,14 +192,11 @@ For an explication of this license see http://www.lambdassociates.org/News/june1
    (shen-typecheck-and-evaluate (hd V633) (hd (tl (tl V633)))))
   ((and (cons? V633) (cons? (tl V633)))
    (do (shen-toplevel_evaluate (cons (hd V633) ()) V634)
-    (do (if (= (value shen-*hush*) shen-hushed) shen-skip (nl 1))
-     (shen-toplevel_evaluate (tl V633) V634))))
+    (do (nl 1) (shen-toplevel_evaluate (tl V633) V634))))
   ((and (cons? V633) (and (= () (tl V633)) (= true V634)))
    (shen-typecheck-and-evaluate (hd V633) (gensym A)))
   ((and (cons? V633) (and (= () (tl V633)) (= false V634)))
-   (let Eval (shen-eval-without-macros (hd V633))
-    (if (or (= (value shen-*hush*) shen-hushed) (= Eval shen-unhushed))
-     shen-skip (print Eval))))
+   (let Eval (shen-eval-without-macros (hd V633)) (print Eval)))
   (true (shen-sys-error shen-toplevel_evaluate))))
 
 (defun shen-typecheck-and-evaluate (V635 V636)
@@ -209,8 +204,7 @@ For an explication of this license see http://www.lambdassociates.org/News/june1
   (if (= Typecheck false) (interror "type error~%" ())
    (let Eval (shen-eval-without-macros V635)
     (let Type (shen-pretty-type Typecheck)
-     (if (or (= (value shen-*hush*) shen-hushed) (= V635 shen-unhushed))
-      shen-skip (intoutput "~S : ~R" (@p Eval (@p Type ())))))))))
+     (intoutput "~S : ~R" (@p Eval (@p Type ()))))))))
 
 (defun shen-pretty-type (V637)
  (shen-mult_subst (value shen-*alphabet*) (shen-extract-pvars V637) V637))

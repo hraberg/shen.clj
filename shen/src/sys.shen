@@ -113,23 +113,44 @@
   Vector -> (<-address Vector 0))
 
 (define symbol?
-  X -> false where (or (boolean? X) (number? X))
-  X -> (trap-error (let String (str X)
-                        Unit (pos String 0)
-                        (element? Unit ["A" "B" "C" "D" "E" "F" "G" "H" "I" "J" "K" "L" "M"
-                                         "N" "O" "P" "Q" "R" "S" "T" "U" "V" "W" "X" "Y" "Z"
-                                         "a" "b" "c" "d" "e" "f" "g" "h" "i" "j" "k" "l" "m" 
-                                         "n" "o" "p" "q" "r" "s" "t" "u" "v" "w" "x" "y" "z"
-                                          "=" "*" "/" "+" "-" "_" "?" "$" "!" "@" "~" ">" "<" 
-                                          "&" "%" "{" "}" ":" ";" "`" "#" "'" "."])) 
-                                          (/. E false)))
+  X -> false where (or (boolean? X) (number? X) (string? X))
+  X -> (trap-error (let Explode (explode X)
+                        (analyse-symbol? Explode)) (/. E false)))
+
+(define analyse-symbol?
+  [S | Ss] -> (and (alpha? S)
+                   (alphanums? Ss)))
+
+(define alpha?
+  S ->  (element? S ["A" "B" "C" "D" "E" "F" "G" "H" "I" "J" "K" "L" "M"
+                     "N" "O" "P" "Q" "R" "S" "T" "U" "V" "W" "X" "Y" "Z"
+                     "a" "b" "c" "d" "e" "f" "g" "h" "i" "j" "k" "l" "m" 
+                     "n" "o" "p" "q" "r" "s" "t" "u" "v" "w" "x" "y" "z"
+                     "=" "*" "/" "+" "-" "_" "?" "$" "!" "@" "~" ">" "<" 
+                     "&" "%" "{" "}" ":" ";" "`" "#" "'" "."])) 
+                     
+(define alphanums?
+  [] -> true
+  [S | Ss] -> (and (alphanum? S) (alphanums? Ss)))
+
+(define alphanum?
+  S -> (or (alpha? S) (digit? S)))
+
+(define digit?
+  S -> (element? S ["1" "2" "3" "4" "5" "6" "7" "8" "9" "0"]))
                               
 (define variable?
-  X -> (trap-error (let String (str X)
-                        Unit (pos String 0)
-                        (element? Unit ["A" "B" "C" "D" "E" "F" "G" "H" "I" "J" "K" "L" "M"
-                                        "N" "O" "P" "Q" "R" "S" "T" "U" "V" "W" "X" "Y" "Z"])) 
-                                         (/. E false)))     
+  X -> false where (or (boolean? X) (number? X) (string? X))
+  X -> (trap-error (let Explode (explode X)
+                        (analyse-variable? Explode)) (/. E false)))
+
+(define analyse-variable?
+  [S | Ss] -> (and (uppercase? S)
+                   (alphanums? Ss)))
+
+(define uppercase?
+  S ->  (element? S ["A" "B" "C" "D" "E" "F" "G" "H" "I" "J" "K" "L" "M"
+                     "N" "O" "P" "Q" "R" "S" "T" "U" "V" "W" "X" "Y" "Z"]))   
                       
 (define gensym
   Sym -> (concat Sym (set *gensym* (+ 1 (value *gensym*)))))

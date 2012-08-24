@@ -273,7 +273,7 @@ For an explication of this license see http://www.lambdassociates.org/News/june1
   ((= -s- V373) (cons fst (cons Stream ())))
   ((cons? V373) (map (lambda V374 (shen-semantics V374)) V373)) (true V373)))
 
-(defun fail () fail!)
+(defun fail () shen-fail!)
 
 (defun <!> (V379)
  (cond ((tuple? V379) (@p () (fst V379))) (true (shen-sys-error <!>))))

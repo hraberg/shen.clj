@@ -69,6 +69,7 @@
 (declare do [A --> [B --> B]])
 (declare element? [A --> [[list A] --> boolean]]) 
 (declare empty? [A --> boolean]) 
+(declare external [symbol --> [list symbol]])
 (declare interror [string --> [A --> B]])
 (declare error-to-string [exception --> string])
 (declare explode [A --> [list string]])

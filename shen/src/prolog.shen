@@ -250,7 +250,7 @@
                                    in [if [Z is identical to C] 
                                        then (mu_reduction Body -) 
                                        else  
-			                           fail!]])	where (prolog_constant? C)    
+			               (fail)]])	where (prolog_constant? C)    
    [[mu C Body] FP] + -> (let Z (gensym V) 
                                 [let Z be [the result of dereferencing FP]
                                    in [if [Z is identical to C] 
@@ -260,7 +260,7 @@
 										then
                                         [bind Z to C in (mu_reduction Body +)]
                                         else 
-                                        fail!]]])		where (prolog_constant? C)
+                                        (fail)]]])		where (prolog_constant? C)
    [[mu [X | Y] Body] FP] -
     -> (let Z (gensym V)
 		    [let Z be [the result of dereferencing FP]
@@ -268,7 +268,7 @@
                        then 
          			   (mu_reduction [[mu X [[mu Y Body] [the tail of Z]]] [the head of Z]] -)
                        else 
-                       fail!]])
+                       (fail)]])
    [[mu [X | Y] Body] FP] +
     -> (let Z (gensym V)
 			[let Z be [the result of dereferencing FP]
@@ -282,7 +282,7 @@
                           and then [bind Z to (rcons_form (remove_modes [X | Y])) 
 						  in (mu_reduction Body +)]]
                           else 
-                          fail!]]])
+                          (fail)]]])
   X _ -> X)
 
 (define rcons_form
@@ -318,7 +318,7 @@
                                     [do [unbindv Z ProcessN]
                                         Result]]]
    [Z is identical to X] -> [= X Z]   
-   fail! -> false   
+   Fail -> false  where (= Fail (fail)) 
    [the head of X] -> [hd X]
    [the tail of X] -> [tl X]
    [pop the stack] -> [do [incinfs] [thaw Continuation]]

@@ -20,11 +20,14 @@
 (set *synonyms* [])
 (set *system* [])
 (set *signedfuncs* []) 
-(set *hush* "Shen unhushed") 
 (set *maxcomplexity* 128)
 (set *occurs* true)
 (set *maxinferences* 1000000)
 (set *maximum-print-sequence-size* 20)
+(set *catch* 0)
+(set *call* 0)
+(set *infs* 0)
+(set *process-counter* 0)
 (set *catch* 0)
 
 (define initialise_arity_table
@@ -37,7 +40,7 @@
                             
  (initialise_arity_table 
   [adjoin 2 and 2 append 2 arity 1 assoc 2 boolean? 1 cd 1 compile 3 concat 2 cons 2 
-   cons? 1 cn 2 declare 2 destroy 1 difference 2 do 2 dump 2 element? 2 empty? 1 interror 2 eval 1 eval-kl 1 explode 1 
+   cons? 1 cn 2 declare 2 destroy 1 difference 2 do 2 element? 2 empty? 1 interror 2 eval 1 eval-kl 1 explode 1 
    external 1 fail-if 2 fail 0 fix 2 findall 5 freeze 1 fst 1 gensym 1 get 3 address-> 3 <-address 2 <-vector 2 > 2 
    >= 2 = 2 hd 1 hdv 1 hdstr 1 head 1 if 3 integer? 1 identical 4 inferences 1 intoutput 2 make-string 2
    intersection 2 length 1 lineread 0 load 1 < 2 <= 2 vector 1 macroexpand 1 map 2 mapcan 2 intmake-string 2
@@ -66,8 +69,8 @@
       occurs-check n->string number? number null nth not nl mode macro macroexpand maxinferences mapcan map make-string 
       load loaded list lineread limit length let lazy lambda is intersection inferences intern integer? input input+ 
       include include-all-but in if identical head hd hdv hdstr hash get get-time gensym function fst freeze format 
-      fix file fail fail! fail-if fwhen findall false explode external exception eval-kl eval error-to-string error 
-      empty? element? dump dumped do difference destroy defun define defmacro defcc defprolog declare datatype cut 
+      fix file fail fail-if fwhen findall false explode external exception eval-kl eval error-to-string error 
+      empty? element? do difference destroy defun define defmacro defcc defprolog declare datatype cut 
       cn cons? cons cond concat compile cd cases call close bind bound? boolean? boolean bar! assoc arity append and 
       adjoin <-address address-> absvector? absvector abort intmake-string intoutput interror])
 
