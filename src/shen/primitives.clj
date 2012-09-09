@@ -8,7 +8,7 @@
                             + - * / > < >= <= = and or])
   (:import [java.io Reader Writer InputStream OutputStream PrintWriter OutputStreamWriter]
            [java.util Arrays]
-           [clojure.lang Compiler$CompilerException])
+           [clojure.lang Compiler$CompilerException ArityException])
   (:gen-class))
 
 (create-ns 'shen)
@@ -57,12 +57,30 @@
   (for [p (map #(take % parameters) (range 1 (count parameters)))]
     `(~(vec p) (partial ~name ~@p))))
 
+(defn ^:private shen-internal-fn? [s]
+  (re-find #"shen-" (name s)))
+
+(defn ^:private may-cause-invalid-codesize? [s]
+  (c/< 2000 (count (flatten s))))
+
+(defn ^:private may-return-fn [name parameters body]
+  (if-not (c/or (shen-internal-fn? name) (may-cause-invalid-codesize? body))
+    `([~@parameters & extra#]
+        (c/let [result# (eval-shen ~@body)]
+          (if extra# (apply result# extra#)
+              result#)))
+    `([~@parameters & extra#]
+        (throw (ArityException. (+ ~(count parameters) (count extra#)) (c/name name))))))
+
+(declare eval-shen)
+
 (c/defmacro defun [F X & Y]
   (c/let [F (if (seq? F) (eval F) F)]
             `(do
                (defn ^:dynamic ~F
                  ~@(partials F X)
-                 (~(vec X) ~@Y))
+                 (~(vec X) ~@Y)
+                 ~(may-return-fn F X Y))
                '~F)))
 
 (def ^:private array-class (Class/forName "[Ljava.lang.Object;"))
@@ -236,7 +254,7 @@
   (c/and (coll? X) (not (.isEmpty ^java.util.Collection X))))
 
 (defn str [X]
-  (if-not ((some-fn coll? fn?) X) (c/pr-str X)
+  (if-not (coll? X) (c/pr-str X)
           (throw (IllegalArgumentException.
                   (c/str X " is not an atom; str cannot convert it to a string.")))))
 
@@ -292,13 +310,13 @@
 
 (defn eval-kl [X]
   (c/let [kl (shen-kl-to-clj (cleanup-clj X))]
-         (binding [*ns* (the-ns 'shen)]
-           (eval kl))))
+    (binding [*ns* (the-ns 'shen)]
+      (eval kl))))
 
 (c/defmacro lambda [X Y]
-  `(fn [~X & XS#] (c/let [result# ~Y]
-                            (if XS# (apply result# XS#)
-                                result#))))
+ `(fn [~X & XS#] (c/let [result# ~Y]
+                   (if XS# (apply result# XS#)
+                       result#))))
 
 (c/defmacro λ [X Y]
   `(lambda ~X ~Y))
@@ -339,7 +357,7 @@
 (defmethod pr Reader [X ^Reader S]
   (if (= *in* S)
     (pr X *out*)
-    (throw (IllegalArgumentException. (str S)))))
+    (throw (IllegalArgumentException. (c/str S)))))
 
 (defmethod pr OutputStream [X ^OutputStream S]
   (pr X (OutputStreamWriter. S)))
@@ -414,7 +432,7 @@
   (eval-shen* (parse-shen s)))
 
 (defn reset-macros! []
-  (set '*macros* (filter #(re-find #"shen-" (name %)) (value '*macros*))))
+  (set '*macros* (filter shen-internal-fn? (value '*macros*))))
 
 (defn exit
   ([] (exit 0))

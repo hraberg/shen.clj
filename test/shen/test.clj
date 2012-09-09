@@ -83,6 +83,9 @@
        ))
 
 (deftest partials
+  (define foo
+    X -> (λ Y Y))
+
   (are [shen result] ((if (fn? result) result #{result}) shen)
 
        (神
@@ -96,6 +99,14 @@
        (神
         ((λ X (integer? (/ X 3))) 3))
        true
+
+       (神
+        (foo 1))
+       fn?
+
+       (神
+        (foo 1 2))
+       2
 
        ))
 
