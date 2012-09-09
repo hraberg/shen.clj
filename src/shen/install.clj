@@ -1,10 +1,10 @@
 (ns shen.install
-  (:use [clojure.java.io :only (file reader writer)]
-        [clojure.pprint :only (pprint)])
-  (:require [clojure.string :as string]
-            [shen.primitives])
-  (:import [java.io StringReader PushbackReader FileNotFoundException]
-           [java.util.regex Pattern])
+  (use [clojure.java.io :only (file reader writer)]
+       [clojure.pprint :only (pprint)])
+  (require [clojure.string :as s]
+           [shen.primitives])
+  (import [java.io StringReader PushbackReader FileNotFoundException]
+          [java.util.regex Pattern])
   (:gen-class))
 
 (def shen-namespaces '[sys writer core prolog yacc declarations load macros reader
@@ -15,20 +15,20 @@
 
 (def cleanup-symbols-pattern
   (re-pattern (str "(\\s+|\\()("
-                   (string/join "|" (map #(Pattern/quote %) [":" ";" "{" "}" ":-" ":="
-                                                             "/." "@p" "@s" "@v"
-                                                             "shen-@s-macro"
-                                                             "shen-@v-help"
-                                                             "shen-i/o-macro"
-                                                             "shen-put/get-macro"
-                                                             "XV/Y"]))
+                   (s/join "|" (map #(Pattern/quote %) [":" ";" "{" "}" ":-" ":="
+                                                        "/." "@p" "@s" "@v"
+                                                        "shen-@s-macro"
+                                                        "shen-@v-help"
+                                                        "shen-i/o-macro"
+                                                        "shen-put/get-macro"
+                                                        "XV/Y"]))
                    ")(\\s*\\)|\\s+?)"
                    "(?!~)")))
 
 (defn cleanup-symbols
-  [kl] (string/replace kl
-                       cleanup-symbols-pattern
-                       "$1(intern \"$2\")$3"))
+  [kl] (s/replace kl
+                  cleanup-symbols-pattern
+                  "$1(intern \"$2\")$3"))
 
 (defn read-kl [kl]
   (with-open [r (PushbackReader. (StringReader. (cleanup-symbols kl)))]
@@ -44,9 +44,9 @@
 
 (defn header [ns]
   `(~'ns ~ns
+     (use [shen.primitives])
+     (require [clojure.core :as ~'c])
      (:refer-clojure :only [])
-     (:use [shen.primitives])
-     (:require [clojure.core :as ~'c])
      (:gen-class)))
 
 (def missing-declarations '#{shen-kl-to-lisp FORMAT READ-CHAR})

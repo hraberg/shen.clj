@@ -1,14 +1,14 @@
 (ns shen.primitives
-  (:require [clojure.core :as c]
-            [clojure.set :as set]
-            [clojure.string :as string]
-            [clojure.walk :as walk]
-            [clojure.java.io :as io])
-  (:refer-clojure :exclude [set intern let pr type cond cons str number? string? defmacro
-                            + - * / > < >= <= = and or])
-  (:import [java.io Reader Writer InputStream OutputStream PrintWriter OutputStreamWriter]
+  (require [clojure.core :as c]
+           [clojure.set :as set]
+           [clojure.string :as s]
+           [clojure.walk :as w]
+           [clojure.java.io :as io])
+  (import [java.io Reader Writer InputStream OutputStream PrintWriter OutputStreamWriter]
            [java.util Arrays]
            [clojure.lang Compiler$CompilerException ArityException])
+  (:refer-clojure :exclude [set intern let pr type cond cons str number? string? defmacro
+                            + - * / > < >= <= = and or])
   (:gen-class))
 
 (create-ns 'shen)
@@ -21,8 +21,8 @@
   ([x] `(assert-boolean ~x "%s is not a boolean"))
   ([x fmt]
      `(c/let [x# ~x]
-             (if (instance? Boolean x#) x#
-                 (throw (IllegalArgumentException. (format ~fmt x#)))))))
+        (if (instance? Boolean x#) x#
+            (throw (IllegalArgumentException. (format ~fmt x#)))))))
 
 (c/defmacro if-kl
   ([test] `(c/let [test# ~test] (fn [then# else#] (if-kl test# then# else#))))
@@ -76,12 +76,12 @@
 
 (c/defmacro defun [F X & Y]
   (c/let [F (if (seq? F) (eval F) F)]
-            `(do
-               (defn ^:dynamic ~F
-                 ~@(partials F X)
-                 (~(vec X) ~@Y)
-                 ~(may-return-fn F X Y))
-               '~F)))
+    `(do
+       (defn ^:dynamic ~F
+         ~@(partials F X)
+         (~(vec X) ~@Y)
+         ~(may-return-fn F X Y))
+       '~F)))
 
 (def ^:private array-class (Class/forName "[Ljava.lang.Object;"))
 
@@ -89,18 +89,18 @@
   ([X] (partial = X))
   ([X Y]
      (c/cond
-      (c/and (identical? array-class (class X))
-                (identical? array-class (class Y))) (Arrays/equals #^"[Ljava.lang.Object;" X
-                                                                   #^"[Ljava.lang.Object;" Y)
-                (c/and (number? X) (number? Y)) (== X Y)
-                :else (c/= X Y))))
+       (c/and (identical? array-class (class X))
+             (identical? array-class (class Y))) (Arrays/equals #^"[Ljava.lang.Object;" X
+                                                                #^"[Ljava.lang.Object;" Y)
+             (c/and (number? X) (number? Y)) (== X Y)
+             :else (c/= X Y))))
 
 (defn /
   ([X] (partial / X))
   ([X Y]
      (if (zero? Y) (throw (IllegalArgumentException. "division by zero"))
          (c/let [r (clojure.core// X Y)]
-                   (if (ratio? r) (double r) r)))))
+           (if (ratio? r) (double r) r)))))
 
 (defn ^:private alias-op [op real-op]
   (eval `(defun ~op ~'[X Y] (~real-op ~'X ~'Y))))
@@ -120,8 +120,8 @@
   ([path] (partial recur? path))
   ([path fn]
      (c/or (= 'cond (last (drop-last path)))
-              (set/superset? '#{defun cond if do let}
-                             (c/set path)))))
+           (set/superset? '#{defun cond if do let}
+                          (c/set path)))))
 
 (declare set*)
 
@@ -147,43 +147,43 @@
                  "false" false
                  (list 'quote kl))
        seq? (c/let [[fst snd trd & rst] kl
-                       fn (if ('#{defun} fst) snd
-                              fn)
-                       scope (condp get fst
-                               '#{defun} (into scope trd)
-                               '#{let lambda} (conj scope snd)
-                               scope)
-                       fst (condp some [fst]
-                             (every-pred
-                              #{fn}
-                              (recur? path)) 'recur
-                              (some-fn
-                               interned?
-                               scope) (maybe-apply fst path)
-                               seq? (maybe-apply (shen-kl-to-clj fst scope) path)
-                               '#{if} 'if-kl
-                               (if (= 'cond (last path))
-                                 (shen-kl-to-clj fst scope)
-                                 (maybe-declare fst)))
-                       path (conj path fst)
-                       snd (condp get fst
-                             '#{defun let lambda} snd
-                             '#{if} (shen-kl-to-clj snd scope)
-                             (shen-kl-to-clj snd scope path fn))
-                       trd (condp get fst
-                             '#{defun} trd
-                             '#{let} (shen-kl-to-clj trd scope)
-                             (shen-kl-to-clj trd scope path fn))]
-                      (take-while (complement nil?)
-                                  (concat [fst snd trd]
-                                          (map #(shen-kl-to-clj % scope path fn) rst))))
+                    fn (if ('#{defun} fst) snd
+                           fn)
+                    scope (condp get fst
+                            '#{defun} (into scope trd)
+                            '#{let lambda} (conj scope snd)
+                            scope)
+                    fst (condp some [fst]
+                          (every-pred
+                           #{fn}
+                           (recur? path)) 'recur
+                           (some-fn
+                            interned?
+                            scope) (maybe-apply fst path)
+                            seq? (maybe-apply (shen-kl-to-clj fst scope) path)
+                            '#{if} 'if-kl
+                            (if (= 'cond (last path))
+                              (shen-kl-to-clj fst scope)
+                              (maybe-declare fst)))
+                    path (conj path fst)
+                    snd (condp get fst
+                          '#{defun let lambda} snd
+                          '#{if} (shen-kl-to-clj snd scope)
+                          (shen-kl-to-clj snd scope path fn))
+                    trd (condp get fst
+                          '#{defun} trd
+                          '#{let} (shen-kl-to-clj trd scope)
+                          (shen-kl-to-clj trd scope path fn))]
+              (take-while (complement nil?)
+                          (concat [fst snd trd]
+                                  (map #(shen-kl-to-clj % scope path fn) rst))))
        kl)))
 
 (defn intern [String]
   (symbol (condp = String
             "/" "/"
             "/." slash-dot
-            (string/replace String "/" "-slash-"))))
+            (s/replace String "/" "-slash-"))))
 
 (c/alter-var-root #'intern c/memoize)
 
@@ -194,8 +194,8 @@
 
 (defn set* [X Y ns]
   @(c/intern (the-ns ns)
-                (with-meta X {:dynamic true :declared true})
-                Y))
+             (with-meta X {:dynamic true :declared true})
+             Y))
 
 (defn set
   ([X] (partial set X))
@@ -203,12 +203,12 @@
 
 (defn ^:private value* [X ns]
   (c/let [v (c/and (symbol? X) (ns-resolve ns X))]
-            (condp = X
-              'and and-fn
-              'or or-fn
-              (if (nil? v)
-                (throw (IllegalArgumentException. (c/str "variable " X " has no value")))
-                @v))))
+    (condp = X
+      'and and-fn
+      'or or-fn
+      (if (nil? v)
+        (throw (IllegalArgumentException. (c/str "variable " X " has no value")))
+        @v))))
 
 (defn value [X] (value* X 'shen.globals))
 
@@ -280,28 +280,28 @@
 
 (defn ^:private define* [name body]
   (c/let [kl ((function 'shen-shen->kl) name body)]
-            (binding [*ns* (the-ns 'shen)]
-              ((function 'eval) kl)
-              name)))
+    (binding [*ns* (the-ns 'shen)]
+      ((function 'eval) kl)
+      name)))
 
 (defn eval-shen* [body]
-  (c/let [body (walk/postwalk cleanup-clj body)]
-            (binding [*ns* (the-ns 'shen)]
-              (->> body
-                   (map (function 'eval))
-                   last))))
+  (c/let [body (w/postwalk cleanup-clj body)]
+    (binding [*ns* (the-ns 'shen)]
+      (->> body
+           (map (function 'eval))
+           last))))
 
 (c/defmacro eval-shen [& body]
   `(c/let [env# (zipmap '~(keys &env) ~(vec (keys &env)))]
-          (eval-shen* (walk/postwalk-replace env# '~body))))
+     (eval-shen* (w/postwalk-replace env# '~body))))
 
 (c/defmacro 神 [& body]
   `(eval-shen ~@body))
 
 (c/defmacro define [name & body]
   `(c/let [fn# (eval-shen ~(concat ['define name] body))]
-             (defn ~(with-meta name {:dynamic true})
-               [& ~'args] (apply (function fn#) ~'args))))
+     (defn ~(with-meta name {:dynamic true})
+       [& ~'args] (apply (function fn#) ~'args))))
 
 (doseq [[name args] '{defmacro [name] defprolog [name] prolog? [] package [name exceptions]}]
   (eval
@@ -314,19 +314,20 @@
       (eval kl))))
 
 (c/defmacro lambda [X Y]
- `(fn [~X & XS#] (c/let [result# ~Y]
-                   (if XS# (apply result# XS#)
-                       result#))))
+  `(fn [~X & XS#]
+     (c/let [result# ~Y]
+       (if XS# (apply result# XS#)
+           result#))))
 
 (c/defmacro λ [X Y]
   `(lambda ~X ~Y))
 
 (c/defmacro let [X Y Z]
   (c/let [X-safe (if (seq? X) (gensym (eval X)) X)
-             Z (if (seq? X) (walk/postwalk
-                             #(if (= X %) X-safe %) Z) Z)]
-            `(c/let [~X-safe ~Y]
-                       ~Z)))
+          Z (if (seq? X) (w/postwalk #(if (= X %) X-safe %) Z)
+                Z)]
+    `(c/let [~X-safe ~Y]
+       ~Z)))
 
 (c/defmacro freeze [X]
  `(fn [] ~X))
@@ -382,10 +383,10 @@
   (condp = Type
     'file
     (c/let [Path (io/file (value '*home-directory*) String)]
-              (condp = Direction
-                'in (io/input-stream Path)
-                'out (io/output-stream Path)
-                (throw (IllegalArgumentException. "invalid direction"))))
+      (condp = Direction
+        'in (io/input-stream Path)
+        'out (io/output-stream Path)
+        (throw (IllegalArgumentException. "invalid direction"))))
     (throw (IllegalArgumentException. "invalid stream type"))))
 
 (defn type [X MyType]
@@ -404,9 +405,9 @@
   ([Str1] (partial cn Str1))
   ([Str1 Str2]
      (c/let [strings (replace {() ""} [Str1 Str2])]
-               (when-let [no-string (first (remove string? strings))]
-                 (throw (IllegalArgumentException. (c/str no-string " is not a string"))))
-               (apply c/str strings))))
+       (when-let [no-string (first (remove string? strings))]
+         (throw (IllegalArgumentException. (c/str no-string " is not a string"))))
+       (apply c/str strings))))
 
 (def ^:private internal-start-time (System/currentTimeMillis))
 
@@ -425,8 +426,8 @@
 
 (defn parse-shen [s]
   (c/let [<st_input> (function 'shen-<st_input>)
-             snd (function 'snd)]
-            (-> s read-bytes <st_input> snd)))
+          snd (function 'snd)]
+    (-> s read-bytes <st_input> snd)))
 
 (defn parse-and-eval-shen [s]
   (eval-shen* (parse-shen s)))
@@ -450,9 +451,9 @@
 
 
 (defn shen->clj [x]
-  (walk/postwalk #(condp some [%]
+  (w/postwalk #(condp some [%]
                     #{(symbol "nil")} nil
-                    symbol? (symbol (string/replace (name %) "-slash-" "/"))
+                    symbol? (symbol (s/replace (name %) "-slash-" "/"))
                     %) x))
 
 (defn send-clj [x]

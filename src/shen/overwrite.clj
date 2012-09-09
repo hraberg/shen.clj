@@ -1,8 +1,8 @@
 ;; src/shen/overwrite.clj
 (ns shen
-  (:refer-clojure :only [])
-  (:use [shen.primitives])
-  (:require [clojure.core :as c]))
+  (use [shen.primitives])
+  (require [clojure.core :as c])
+  (:refer-clojure :only []))
 
 (set '*language* "Clojure")
 (set '*implementation* (c/str "Clojure " (c/clojure-version)
@@ -17,19 +17,19 @@
 (shen-initialise_environment)
 
 (defun
- (intern "@p")
- (V706 V707)
- (c/object-array ['shen-tuple V706 V707]))
+  (intern "@p")
+  (V706 V707)
+  (c/object-array ['shen-tuple V706 V707]))
 
 (defun
- variable?
- (V702)
- (and (c/symbol? V702) (Character/isUpperCase (.charAt (c/name V702) 0))))
+  variable?
+  (V702)
+  (and (c/symbol? V702) (Character/isUpperCase (.charAt (c/name V702) 0))))
 
 (defun
- boolean?
- (V746)
- (c/condp = V746
+  boolean?
+  (V746)
+  (c/condp = V746
              true true
              false true
              (intern "true") true
@@ -42,9 +42,9 @@
   (c/reduce #(%2 %) V533 V532))
 
 (defun
- element?
- (V787 ^java.util.Collection V788)
- (.contains V788 V787))
+  element?
+  (V787 ^java.util.Collection V788)
+  (.contains V788 V787))
 
 (defun
   macroexpand
@@ -52,8 +52,8 @@
   (let
       Y
     (shen-compose (c/drop-while c/nil?
-                                   (c/map #(c/when-let [m (c/ns-resolve 'shen %)] @m)
-                                          (value '*macros*))) V510)
+                                (c/map #(c/when-let [m (c/ns-resolve 'shen %)] @m)
+                                       (value '*macros*))) V510)
     (if (= V510 Y) V510 (shen-walk macroexpand Y))))
 
 ;; Based on [Shen Mode](https://github.com/eschulte/shen-mode) by Eric Schulte.
@@ -236,7 +236,7 @@
     (y-or-n? "string --> boolean" "Prints the string as a question and returns true for y and false for n.")))
 
 (c/doseq [[fn sig doc] shen-doc
-             :let [v (c/resolve fn)]
-             :when v]
-            (c/alter-meta! v c/merge {:doc doc
-                                            :arglists (c/list (c/read-string (c/str "[" sig "]")))}))
+          :let [v (c/resolve fn)]
+          :when v]
+  (c/alter-meta! v c/merge {:doc doc
+                            :arglists (c/list (c/read-string (c/str "[" sig "]")))}))
