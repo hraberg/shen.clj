@@ -1,10 +1,10 @@
 (ns shen.install
-  (use [clojure.java.io :only (file reader writer)]
-       [clojure.pprint :only (pprint)])
-  (require [clojure.string :as s]
-           [shen.primitives])
-  (import [java.io StringReader PushbackReader FileNotFoundException]
-          [java.util.regex Pattern])
+  (:use [clojure.java.io :only (file reader writer)]
+        [clojure.pprint :only (pprint)])
+  (:require [clojure.string :as s]
+            [shen.primitives])
+  (:import [java.io StringReader PushbackReader FileNotFoundException]
+           [java.util.regex Pattern])
   (:gen-class))
 
 (def shen-namespaces '[sys writer core prolog yacc declarations load macros reader
@@ -44,8 +44,8 @@
 
 (defn header [ns]
   `(~'ns ~ns
-     (use [shen.primitives])
-     (require [clojure.core :as ~'c])
+     (:use [shen.primitives])
+     (:require [clojure.core :as ~'c])
      (:refer-clojure :only [])
      (:gen-class)))
 

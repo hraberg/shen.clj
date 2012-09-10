@@ -1,10 +1,10 @@
 (ns shen.primitives
-  (require [clojure.core :as c]
-           [clojure.set :as set]
-           [clojure.string :as s]
-           [clojure.walk :as w]
-           [clojure.java.io :as io])
-  (import [java.io Reader Writer InputStream OutputStream PrintWriter OutputStreamWriter]
+  (:require [clojure.core :as c]
+            [clojure.set :as set]
+            [clojure.string :as s]
+            [clojure.walk :as w]
+            [clojure.java.io :as io])
+  (:import [java.io Reader Writer InputStream OutputStream PrintWriter OutputStreamWriter]
            [java.util Arrays]
            [clojure.lang Compiler$CompilerException ArityException])
   (:refer-clojure :exclude [set intern let pr type cond cons str number? string? defmacro

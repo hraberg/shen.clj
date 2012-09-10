@@ -1,7 +1,7 @@
 ;; src/shen/overwrite.clj
 (ns shen
-  (use [shen.primitives])
-  (require [clojure.core :as c])
+  (:use [shen.primitives])
+  (:require [clojure.core :as c])
   (:refer-clojure :only []))
 
 (set '*language* "Clojure")
