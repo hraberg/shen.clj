@@ -419,6 +419,10 @@
     (throw (IllegalArgumentException.
             (c/str "get-time does not understand the parameter " Time)))))
 
+(defn system [Command]
+  (:out (apply sh/sh (-> Command StringTokenizer. enumeration-seq))))
+
+
 (defmethod print-method array-class [o ^Writer w]
   (print-method (vec o) w))
 
@@ -439,10 +443,6 @@
 (defn exit
   ([] (exit 0))
   ([status] (System/exit status)))
-
-(defn system [command]
-  (:out (apply sh/sh (-> command StringTokenizer. enumeration-seq))))
-
 
 ; (load "ffi.shen") ; http://www.shenlanguage.org/library.html
 ; (ffi clj (@p shen->clj send-clj) (@p clj->shen receive-clj))
