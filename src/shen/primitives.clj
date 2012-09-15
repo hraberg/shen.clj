@@ -3,9 +3,10 @@
             [clojure.set :as set]
             [clojure.string :as s]
             [clojure.walk :as w]
-            [clojure.java.io :as io])
+            [clojure.java.io :as io]
+            [clojure.java.shell :as sh])
   (:import [java.io Reader Writer InputStream OutputStream PrintWriter OutputStreamWriter]
-           [java.util Arrays]
+           [java.util Arrays StringTokenizer]
            [clojure.lang Compiler$CompilerException ArityException])
   (:refer-clojure :exclude [set intern let pr type cond cons str number? string? defmacro
                             + - * / > < >= <= = and or])
@@ -438,6 +439,9 @@
 (defn exit
   ([] (exit 0))
   ([status] (System/exit status)))
+
+(defn system [command]
+  (:out (apply sh/sh (-> command StringTokenizer. enumeration-seq))))
 
 
 ; (load "ffi.shen") ; http://www.shenlanguage.org/library.html
