@@ -4,13 +4,13 @@
 (define loop
    -> (do (initialise_environment)
           (prompt) 
-          (trap-error (read-evaluate-print) (/. E (pr (error-to-string E) (value *stinput*)))) 
+          (trap-error (read-evaluate-print) (/. E (pr (error-to-string E) (value *stoutput*)))) 
           (loop)))
 
 (define version
   S -> (set *version* S))
 
-(version "version 6.1")
+(version "version 7")
 
 (define credits
  -> (do (output "~%Shen 2010, copyright (C) 2010 Mark Tarver~%")

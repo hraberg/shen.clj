@@ -25,7 +25,8 @@
   _ -> false)
 
 (define external
-  Package -> (trap-error (get Package external-symbols) (/. E (error "package ~A has not been used.~"))))
+  Package -> (trap-error (get Package external-symbols) 
+                         (/. E (error "package ~A has not been used.~%" Package))))
   
 (define package-contents
   [package null _ | Contents] -> Contents

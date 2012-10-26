@@ -238,7 +238,7 @@
 
 (defn cons [X Y]
   (if (c/and (coll? Y)
-                (not (pair? Y)))
+             (not (pair? Y)))
     (c/cons X Y)
     (pair X Y)))
 

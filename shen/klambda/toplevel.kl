@@ -22,12 +22,12 @@ For an explication of this license see http://www.lambdassociates.org/News/june1
   (do (shen-prompt)
    (do
     (trap-error (shen-read-evaluate-print)
-     (lambda E (pr (error-to-string E) (value *stinput*))))
+     (lambda E (pr (error-to-string E) (value *stoutput*))))
     (shen-loop)))))
 
 (defun version (V568) (set *version* V568))
 
-(version "version 6.1")
+(version "version 7")
 
 (defun shen-credits ()
  (do (intoutput "~%Shen 2010, copyright (C) 2010 Mark Tarver~%" ())

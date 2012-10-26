@@ -5,7 +5,7 @@
               ProcessN (start-new-prolog-process)
               Type (insert-prolog-variables (normalise-type (curry-type A)) ProcessN)
               Continuation (freeze (return Type ProcessN void))
-              (th* Curry Type [] ProcessN Continuation)))
+              (t* [Curry : Type] [] ProcessN Continuation)))
             
 (define curry
   [F | X] -> [F | (map (function curry) X)]   where (special? F)
@@ -23,8 +23,16 @@
 (defprolog t* 
           _ _ <-- (fwhen (maxinfexceeded?)) (bind Error (errormaxinfs));
           (mode fail -) _ <-- ! (prolog-failure);
-          (mode [X : A] -) Hyp <-- ! (th* X A Hyp);
-          P Hyp <-- (show P Hyps) (bind Datatypes (value *datatypes*)) (udefs* P Hyp Datatypes);)   
+          (mode [X : A] -) Hyp <-- (fwhen (type-theory-enabled?)) ! (th* X A Hyp);
+          P Hyp <-- (show P Hyp) (bind Datatypes (value *datatypes*)) (udefs* P Hyp Datatypes);) 
+
+(define type-theory-enabled?
+  -> (value *shen-type-theory-enabled?*)) 
+
+(define enable-type-theory
+  + -> (set *shen-type-theory-enabled?* true)
+  - -> (set *shen-type-theory-enabled?* false) 
+  _ -> (error "enable-type-theory expects a + or a -~%"))
 
 (define prolog-failure
   _ _ -> false)                      

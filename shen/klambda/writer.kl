@@ -70,7 +70,7 @@ For an explication of this license see http://www.lambdassociates.org/News/june1
       (shen-cn-all
        (shen-xmapcan (- (value *maximum-print-sequence-size*) 1)
         (lambda Z
-         (cons " " (cons (shen-ob->str V1098 (shen-blank-fail Z)) ())))
+         (cons " " (cons (shen-ob->str V1098 Z) ())))
         L)))
      (let V (cn "<" (cn E ">")) V))))
   ((and (not (string? V1099)) (absvector? V1099))
@@ -83,11 +83,7 @@ For an explication of this license see http://www.lambdassociates.org/News/june1
          (shen-xmapcan (- (value *maximum-print-sequence-size*) 1)
           (lambda Z (cons " " (cons (shen-ob->str V1098 Z) ()))) L)))
        (let V (cn "<" (cn E ">")) V))))))
-  ((= shen-vector-failure-object V1099) "...")
   (true (if (and (= V1098 "A") (string? V1099)) V1099 (str V1099)))))
-
-(defun shen-blank-fail (V1100)
- (cond ((= V1100 (fail)) shen-vector-failure-object) (true V1100)))
 
 (defun shen-tuple (V1101)
  (intmake-string "(@p ~S ~S)" (@p (fst V1101) (@p (snd V1101) ()))))

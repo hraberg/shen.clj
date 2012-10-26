@@ -89,6 +89,8 @@ For an explication of this license see http://www.lambdassociates.org/News/june1
  (let AbsPath
   (intmake-string "~A~A" (@p (value *home-directory*) (@p V1679 ())))
   (let Stream (open file AbsPath out)
-   (let String (intmake-string "~S~%~%" (@p V1680 ()))
+   (let String (if (string? V1680) 
+                   (intmake-string "~A~%~%" (@p V1680 ()))
+                   (intmake-string "~S~%~%" (@p V1680 ())))
     (let Write (pr String Stream) (let Close (close Stream) V1680))))))
 

@@ -1,16 +1,3 @@
-\(define declare
-  F A -> (do (set *signedfuncs* (adjoin F (value *signedfuncs*)))       
-             (s-prolog [[[(concat type-signature-of- F) A] :- []]]) 
-              F))
-
-(define declare
-  F A -> (let Record (set *signedfuncs* (adjoin F (value *signedfuncs*))) 
-              Type (rcons_form A)
-              F* (concat type-signature-of- F)      
-              Clause [[F* X] :- [[unify! X Type]]]
-              Compile (compile_prolog_procedure [Clause])
-              F))\
-
 (define declare
   F A -> (let Record (set *signedfuncs* (adjoin F (value *signedfuncs*)))
               Variancy (trap-error (variancy-test F A) (/. E skip))
@@ -69,6 +56,7 @@
 (declare do [A --> [B --> B]])
 (declare element? [A --> [[list A] --> boolean]]) 
 (declare empty? [A --> boolean]) 
+(declare enable-type-theory [symbol --> boolean]) 
 (declare external [symbol --> [list symbol]])
 (declare interror [string --> [A --> B]])
 (declare error-to-string [exception --> string])
@@ -119,7 +107,8 @@
 (declare preclude-all-but [[list symbol] --> [list symbol]])
 (declare read-byte [[stream in] --> number])
 (declare read-file-as-bytelist [string --> [list number]])
-(declare read-file-as-string [string --> string])
+(declare read-file-as-bytelist [string --> [list number]])
+(declare read-file [string --> [list unit]])
 (declare remove [A --> [[list A] --> [list A]]]) 
 (declare reverse [[list A] --> [list A]]) 
 (declare simple-error [string --> A])

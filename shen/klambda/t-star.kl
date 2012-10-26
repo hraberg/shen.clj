@@ -35,7 +35,7 @@ For an explication of this license see http://www.lambdassociates.org/News/june1
     (shen-insert-prolog-variables (shen-normalise-type (shen-curry-type V762))
      ProcessN)
     (let Continuation (freeze (return Type ProcessN shen-void))
-     (shen-th* Curry Type () ProcessN Continuation))))))
+     (shen-t* (cons Curry (cons : (cons Type ()))) () ProcessN Continuation))))))
 
 (defun shen-curry (V763)
  (cond
@@ -54,54 +54,63 @@ For an explication of this license see http://www.lambdassociates.org/News/june1
 
 (defun shen-extraspecial? (V765) (element? V765 (value shen-*extraspecial*)))
 
-(defun shen-t* (V550 V551 V552 V553)
+(defun shen-t* (V622 V623 V624 V625)
  (let Throwcontrol (shen-catchpoint)
   (shen-cutpoint Throwcontrol
    (let Case
-    (let Error (shen-newpv V552)
+    (let Error (shen-newpv V624)
      (do (shen-incinfs)
-      (fwhen (shen-maxinfexceeded?) V552
-       (freeze (bind Error (shen-errormaxinfs) V552 V553)))))
+      (fwhen (shen-maxinfexceeded?) V624
+       (freeze (bind Error (shen-errormaxinfs) V624 V625)))))
     (if (= Case false)
      (let Case
-      (let V544 (shen-lazyderef V550 V552)
-       (if (= fail V544)
+      (let V616 (shen-lazyderef V622 V624)
+       (if (= fail V616)
         (do (shen-incinfs)
-         (cut Throwcontrol V552 (freeze (shen-prolog-failure V552 V553))))
+         (cut Throwcontrol V624 (freeze (shen-prolog-failure V624 V625))))
         false))
       (if (= Case false)
        (let Case
-        (let V545 (shen-lazyderef V550 V552)
-         (if (cons? V545)
-          (let X (hd V545)
-           (let V546 (shen-lazyderef (tl V545) V552)
-            (if (cons? V546)
-             (let V547 (shen-lazyderef (hd V546) V552)
-              (if (= : V547)
-               (let V548 (shen-lazyderef (tl V546) V552)
-                (if (cons? V548)
-                 (let A (hd V548)
-                  (let V549 (shen-lazyderef (tl V548) V552)
-                   (if (= () V549)
+        (let V617 (shen-lazyderef V622 V624)
+         (if (cons? V617)
+          (let X (hd V617)
+           (let V618 (shen-lazyderef (tl V617) V624)
+            (if (cons? V618)
+             (let V619 (shen-lazyderef (hd V618) V624)
+              (if (= : V619)
+               (let V620 (shen-lazyderef (tl V618) V624)
+                (if (cons? V620)
+                 (let A (hd V620)
+                  (let V621 (shen-lazyderef (tl V620) V624)
+                   (if (= () V621)
                     (do (shen-incinfs)
-                     (cut Throwcontrol V552
-                      (freeze (shen-th* X A V551 V552 V553))))
+                     (fwhen (shen-type-theory-enabled?) V624
+                      (freeze
+                       (cut Throwcontrol V624
+                        (freeze (shen-th* X A V623 V624 V625))))))
                     false)))
                  false))
                false))
              false)))
           false))
         (if (= Case false)
-         (let Hyps (shen-newpv V552)
-          (let Datatypes (shen-newpv V552)
-           (do (shen-incinfs)
-            (shen-show V550 Hyps V552
-             (freeze
-              (bind Datatypes (value shen-*datatypes*) V552
-               (freeze (shen-udefs* V550 V551 Datatypes V552 V553))))))))
+         (let Datatypes (shen-newpv V624)
+          (do (shen-incinfs)
+           (shen-show V622 V623 V624
+            (freeze
+             (bind Datatypes (value shen-*datatypes*) V624
+              (freeze (shen-udefs* V622 V623 Datatypes V624 V625)))))))
          Case))
        Case))
      Case)))))
+
+(defun shen-type-theory-enabled? ()
+  (value shen-*shen-type-theory-enabled?*))
+
+(defun enable-type-theory (V630)
+ (cond ((= + V630) (set shen-*shen-type-theory-enabled?* true))
+  ((= - V630) (set shen-*shen-type-theory-enabled?* false))
+  (true (interror "enable-type-theory expects a + or a -~%" ()))))
 
 (defun shen-prolog-failure (V584 V585) false)
 

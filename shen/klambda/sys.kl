@@ -53,7 +53,7 @@ For an explication of this license see http://www.lambdassociates.org/News/june1
 
 (defun external (V666)
  (trap-error (get V666 shen-external-symbols (value shen-*property-vector*))
-  (lambda E (interror "package ~A has not been used.~" ()))))
+  (lambda E (interror "package ~A has not been used.~%" (@p V666 ())))))
 
 (defun shen-package-contents (V669)
  (cond

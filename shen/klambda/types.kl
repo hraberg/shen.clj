@@ -145,6 +145,8 @@ For an explication of this license see http://www.lambdassociates.org/News/june1
 
 (declare empty? (cons A (cons --> (cons boolean ()))))
 
+(declare enable-type-theory (cons symbol (cons --> (cons boolean ()))))
+
 (declare external
  (cons symbol (cons --> (cons (cons list (cons symbol ())) ()))))
 
@@ -310,6 +312,9 @@ For an explication of this license see http://www.lambdassociates.org/News/june1
 
 (declare read-byte
  (cons (cons stream (cons in ())) (cons --> (cons number ()))))
+
+(declare read-file
+ (cons string (cons --> (cons (cons list (cons unit ())) ()))))
 
 (declare read-file-as-bytelist
  (cons string (cons --> (cons (cons list (cons number ())) ()))))
