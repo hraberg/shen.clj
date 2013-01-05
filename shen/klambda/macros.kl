@@ -476,3 +476,4 @@ For an explication of this license see http://www.lambdassociates.org/News/june1
         (append V567 (cons X ())))
        ())))))))
 
+(defun undefmacro (F) (do (set *macros* (remove F (value *macros*))) F))

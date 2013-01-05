@@ -42,11 +42,11 @@
   <signature> <any> := <signature>;) 
                    
 (define write-to-file
-   File Text -> (let AbsPath (make-string "~A~A" (value *home-directory*) File)
-                     Stream (open file AbsPath out)
+   File Text -> (let Stream (open file File out)
                      String (if (string? Text) 
                                 (make-string "~A~%~%" Text) 
                                 (make-string "~S~%~%" Text))
                      Write (pr String Stream) 
                      Close (close Stream)
                      Text))
+

@@ -149,5 +149,8 @@
 (define function-abstraction-help
   F 0 Vars -> [F | Vars]
   F N Vars -> (let X (gensym V) [/. X (function-abstraction-help F (- N 1) (append Vars [X]))]))
+
+(define undefmacro
+  F -> (do (set *macros* (remove F (value *macros*))) F))
   
   

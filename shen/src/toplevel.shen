@@ -10,7 +10,7 @@
 (define version
   S -> (set *version* S))
 
-(version "version 7")
+(version "version 7.1")
 
 (define credits
  -> (do (output "~%Shen 2010, copyright (C) 2010 Mark Tarver~%")
