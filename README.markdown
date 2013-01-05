@@ -38,7 +38,7 @@ The script [`build`](https://github.com/hraberg/shen.clj/blob/master/build) is u
     lein repl
 
     # java:
-    java -cp lib/clojure-1.4.0.jar:shen.clj-0.1.6-SNAPSHOT.jar shen
+    java -cp lib/clojure-1.4.0.jar:shen.clj-0.1.6.jar shen
 
 
 #### Plain
@@ -48,7 +48,7 @@ The script [`build`](https://github.com/hraberg/shen.clj/blob/master/build) is u
 ---
 
     Shen 2010, copyright (C) 2010 Mark Tarver
-    www.lambdassociates.org, version 6.0
+    www.lambdassociates.org, version 7.1
     running under Clojure, implementation: Clojure 1.4.0 [jvm 1.8.0-ea]
     port 0.1.6 ported by Håkan Råberg
 
