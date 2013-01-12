@@ -13,6 +13,9 @@ Shen is a portable functional programming language by [Mark Tarver](http://www.l
 * and an inbuilt compiler-compiler.
 
 
+See also: [Shen.java](https://github.com/hraberg/Shen.java)
+
+
 ## This Clojure Port
 
 `[shen.clj "0.1.6"]` | [Marginalia](http://ghettojedi.org/shen.clj/)
