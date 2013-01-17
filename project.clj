@@ -7,7 +7,7 @@
                  "https://oss.sonatype.org/content/repositories/snapshots/"}
   :dependencies [[org.clojure/clojure "1.5.0-RC2"]]
   :profiles {:dev {:dependencies [[marginalia "0.7.1"]]}}
-  :plugins [[lein-swank "1.4.4"]
+  :plugins [[lein-swank "1.4.5"]
             [lein-difftest "2.0.0"]]
   :compile-path "classes"
   :target-path ""
