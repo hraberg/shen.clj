@@ -12,3 +12,5 @@
 /shen/platforms
 *~
 stale
+repl-port
+shen.clj-*
