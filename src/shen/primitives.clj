@@ -15,8 +15,8 @@
 (create-ns 'shen)
 (create-ns 'shen.globals)
 
-(def string? c/string?)
-(def number? c/number?)
+(def ^:const string? c/string?)
+(def ^:const number? c/number?)
 
 (c/defmacro assert-boolean
   ([x] `(assert-boolean ~x "%s is not a boolean"))
@@ -115,7 +115,7 @@
 (defn ^:private interned? [X]
   (c/and (seq? X) (= 'intern (first X))))
 
-(def ^:private slash-dot (symbol "/."))
+(def ^:private ^:const slash-dot (symbol "/."))
 
 (defn ^:private recur?
   ([path] (partial recur? path))
@@ -143,7 +143,7 @@
   ([kl scope path fn]
      (condp some [kl]
        scope kl
-       symbol? (condp = (name kl)
+       symbol? (c/case (name kl)
                  "true" true
                  "false" false
                  (list 'quote kl))
@@ -181,7 +181,7 @@
        kl)))
 
 (defn intern [String]
-  (symbol (condp = String
+  (symbol (c/case String
             "/" "/"
             "/." slash-dot
             (s/replace String "/" "-slash-"))))
@@ -204,12 +204,11 @@
 
 (defn ^:private value* [X ns]
   (c/let [v (c/and (symbol? X) (ns-resolve ns X))]
-    (condp = X
-      'and and-fn
-      'or or-fn
-      (if (nil? v)
-        (throw (IllegalArgumentException. (c/str "variable " X " has no value")))
-        @v))))
+    (c/cond
+      (= X 'and) and-fn
+      (= X 'or) or-fn
+      (nil? v) (throw (IllegalArgumentException. (c/str "variable " X " has no value")))
+      :else @v)))
 
 (defn value [X] (value* X 'shen.globals))
 
@@ -300,9 +299,10 @@
   `(eval-shen ~@body))
 
 (c/defmacro define [name & body]
-  `(c/let [fn# (eval-shen ~(concat ['define name] body))]
+  `(c/let [fn# (eval-shen (~'define ~name ~@body))]
      (defn ~(with-meta name {:dynamic true})
-       [& ~'args] (apply (function fn#) ~'args))))
+       [& ~'args]
+       (apply (function fn#) ~'args))))
 
 (doseq [[name args] '{defmacro [name] defprolog [name] prolog? [] package [name exceptions]}]
   (eval
@@ -325,8 +325,9 @@
 
 (c/defmacro let [X Y Z]
   (c/let [X-safe (if (seq? X) (gensym (eval X)) X)
-          Z (if (seq? X) (w/postwalk #(if (= X %) X-safe %) Z)
-                Z)]
+          Z (if (seq? X)
+              (w/postwalk #(if (= X %) X-safe %) Z)
+              Z)]
     `(c/let [~X-safe ~Y]
        ~Z)))
 
@@ -381,13 +382,13 @@
   (.read S))
 
 (defn open [Type String Direction]
-  (condp = Type
+  (c/case Type
     'file
     (c/let [Path (io/file (value '*home-directory*) String)]
-      (condp = Direction
-        'in (io/input-stream Path)
-        'out (io/output-stream Path)
-        (throw (IllegalArgumentException. "invalid direction"))))
+      (c/cond
+        (= 'in Direction) (io/input-stream Path)
+        (= 'out Direction) (io/output-stream Path)
+        :else (throw (IllegalArgumentException. "invalid direction"))))
     (throw (IllegalArgumentException. "invalid stream type"))))
 
 (defn type [X MyType]
@@ -413,11 +414,11 @@
 (def ^:private internal-start-time (System/currentTimeMillis))
 
 (defn get-time [Time]
-  (condp = Time
-    'run (/ (- (System/currentTimeMillis) internal-start-time) 1000)
-    'unix (long (/ (System/currentTimeMillis) 1000))
-    (throw (IllegalArgumentException.
-            (c/str "get-time does not understand the parameter " Time)))))
+  (c/cond
+    (= Time 'run) (/ (- (System/currentTimeMillis) internal-start-time) 1000)
+    (= Time 'unix) (long (/ (System/currentTimeMillis) 1000))
+    :else (throw (IllegalArgumentException.
+                  (c/str "get-time does not understand the parameter " Time)))))
 
 (defn system [Command]
   (:out (apply sh/sh (-> Command StringTokenizer. enumeration-seq))))

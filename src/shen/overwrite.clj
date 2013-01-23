@@ -29,12 +29,11 @@
 (defun
   boolean?
   (V746)
-  (c/condp = V746
-             true true
-             false true
-             (intern "true") true
-             (intern "false") true
-             false))
+  (c/cond (= true V746) true
+          (= false V746) true
+          (= "true" (intern V746)) true
+          (= "false" (intern V746)) true
+          :else false))
 
 (defun
   shen-compose
@@ -58,7 +57,7 @@
 
 ;; Based on [Shen Mode](https://github.com/eschulte/shen-mode) by Eric Schulte.
 ;; - Shen functions taken largely from the Qi documentation by Dr. Mark Tarver.
-(def ^:private shen-doc
+(def ^:private ^:const shen-doc
   `((* "number --> number --> number" "Number multiplication.")
     (+ "number --> number --> number" "Number addition.")
     (- "number --> number --> number" "Number subtraction.")
