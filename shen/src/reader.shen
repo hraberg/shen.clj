@@ -384,3 +384,9 @@
     PackageName Exceptions X -> (concat PackageName X)   
              where (and (symbol? X) (not (prefix? ["s" "h" "e" "n" "-"] (explode X))))
     _ _ X -> X) 
+
+(define read-from-string
+  S -> (let Ns (map (function string->n) (explode S))
+            (compile (function shen-<st_input>) 
+                     Ns 
+                     (function shen-read-error))))

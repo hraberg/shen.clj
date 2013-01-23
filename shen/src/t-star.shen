@@ -52,6 +52,7 @@
   X A _ <-- (fwhen (typedf? X)) (bind F (sigf X)) (call [F A]);
   X A _ <-- (base X A);
   X A Hyp <-- (by_hypothesis X A Hyp);
+  (mode [F] -) A Hyp <-- (th* F [--> A] Hyp);
   (mode [F X] -) A Hyp <-- (th* F [B --> A] Hyp) (th* X B Hyp);
   (mode [cons X Y] -) [list A] Hyp <-- (th* X A Hyp) (th* Y [list A] Hyp);
   (mode [@p X Y] -) [A * B] Hyp <-- (th* X A Hyp) (th* Y B Hyp);
@@ -65,7 +66,8 @@
                                     (bind X&& (placeholder))
                                     (bind W (ebr X&& X Z))
                                     (th* W A [[X&& : B] | Hyp]);                                        
-  (mode [open file FileName Direction] -) [stream Direction] Hyp <-- ! (th* FileName string Hyp);
+  (mode [open file FileName Direction] -) [stream Direction] Hyp 
+   <-- ! (th* FileName string Hyp);
   (mode [type X A] -) B Hyp <-- ! (unify A B) (th* X A Hyp);
   (mode [input+ : A] -) B Hyp <-- (bind C (normalise-type A)) (unify B C);
   (mode [where P X] -) A Hyp <-- ! (th* P boolean Hyp) ! (th* X A [[P : verified] | Hyp]);
@@ -236,6 +238,7 @@
    _ _ N F _ <-- (bind Error (type-insecure-rule-error-message N F));)
                                 
 (defprolog t*-ruleh
+  (mode [[] Result] -) [--> A] Hyp <-- ! (th* Result A Hyp);
   (mode [Patterns Result] -) A Hyp <-- (t*-patterns Patterns A NewHyp B)
                                          !
                                         (conc NewHyp Hyp AllHyp)

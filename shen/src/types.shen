@@ -109,6 +109,7 @@
 (declare read-file-as-bytelist [string --> [list number]])
 (declare read-file-as-bytelist [string --> [list number]])
 (declare read-file [string --> [list unit]])
+(declare read-from-string [string --> [list unit]])
 (declare remove [A --> [[list A] --> [list A]]]) 
 (declare reverse [[list A] --> [list A]]) 
 (declare simple-error [string --> A])

@@ -27,7 +27,7 @@ For an explication of this license see http://www.lambdassociates.org/News/june1
 
 (defun version (V568) (set *version* V568))
 
-(version "version 7.1")
+(version "version 8")
 
 (defun shen-credits ()
  (do (intoutput "~%Shen 2010, copyright (C) 2010 Mark Tarver~%" ())

@@ -1056,3 +1056,7 @@ For an explication of this license see http://www.lambdassociates.org/News/june1
    (concat V1078 V1080))
   (true V1080)))
 
+(defun read-from-string (V466)
+ (let Ns (map (lambda V465 (string->n V465)) (explode V466))
+  (compile shen-<st_input> Ns shen-read-error)))
+
