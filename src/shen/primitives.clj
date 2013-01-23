@@ -12,6 +12,18 @@
                             + - * / > < >= <= = and or])
   (:gen-class))
 
+
+(c/defmacro ^:private pred-cond 
+  "Checks each predicate against the item, returning the corresponding 
+   result if it finds a match, otherwise returning nil.
+   Assumes item to be a value, as it will get evaluated multiple times."
+  [item pred result & preds+results]
+  (c/cond (c/= pred :else ) result
+        (not (seq preds+results)) `(if (~pred ~item) ~result nil) ;; last condition, but no :else in the form
+        :else `(if (~pred ~item)
+                 ~result
+                 (pred-cond ~item ~@preds+results))))
+
 (create-ns 'shen)
 (create-ns 'shen.globals)
 
@@ -141,44 +153,46 @@
   ([kl] (shen-kl-to-clj kl #{} [] :unknown))
   ([kl scope] (shen-kl-to-clj kl scope [] :no-recur))
   ([kl scope path fn]
-     (condp some [kl]
-       scope kl
-       symbol? (c/case (name kl)
-                 "true" true
-                 "false" false
-                 (list 'quote kl))
-       seq? (c/let [[fst snd trd & rst] kl
-                    fn (if ('#{defun} fst) snd
-                           fn)
-                    scope (condp get fst
-                            '#{defun} (into scope trd)
-                            '#{let lambda} (conj scope snd)
-                            scope)
-                    fst (condp some [fst]
-                          (every-pred
-                           #{fn}
-                           (recur? path)) 'recur
-                           (some-fn
-                            interned?
-                            scope) (maybe-apply fst path)
-                            seq? (maybe-apply (shen-kl-to-clj fst scope) path)
-                            '#{if} 'if-kl
-                            (if (= 'cond (last path))
-                              (shen-kl-to-clj fst scope)
-                              (maybe-declare fst)))
-                    path (conj path fst)
-                    snd (condp get fst
-                          '#{defun let lambda} snd
-                          '#{if} (shen-kl-to-clj snd scope)
-                          (shen-kl-to-clj snd scope path fn))
-                    trd (condp get fst
-                          '#{defun} trd
-                          '#{let} (shen-kl-to-clj trd scope)
-                          (shen-kl-to-clj trd scope path fn))]
-              (take-while (complement nil?)
-                          (concat [fst snd trd]
-                                  (map #(shen-kl-to-clj % scope path fn) rst))))
-       kl)))
+     (pred-cond kl
+                scope kl
+                symbol? (c/case (name kl)
+                           "true" true
+                           "false" false
+                           (list 'quote kl))
+                seq? (c/let [[fst snd trd & rst] kl
+                        fn (if ('#{defun} fst)
+                             snd
+                             fn)
+                        scope (c/cond
+                                (get '#{defun} fst) (into scope trd)
+                                (get '#{let lambda} fst) (conj scope snd)
+                                :else scope)
+                        fst (pred-cond fst
+                              (every-pred
+                               #{fn}
+                               (recur? path)) 'recur
+                              (some-fn
+                               interned?
+                               scope) (maybe-apply fst path)
+                              seq? (maybe-apply (shen-kl-to-clj fst scope) path)
+                              '#{if} 'if-kl
+                              :else
+                              (if (= 'cond (last path))
+                                (shen-kl-to-clj fst scope)
+                                (maybe-declare fst)))
+                        path (conj path fst)
+                        snd (c/cond
+                              (get '#{defun let lambda} fst) snd
+                              (get '#{if} fst) (shen-kl-to-clj snd scope)
+                              :else (shen-kl-to-clj snd scope path fn))
+                        trd (c/cond
+                              (get '#{defun} fst) trd
+                              (get '#{let} fst) (shen-kl-to-clj trd scope)
+                              :else (shen-kl-to-clj trd scope path fn))]
+                       (take-while (complement nil?)
+                                   (concat [fst snd trd]
+                                           (map #(shen-kl-to-clj % scope path fn) rst))))
+      :else kl)))
 
 (defn intern [String]
   (symbol (c/case String
@@ -269,14 +283,14 @@
        ())))
 
 (defn ^:private cleanup-clj [clj]
-  (condp some [clj]
+  (pred-cond clj
     vector? (recur (seq-to-cons clj))
     coll? (if ('#{clojure.core/deref} (first clj))
             (symbol (c/str "@" (second clj)))
             clj)
     '#{λ} slash-dot
     char? (intern clj)
-    clj))
+    :else clj))
 
 (defn ^:private define* [name body]
   (c/let [kl ((function 'shen-shen->kl) name body)]
@@ -456,19 +470,20 @@
 
 
 (defn shen->clj [x]
-  (w/postwalk #(condp some [%]
-                    #{(symbol "nil")} nil
-                    symbol? (symbol (s/replace (name %) "-slash-" "/"))
-                    %) x))
+  (w/postwalk #(pred-cond %
+                          #{(symbol "nil")} nil
+                          symbol? (symbol (s/replace (name %) "-slash-" "/"))
+                          :else %)
+              x))
 
 (defn send-clj [x]
   (binding [*ns* (the-ns 'clojure.core)]
     (eval x)))
 
 (defn clj->shen [x]
-  (condp some [x]
+  (pred-cond x
     nil? ()
-    x))
+    :else x))
 
 (defn receive-clj [x] x)
 
