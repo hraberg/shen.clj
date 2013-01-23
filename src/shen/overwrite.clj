@@ -16,44 +16,30 @@
 
 (shen-initialise_environment)
 
-(defun
-  (intern "@p")
-  (V706 V707)
+(defun (intern "@p") (V706 V707)
   (c/object-array ['shen-tuple V706 V707]))
 
-(defun
-  variable?
-  (V702)
+(defun variable? (V702)
   (and (c/symbol? V702) (Character/isUpperCase (.charAt (c/name V702) 0))))
 
-(defun
-  boolean?
-  (V746)
+(defun boolean? (V746)
   (c/cond (= true V746) true
           (= false V746) true
-          (= "true" (intern V746)) true
-          (= "false" (intern V746)) true
+          (= (intern "true") V746) true
+          (= (intern "false") V746) true
           :else false))
 
-(defun
-  shen-compose
-  (V532 V533)
+(defun shen-compose (V532 V533)
   (c/reduce #(%2 %) V533 V532))
 
-(defun
-  element?
-  (V787 ^java.util.Collection V788)
+(defun element? (V787 ^java.util.Collection V788)
   (.contains V788 V787))
 
-(defun
-  macroexpand
-  (V510)
-  (let
-      Y
-    (shen-compose (c/drop-while c/nil?
-                                (c/map #(c/when-let [m (c/ns-resolve 'shen %)] @m)
-                                       (value '*macros*))) V510)
-    (if (= V510 Y) V510 (shen-walk macroexpand Y))))
+(defun macroexpand (V510)
+  (let Y (shen-compose (c/drop-while c/nil?
+                                     (c/map #(c/when-let [m (c/ns-resolve 'shen %)] @m)
+                                            (value '*macros*))) V510)
+       (if (= V510 Y) V510 (shen-walk macroexpand Y))))
 
 ;; Based on [Shen Mode](https://github.com/eschulte/shen-mode) by Eric Schulte.
 ;; - Shen functions taken largely from the Qi documentation by Dr. Mark Tarver.
