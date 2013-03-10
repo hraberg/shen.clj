@@ -1,94 +1,82 @@
+"**********************************************************************************
+*                           The License						                                      *
+* 										                                                                  *
+* The user is free to produce commercial applications with the software, to 	          *
+* distribute these applications in source or binary  form, and to charge monies         *
+* for them as he sees fit and in concordance with the laws of the land subject 	        *
+* to the following license.							                                                *
+*										                                                                    * 
+* 1. The license applies to all the software and all derived software and 	            *
+*    must appear on such.							                                                  *
+*										                                                                    *
+* 2. It is illegal to distribute the software without this license attached	            *
+*    to it and use of the software implies agreement with the license as such.          *
+*    It is illegal for anyone who is not the copyright holder to tamper with 	          *
+*    or change the license.							                                                *
+*										                                                                    *
+* 3. Neither the names of Lambda Associates or the copyright holder may be used         *
+*    to endorse or promote products built using the software without specific 	        *
+*    prior written permission from the copyright holder.		                            *
+*										                                                                    *
+* 4. That possession of this license does not confer on the copyright holder 	          *
+*    any special contractual obligation towards the user. That in no event 	            * 
+*    shall the copyright holder be liable for any direct, indirect, incidental,        *   
+*    special, exemplary or consequential damages (including but not limited             *
+*    to procurement of substitute goods or services, loss of use, data, 	              * 
+*    interruption), however caused and on any theory of liability, whether in	          * 
+*    contract, strict liability or tort (including negligence) arising in any         	*
+*    way out of the use of the software, even if advised of the possibility of         	*
+*    such damage.						                                                        		* 
+*										                                                                    *
+* 5. It is permitted for the user to change the software, for the purpose of 	          *
+*    improving performance, correcting an error, or porting to a new platform, 	        *
+*    and distribute the derived version of Shen provided the resulting program 	        *
+*    conforms in all respects to the Shen standard and is issued under that             * 
+*    title. The user must make it clear with his distribution that he/she is 	          *
+*    the author of the changes and what these changes are and why. 		                  *
+*										                                                                    *
+* 6. Derived versions of this software in whatever form are subject to the same         *
+*    restrictions. In particular it is not permitted to make derived copies of          *
+*    this software which do not conform to the Shen standard or appear under a          *
+*    different title.								                                                    *
+*										                                                                    *
+*    It is permitted to distribute versions of Shen which incorporate libraries,        *
+*    graphics or other facilities which are not part of the Shen standard.	            *
+*										                                                                    *
+* For an explication of this license see www.shenlanguage.org/license.htm which         *
+* explains this license in full.                                                        *
+*				 						                                                                    *
+*****************************************************************************************
+"(defun load (V808) (let Load (let Start (get-time run) (let Result (shen.load-help (value shen.*tc*) (read-file V808)) (let Finish (get-time run) (let Time (- Finish Start) (let Message (pr (cn "
+run time: " (cn (str Time) " secs
+")) (stoutput)) Result))))) (let Infs (if (value shen.*tc*) (pr (cn "
+typechecked in " (shen.app (inferences) " inferences
+" shen.a)) (stoutput)) shen.skip) loaded)))
 
-"                                                   The License
- 
- The user is free to produce commercial applications with the software, to distribute these applications in source or binary  form, and to charge monies for them as he sees fit and in concordance with the laws of the land subject to the following  license.
- 
- 1. The license applies to all the software and all derived software and must appear on such.
- 2. It is illegal to distribute the software without this license attached to it and use of the software implies agreement 
-    with the license as such. It is illegal for anyone who is not the copyright holder to tamper with or change the license.
- 3. Neither the names of Lambda Associates or the copyright holder may be used to endorse or promote products built using
-     the software without specific prior written permission from the copyright holder.
- 4. That possession of this license does not confer on the copyright holder any special contractual obligation towards the    user. That in no event shall the copyright holder be liable for any direct, indirect, incidental, special, exemplary or   consequential damages (including but not limited to procurement of substitute goods or services, loss of use, data, or    profits; or business interruption), however caused and on any theory of liability, whether in contract, strict liability   or tort (including negligence) arising in any way out of the use of the software, even if advised of the possibility of   such damage. 
-5. It is permitted for the user to change the software, for the purpose of improving performance, correcting an error, or    porting to a new platform, and distribute the modified version of Shen (hereafter the modified version) provided the     resulting program conforms in all respects to the Shen standard and is issued under that title. The user must make it clear   with his distribution that he/she is the author of the changes and what these changes are and why. 
-6. Derived versions of this software in whatever form are subject to the same restrictions. In particular it is not          permitted to make derived copies of this software which do not conform to the Shen standard or appear under a different title.
-7. It is permitted to distribute versions of Shen which incorporate libraries, graphics or other facilities which are not    part of the Shen standard.
+(defun shen.load-help (V813 V814) (cond ((= false V813) (map (lambda X (pr (shen.app (shen.eval-without-macros X) "
+" shen.s) (stoutput))) V814)) (true (let RemoveSynonyms (mapcan shen.remove-synonyms V814) (let Table (mapcan shen.typetable RemoveSynonyms) (let Assume (map shen.assumetype Table) (trap-error (map shen.typecheck-and-load RemoveSynonyms) (lambda E (shen.unwind-types E Table)))))))))
 
-For an explication of this license see http://www.lambdassociates.org/News/june11/license.htm which explains this license in full."
+(defun shen.remove-synonyms (V815) (cond ((and (cons? V815) (= shen.synonyms-help (hd V815))) (do (eval V815) ())) (true (cons V815 ()))))
 
-(defun load (V1645)
- (let Load
-  (let Start (get-time run)
-   (let Result (shen-load-help (value shen-*tc*) (read-file V1645))
-    (let Finish (get-time run)
-     (let Time (- Finish Start)
-      (let Message (intoutput "~%run time: ~A secs~%" (@p Time ()))
-       Result)))))
-  (let Infs
-   (if (value shen-*tc*)
-    (intoutput "~%typechecked in ~A inferences~%" (@p (inferences _) ()))
-    shen-skip)
-   loaded)))
+(defun shen.typecheck-and-load (V816) (do (nl 1) (shen.typecheck-and-evaluate V816 (gensym A))))
 
-(defun shen-load-help (V1650 V1651)
- (cond
-  ((= false V1650)
-   (map (lambda X (intoutput "~S~%" (@p (shen-eval-without-macros X) ())))
-    V1651))
-  (true
-   (let RemoveSynonyms
-    (mapcan (lambda V1652 (shen-remove-synonyms V1652)) V1651)
-    (let Table (mapcan (lambda V1653 (shen-typetable V1653)) RemoveSynonyms)
-     (let Assume (map (lambda V1654 (shen-assumetype V1654)) Table)
-      (trap-error
-       (map (lambda V1655 (shen-typecheck-and-load V1655)) RemoveSynonyms)
-       (lambda E (shen-unwind-types E Table)))))))))
+(defun shen.typetable (V825) (cond ((and (cons? V825) (and (= define (hd V825)) (cons? (tl V825)))) (let Sig (compile shen.<sig+rest> (tl (tl V825)) ()) (if (= Sig (fail)) (simple-error (shen.app (hd (tl V825)) " lacks a proper signature.
+" shen.a)) (cons (cons (hd (tl V825)) Sig) ())))) ((and (cons? V825) (and (= defcc (hd V825)) (and (cons? (tl V825)) (and (cons? (tl (tl V825))) (and (= { (hd (tl (tl V825)))) (and (cons? (tl (tl (tl V825)))) (and (cons? (hd (tl (tl (tl V825))))) (and (= list (hd (hd (tl (tl (tl V825)))))) (and (cons? (tl (hd (tl (tl (tl V825)))))) (and (= () (tl (tl (hd (tl (tl (tl V825))))))) (and (cons? (tl (tl (tl (tl V825))))) (and (= ==> (hd (tl (tl (tl (tl V825)))))) (and (cons? (tl (tl (tl (tl (tl V825)))))) (and (cons? (tl (tl (tl (tl (tl (tl V825))))))) (= } (hd (tl (tl (tl (tl (tl (tl V825)))))))))))))))))))))) (cons (cons (hd (tl V825)) (cons (hd (tl (tl (tl V825)))) (cons ==> (cons (hd (tl (tl (tl (tl (tl V825)))))) ())))) ())) ((and (cons? V825) (and (= defcc (hd V825)) (cons? (tl V825)))) (simple-error (shen.app (hd (tl V825)) " lacks a proper signature.
+" shen.a))) (true ())))
 
-(defun shen-remove-synonyms (V1656)
- (cond
-  ((and (cons? V1656) (= shen-synonyms-help (hd V1656)))
-   (do (eval V1656) ()))
-  (true (cons V1656 ()))))
+(defun shen.assumetype (V826) (cond ((cons? V826) (declare (hd V826) (tl V826))) (true (shen.sys-error shen.assumetype))))
 
-(defun shen-typecheck-and-load (V1657)
- (do (nl 1) (shen-typecheck-and-evaluate V1657 (gensym A))))
+(defun shen.unwind-types (V831 V832) (cond ((= () V832) (simple-error (error-to-string V831))) ((and (cons? V832) (cons? (hd V832))) (do (shen.remtype (hd (hd V832))) (shen.unwind-types V831 (tl V832)))) (true (shen.sys-error shen.unwind-types))))
 
-(defun shen-typetable (V1662)
- (cond
-  ((and (cons? V1662) (and (= define (hd V1662)) (cons? (tl V1662))))
-   (let Sig
-    (compile (lambda V1663 (shen-<sig+rest> V1663)) (tl (tl V1662)) ())
-    (if (= Sig (fail))
-     (interror "~A lacks a proper signature.~%" (@p (hd (tl V1662)) ()))
-     (cons (cons (hd (tl V1662)) Sig) ()))))
-  (true ())))
+(defun shen.remtype (V833) (do (set shen.*signedfuncs* (remove V833 (value shen.*signedfuncs*))) V833))
 
-(defun shen-assumetype (V1664)
- (cond ((cons? V1664) (declare (hd V1664) (tl V1664)))
-  (true (shen-sys-error shen-assumetype))))
+(defun shen.<sig+rest> (V838) (let Result (let Parse_shen.<signature> (shen.<signature> V838) (if (not (= (fail) Parse_shen.<signature>)) (let Parse_shen.<any> (shen.<any> Parse_shen.<signature>) (if (not (= (fail) Parse_shen.<any>)) (shen.pair (hd Parse_shen.<any>) (shen.hdtl Parse_shen.<signature>)) (fail))) (fail))) (if (= Result (fail)) (fail) Result)))
 
-(defun shen-unwind-types (V1669 V1670)
- (cond ((= () V1670) (simple-error (error-to-string V1669)))
-  ((and (cons? V1670) (cons? (hd V1670)))
-   (do (shen-remtype (hd (hd V1670))) (shen-unwind-types V1669 (tl V1670))))
-  (true (shen-sys-error shen-unwind-types))))
+(defun write-to-file (V839 V840) (let Stream (open file V839 out) (let String (if (string? V840) (shen.app V840 "
 
-(defun shen-remtype (V1671)
- (do (set shen-*signedfuncs* (remove V1671 (value shen-*signedfuncs*))) V1671))
+" shen.a) (shen.app V840 "
 
-(defun shen-<sig+rest> (V1672)
- (let Result
-  (let Parse_<signature> (shen-<signature> V1672)
-   (if (not (= (fail) Parse_<signature>))
-    (let Parse_<any> (shen-<any> Parse_<signature>)
-     (if (not (= (fail) Parse_<any>))
-      (shen-reassemble (fst Parse_<any>) (snd Parse_<signature>)) (fail)))
-    (fail)))
-  (if (= Result (fail)) (fail) Result)))
+" shen.s)) (let Write (pr String Stream) (let Close (close Stream) V840)))))
 
-(defun write-to-file (V1673 V1674)
- (let Stream (open file V1673 out)
-  (let String
-   (if (string? V1674) (intmake-string "~A~%~%" (@p V1674 ()))
-    (intmake-string "~S~%~%" (@p V1674 ())))
-   (let Write (pr String Stream) (let Close (close Stream) V1674)))))
+
 

@@ -9,7 +9,7 @@ following.
 
   *\
 
-(package test-harness- [report reset ok passed failed]
+(package test-harness [report reset ok passed failed]
 
 (define reset
   -> (set *passed* (set *failed* 0)))
