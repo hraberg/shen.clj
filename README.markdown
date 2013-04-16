@@ -19,6 +19,7 @@ See also: [Shen.java](https://github.com/hraberg/Shen.java)
 ## This Clojure Port
 
 `[shen.clj "0.1.6"]` | [Marginalia](http://ghettojedi.org/shen.clj/) | [Gittip](https://www.gittip.com/hraberg/)
+
 Is a work in progress. Passes the Shen 6.0 test suite.
 
 
