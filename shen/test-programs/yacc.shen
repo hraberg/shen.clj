@@ -12,7 +12,7 @@ the; a;)
 cat; dog;)  
 
 (defcc <name1>
- X := X	where (element? X [(protect Bill) (protect Ben)]);) 
+ -*- := (if (element? -*- [(protect Bill) (protect Ben)]) -*- (fail));) 
 
 (defcc <vp>
 <vtrans> <np>;) 
@@ -44,19 +44,19 @@ NP VP -> (append [is it true that your father] VP [?]))
 (defcc <find-digit>
   <digit> <morestuff> := <digit>;
   <digit> := <digit>;
-  X <find-digit> := <find-digit>;) 
+  -*- <find-digit> := <find-digit>;) 
 
 (defcc <morestuff>
-  X <morestuff>; 
-  X;) 
+  -*- <morestuff>; 
+  -*-;) 
 
 (defcc <digit>
 0; 1; 2; 3; 4; 5; 6; 7; 8; 9;)
 
 (defcc <find-digit'>
-  <digit> <morestuff>;
-  <digit> := <digit>;
-  X <find-digit'> := <find-digit'>;) 
+  <digit> <morestuff> := -s-;
+  <digit> := -s-;
+  -*- <find-digit'> := <find-digit'>;) 
 
 (defcc <asbscs>
   <as> <bs> <cs>;) 
@@ -85,14 +85,18 @@ b;
 (defcc <find-digit''>
   <digit''> <morestuff> := <digit''>;
   <digit''> := <digit''>;
-  X <find-digit''> := <find-digit''>;) 
+  -*- <find-digit''> := <find-digit''>;) 
 
 (defcc <digit''>
-  X := X  where (element? X [0 1 2 3 4 5 6 7 8 9]);) 
+-*- := (one_of -*- [0 1 2 3 4 5 6 7 8 9]);) 
+
+(define one_of
+X Y -> (if (element? X Y) X (fail)))
 
 (defcc <anbncn>
-<as> <bs> <cs> := (appendall [<as> <bs> <cs>]) 
-                       where (equal-length? [<as> <bs> <cs>]);) 
+<as> <bs> <cs> := (if (equal-length? [<as> <bs> <cs>]) 
+                      (appendall [<as> <bs> <cs>]) 
+                      (fail));) 
 
 (defcc <as>
 a <as>; 

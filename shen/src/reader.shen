@@ -1,70 +1,97 @@
-\*                                                   
-
-**********************************************************************************
-*                           The License						*
-* 										*
-* The user is free to produce commercial applications with the software, to 	*
-* distribute these applications in source or binary  form, and to charge monies *
-* for them as he sees fit and in concordance with the laws of the land subject 	*
-* to the following license.							*
-*										* 
-* 1. The license applies to all the software and all derived software and 	*
-*    must appear on such.							*
-*										*
-* 2. It is illegal to distribute the software without this license attached	*
-*    to it and use of the software implies agreement with the license as such.  *
-*    It is illegal for anyone who is not the copyright holder to tamper with 	*
-*    or change the license.							*
-*										*
-* 3. Neither the names of Lambda Associates or the copyright holder may be used *
-*    to endorse or promote products built using the software without specific 	*
-*    prior written permission from the copyright holder.			*
-*										*
-* 4. That possession of this license does not confer on the copyright holder 	*
-*    any special contractual obligation towards the user. That in no event 	* 
-*    shall the copyright holder be liable for any direct, indirect, incidental, *   
-*    special, exemplary or consequential damages (including but not limited     *
-*    to procurement of substitute goods or services, loss of use, data, 	* 
-*    interruption), however caused and on any theory of liability, whether in	* 
-*    contract, strict liability or tort (including negligence) arising in any 	*
-*    way out of the use of the software, even if advised of the possibility of 	*
-*    such damage.								* 
-*										*
-* 5. It is permitted for the user to change the software, for the purpose of 	*
-*    improving performance, correcting an error, or porting to a new platform, 	*
-*    and distribute the derived version of Shen provided the resulting program 	*
-*    conforms in all respects to the Shen standard and is issued under that     * 
-*    title. The user must make it clear with his distribution that he/she is 	*
-*    the author of the changes and what these changes are and why. 		*
-*										*
-* 6. Derived versions of this software in whatever form are subject to the same *
-*    restrictions. In particular it is not permitted to make derived copies of  *
-*    this software which do not conform to the Shen standard or appear under a  *
-*    different title.								*
-*										*
-*    It is permitted to distribute versions of Shen which incorporate libraries,*
-*    graphics or other facilities which are not part of the Shen standard.	*
-*										*
-* For an explication of this license see www.shenlanguage.org/license.htm which *
-* explains this license in full. 
-*				 						*
-*********************************************************************************
-
-*\
-
-(package shen. []
+(set *symbolcodes* (vector 128))   
+                  
+(address-> (value *symbolcodes*)  126 "~")
+(address-> (value *symbolcodes*)  122  "z")
+(address-> (value *symbolcodes*)  121  "y")
+(address-> (value *symbolcodes*)  120  "x")
+(address-> (value *symbolcodes*)  119  "w")
+(address-> (value *symbolcodes*)  118  "v")
+(address-> (value *symbolcodes*)  117  "u")
+(address-> (value *symbolcodes*)  116  "t")
+(address-> (value *symbolcodes*)  115  "s")
+(address-> (value *symbolcodes*)  114  "r")
+(address-> (value *symbolcodes*)  113  "q")
+(address-> (value *symbolcodes*)  112  "p")
+(address-> (value *symbolcodes*)  111  "o")
+(address-> (value *symbolcodes*)  110  "n")
+(address-> (value *symbolcodes*)  109  "m")
+(address-> (value *symbolcodes*)  108  "l")
+(address-> (value *symbolcodes*)  107  "k")
+(address-> (value *symbolcodes*)  106  "j")
+(address-> (value *symbolcodes*)  105  "i")
+(address-> (value *symbolcodes*)  104  "h")
+(address-> (value *symbolcodes*)  103  "g")
+(address-> (value *symbolcodes*)  102  "f")
+(address-> (value *symbolcodes*)  101  "e")
+(address-> (value *symbolcodes*)  100  "d")
+(address-> (value *symbolcodes*)  99  "c")
+(address-> (value *symbolcodes*)  98  "b")
+(address-> (value *symbolcodes*)  97  "a")
+(address-> (value *symbolcodes*)  96  "`")
+(address-> (value *symbolcodes*)  95  "_")
+(address-> (value *symbolcodes*)  90  "Z")
+(address-> (value *symbolcodes*)  89  "Y")
+(address-> (value *symbolcodes*)  88  "X")
+(address-> (value *symbolcodes*)  87  "W")
+(address-> (value *symbolcodes*)  86  "V")
+(address-> (value *symbolcodes*)  85  "U")
+(address-> (value *symbolcodes*)  84  "T")
+(address-> (value *symbolcodes*)  83  "S")
+(address-> (value *symbolcodes*)  82  "R")
+(address-> (value *symbolcodes*)  81  "Q")
+(address-> (value *symbolcodes*)  80  "P")
+(address-> (value *symbolcodes*)  79  "O")
+(address-> (value *symbolcodes*)  78  "N")
+(address-> (value *symbolcodes*)  77  "M")
+(address-> (value *symbolcodes*)  76  "L")
+(address-> (value *symbolcodes*)  75  "K")
+(address-> (value *symbolcodes*)  74  "J")
+(address-> (value *symbolcodes*)  73  "I")
+(address-> (value *symbolcodes*)  72  "H")
+(address-> (value *symbolcodes*)  71  "G")
+(address-> (value *symbolcodes*)  70  "F")
+(address-> (value *symbolcodes*)  69  "E")
+(address-> (value *symbolcodes*)  68  "D")
+(address-> (value *symbolcodes*)  67  "C")
+(address-> (value *symbolcodes*)  66  "B")
+(address-> (value *symbolcodes*)  65  "A")
+(address-> (value *symbolcodes*)  64  "@")
+(address-> (value *symbolcodes*)  63  "?")
+(address-> (value *symbolcodes*)  62  ">")
+(address-> (value *symbolcodes*)  61  "=")
+(address-> (value *symbolcodes*)  60  "<")
+(address-> (value *symbolcodes*)  57  "9")
+(address-> (value *symbolcodes*)  56  "8")
+(address-> (value *symbolcodes*)  55  "7")
+(address-> (value *symbolcodes*)  54  "6")
+(address-> (value *symbolcodes*)  53  "5")
+(address-> (value *symbolcodes*)  52  "4")
+(address-> (value *symbolcodes*)  51  "3")
+(address-> (value *symbolcodes*)  50  "2")
+(address-> (value *symbolcodes*)  49  "1")
+(address-> (value *symbolcodes*)  48  "0")
+(address-> (value *symbolcodes*)  47  "/")
+(address-> (value *symbolcodes*)  46  ".")
+(address-> (value *symbolcodes*)  45  "-")
+(address-> (value *symbolcodes*)  43  "+")
+(address-> (value *symbolcodes*)  42  "*")
+(address-> (value *symbolcodes*)  39  "'")
+(address-> (value *symbolcodes*)  38  "&")
+(address-> (value *symbolcodes*)  37  "%")
+(address-> (value *symbolcodes*)  36  "$")
+(address-> (value *symbolcodes*)  35  "#")
+(address-> (value *symbolcodes*)  33  "!")     
 
 (define lineread
-  -> (lineread-loop (read-byte (stinput)) []))
+  -> (lineread-loop (read-byte) []))
 
 (define lineread-loop
   Byte _ -> (error "line read aborted")  where (= Byte (hat))
-  Byte Bytes -> (let Line (compile (function <st_input>) Bytes (/. E nextline))
-                      (if (or (= Line nextline) (empty? Line))
-                          (lineread-loop (read-byte (stinput)) (append Bytes [Byte]))
-                          Line))	where (element? Byte 
-                                                        [(newline) (carriage-return)])
-  Byte Bytes -> (lineread-loop (read-byte (stinput)) (append Bytes [Byte])))
+  Byte Bytes -> (let Line (compile (function <st_input>) Bytes [])
+                      (if (or (= Line (fail)) (empty? Line))
+                          (lineread-loop (read-byte) (append Bytes [Byte]))
+                          Line))	where (element? Byte [(newline) (carriage-return)])
+  Byte Bytes -> (lineread-loop (read-byte) (append Bytes [Byte])))
 
 (define read-file
   File -> (let Bytelist (read-file-as-bytelist File)
@@ -90,54 +117,52 @@
   <colon> <equal> <st_input> := [:= | <st_input>];
   <colon> <minus> <st_input> := [:- | <st_input>];
   <colon> <st_input> := [: | <st_input>];
-  <comma> <st_input> := [(intern ",") | <st_input>];
+  <comma> <st_input> := [, | <st_input>];
   <comment> <st_input> := <st_input>;
   <atom> <st_input> := [(macroexpand <atom>) | <st_input>];
   <whitespaces> <st_input> := <st_input>;
   <e> := [];)
   
 (defcc <lsb>
-   91 := skip;)  
+   -*- := (if (= -*- 91) skip (fail));)  
    
 (defcc <rsb>
-   93 := skip;)     
+   -*- := (if (= -*- 93) skip (fail));)     
   
 (defcc <lcurly>
-  123 := skip;)
+  -*- := (if (= -*- 123) skip (fail));)
   
 (defcc <rcurly>
-  125 := skip;)
+  -*- := (if (= -*- 125) skip (fail));)
   
 (defcc <bar>
-  124 := skip;)  
+  -*- := (if (= -*- 124) skip (fail));)  
   
 (defcc <semicolon>
-  59 := skip;) 
+  -*- := (if (= -*- 59) skip (fail));) 
   
 (defcc <colon>
-  58 := skip;)     
+  -*- := (if (= -*- 58) skip (fail));)     
       
 (defcc <comma>
-  44 := skip;)  
+  -*- := (if (= -*- 44) skip (fail));)  
   
 (defcc <equal>
-  61 := skip;)     
+   -*- := (if (= -*- 61) skip (fail));)     
    
 (defcc <minus>
-  45 := skip;)      
+   -*- := (if (= -*- 45) skip (fail));)      
   
 (defcc <lrb>
-  40 := skip;)
+  -*- := (if (= -*- 40) skip (fail));)
   
 (defcc <rrb>
-  41 := skip;)   
+  -*- := (if (= -*- 41) skip (fail));)   
   
 (defcc <atom>
   <str> := (control-chars <str>); 
-  <number> := <number>; 
-  <sym> := (if (= <sym> "<>")
-               [vector 0]
-               (intern <sym>));)
+  <number>; 
+  <sym>;)
 
 (define control-chars
   [] -> ""
@@ -175,20 +200,23 @@
    _ -> [])
 
 (defcc <sym>
-  <alpha> <alphanums> := (@s <alpha> <alphanums>);)
-
-(defcc <alphanums>
-   <alphanum> <alphanums> := (@s <alphanum> <alphanums>);
-   <e> := "";)  
+  <alpha> <symchars> := (intern (cn <alpha> <symchars>));
+  <alpha> := (intern <alpha>);)
+  
+(defcc <symchars>
+   <symchar> <symchars> := (cn <symchar> <symchars>);
+   <symchar> := <symchar>;)  
    
-(defcc <alphanum>
-    <alpha> := <alpha>;
-    <num> := <num>;) 	
+(defcc <symchar>
+    <alpha>;
+    <digit->string>;)
 
-(defcc <num>
-  Byte := (n->string Byte)    where (numbyte? Byte);)
+(defcc <digit->string>   
+  -*- := (if (digit-byte? -*-) 
+             (n->string -*-) 
+             (fail));)   
 
-(define numbyte?
+(define digit-byte?
   48 -> true
   49 -> true
   50 -> true
@@ -202,34 +230,32 @@
   _ -> false)
    
 (defcc <alpha>
-  Byte := (n->string Byte)	  where (symbol-code? Byte);)
-
-(define symbol-code?
-  N -> (or (= N 126)
-           (and (> N 94) (< N 123))
-           (and (> N 59) (< N 91))
-           (and (> N 41) (< N 58) (not (= N 44)))
-           (and (> N 34) (< N 40))
-           (= N 33)))
+  -*- := (let S (symbol-byte->string -*-)
+             (if (= S (fail))  
+                 (fail)
+                 S));)
+                 
+(define symbol-byte->string
+  Byte -> (<-address (value *symbolcodes*) Byte))              
   
 (defcc <str>
   <dbq> <strcontents> <dbq> := <strcontents>;)
   
 (defcc <dbq>
-  Byte := Byte	where (= Byte 34);)    
+  -*- := (if (= -*- 34) skip (fail));)    
   
 (defcc <strcontents>
   <strc> <strcontents> := [<strc> | <strcontents>];
   <e> := [];)
   
 (defcc <byte>
-  Byte := (n->string Byte);)  
+  -*- := (n->string -*-);)  
   
 (defcc <strc>
-  Byte := (n->string Byte)	where (not (= Byte 34));)
+  -*- := (if (= -*- 34) (fail) (n->string -*-));)
   
 (defcc <backslash>
-  Byte := (n->string Byte)	where (= Byte 92);)
+  -*- := (if (= -*- 92) skip (fail));)
   
 (defcc <number>
    <minus> <number> := (- 0 <number>);
@@ -242,31 +268,31 @@
    <digits> := (pre (reverse <digits>) 0);)
 
 (defcc <E>
-   101 := skip;)
+   101;)
 
 (defcc <log10>
   <minus> <digits> := (- 0 (pre (reverse <digits>) 0));
   <digits> := (pre (reverse <digits>) 0);)
    
 (defcc <plus>
-  Byte := Byte 	where (= Byte 43);)
+  -*- := (if (= -*-  43) skip (fail));)
   
 (defcc <stop>
-  Byte := Byte 	where (= Byte 46);)      
+  -*- := (if (= -*- 46) skip (fail));)      
    
 (defcc <predigits>
-    <digits> := <digits>;
+    <digits>;
     <e> := [];)
     
 (defcc <postdigits>
-  <digits> := <digits>;)
+    <digits>;)
 
 (defcc <digits>
    <digit> <digits> := [<digit> | <digits>];
    <digit> := [<digit>];)
  
 (defcc <digit>
-  X := (byte->digit X)  where (numbyte? X);)
+  -*- := (if (digit-byte? -*-) (byte->digit -*-) (fail));)
   
 (define byte->digit  
   48 -> 0   
@@ -303,32 +329,35 @@
   <backslash> <times> <any> <times> <backslash> := skip;)  
  
 (defcc <times>
-  Byte := Byte    where (= Byte 42);)       
+  -*- := (if (= -*- 42) skip (fail));)       
 
 (defcc <any>
   <comment> <any> := skip;
   <blah> <any> := skip;
   <e> := skip;)
 
-(define <blah>
-  [[42 92 | _] | _] -> (fail)
-  [[_ | Y] _] -> [Y skip]
-  _ -> (fail)) 
+(defcc <blah>
+  -*- := (if (end-of-comment? -s-) (fail) skip);)
+
+(define end-of-comment?
+  [42 92 | _] -> true   
+  _ -> false)  
 
 (defcc <whitespaces>
   <whitespace> <whitespaces> := skip;
   <whitespace> := skip;)
 
 (defcc <whitespace>
-  X := skip     where (let Case X
-                      (or (= Case 32) 
-                          (= Case 13) 
-                          (= Case 10) 
-                          (= Case 9)));)                      
+  -*- := (let Case -*-
+              (cases (= Case 32) skip 
+                     (= Case 13) skip
+                     (= Case 10) skip
+                     (= Case 9) skip
+                     true (fail)));)                      
 
 (define cons_form
   [] -> []
-  [X Bar Y] -> [cons X Y]	  where (= Bar bar!)
+  [X bar! Y] -> [cons X Y]	
   [X | Y] -> [cons X (cons_form Y)])  
  
 (define package-macro
@@ -337,8 +366,7 @@
     [package PackageName Exceptions | Code] Stream
      -> (let ListofExceptions (eval-without-macros Exceptions)
              Record (record-exceptions ListofExceptions PackageName)
-             PackageNameDot (intern (cn (str PackageName) "."))
-             (append (packageh PackageNameDot ListofExceptions Code) Stream))
+             (append (packageh PackageName ListofExceptions Code) Stream))
     X Stream -> [X | Stream])  
 
 (define record-exceptions 
@@ -354,11 +382,11 @@
                  where (or (sysfunc? X) (variable? X) (element? X Exceptions)
                            (doubleunderline? X) (singleunderline? X))
     PackageName Exceptions X -> (concat PackageName X)   
-             where (and (symbol? X) (not (prefix? [($ shen.)] (explode X))))
+             where (and (symbol? X) (not (prefix? ["s" "h" "e" "n" "-"] (explode X))))
     _ _ X -> X) 
 
 (define read-from-string
   S -> (let Ns (map (function string->n) (explode S))
-            (compile (function <st_input>) 
+            (compile (function shen-<st_input>) 
                      Ns 
-                     (function read-error)))))
+                     (function shen-read-error))))

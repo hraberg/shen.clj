@@ -1,66 +1,8 @@
-\*                                                   
-
-**********************************************************************************
-*                           The License						*
-* 										*
-* The user is free to produce commercial applications with the software, to 	*
-* distribute these applications in source or binary  form, and to charge monies *
-* for them as he sees fit and in concordance with the laws of the land subject 	*
-* to the following license.							*
-*										* 
-* 1. The license applies to all the software and all derived software and 	*
-*    must appear on such.							*
-*										*
-* 2. It is illegal to distribute the software without this license attached	*
-*    to it and use of the software implies agreement with the license as such.  *
-*    It is illegal for anyone who is not the copyright holder to tamper with 	*
-*    or change the license.							*
-*										*
-* 3. Neither the names of Lambda Associates or the copyright holder may be used *
-*    to endorse or promote products built using the software without specific 	*
-*    prior written permission from the copyright holder.			*
-*										*
-* 4. That possession of this license does not confer on the copyright holder 	*
-*    any special contractual obligation towards the user. That in no event 	* 
-*    shall the copyright holder be liable for any direct, indirect, incidental, *   
-*    special, exemplary or consequential damages (including but not limited     *
-*    to procurement of substitute goods or services, loss of use, data, 	* 
-*    interruption), however caused and on any theory of liability, whether in	* 
-*    contract, strict liability or tort (including negligence) arising in any 	*
-*    way out of the use of the software, even if advised of the possibility of 	*
-*    such damage.								* 
-*										*
-* 5. It is permitted for the user to change the software, for the purpose of 	*
-*    improving performance, correcting an error, or porting to a new platform, 	*
-*    and distribute the derived version of Shen provided the resulting program 	*
-*    conforms in all respects to the Shen standard and is issued under that     * 
-*    title. The user must make it clear with his distribution that he/she is 	*
-*    the author of the changes and what these changes are and why. 		*
-*										*
-* 6. Derived versions of this software in whatever form are subject to the same *
-*    restrictions. In particular it is not permitted to make derived copies of  *
-*    this software which do not conform to the Shen standard or appear under a  *
-*    different title.								*
-*										*
-*    It is permitted to distribute versions of Shen which incorporate libraries,*
-*    graphics or other facilities which are not part of the Shen standard.	*
-*										*
-* For an explication of this license see www.shenlanguage.org/license.htm which *
-* explains this license in full. 
-*				 						*
-*********************************************************************************
-
-*\
-
-(package shen. []
-
 (defcc <defprolog>
-  <predicate*> <clauses*> 
-  := (hd (prolog->shen (map (/. X (insert-predicate <predicate*> X)) <clauses*>)));)
+  <predicate*> <clauses*> := (hd (prolog->shen  (map (/. X (insert-predicate <predicate*> X)) <clauses*>)));)
 
 (define prolog-error
-  F [X _] -> (error "prolog syntax error in ~A here:~%~% ~A~%" F (next-50 50 X))
-  F _ -> (error "prolog syntax error in ~A~%" F))
+  F X -> (error "prolog syntax error in ~A here:~%~% ~A~%" F (next-50 50 X)))
 
 (define next-50
   _ [] -> ""
@@ -75,7 +17,7 @@
   Predicate [Terms Body] -> [[Predicate | Terms] :- Body])   
   
 (defcc <predicate*>
-   X := X;)  
+   -*- := -*-;)  
   
 (defcc <clauses*> 
   <clause*> <clauses*> := [<clause*> | <clauses*>];
@@ -89,7 +31,7 @@
   <e>;)
   
 (defcc <term*>
-  X := (eval-cons X)  where (and (not (= <-- X)) (legitimate-term? X));)
+  -*- := (if (and (not (= <-- -*-)) (legitimate-term? -*-)) (eval-cons -*-) (fail));)
 
 (define legitimate-term?
   [cons X Y] -> (and (legitimate-term? X) (legitimate-term? Y))
@@ -108,11 +50,11 @@
   <e>;)
   
 (defcc <literal*>
-  ! := [cut (intern "Throwcontrol")];
-  X := X	where (cons? X);)  
+  ! := [cut Throwcontrol];
+  -*- := (if (cons? -*-) -*- (fail));)  
   
 (defcc <end*>
-  X := X	where (= X ;);)  
+  -*- := (if (= -*- ;) skip (fail));)  
 
 (define cut
   Throw ProcessN Continuation -> (let Result (thaw Continuation) 
@@ -140,7 +82,7 @@
 
 (define head_abstraction
   [H :- B] -> [[H :- B]]  where (< (complexity_head H) (value *maxcomplexity*))
-  [[F | X] :- B] -> (let Terms (map (/. Y (gensym (protect V))) X)
+  [[F | X] :- B] -> (let Terms (map (/. Y (gensym V)) X)
                          XTerms (rcons_form (remove_modes X))
                          Literal [unify (cons_form Terms) XTerms]
                          Clause [[F | Terms] :- [Literal | B]]
@@ -170,12 +112,12 @@
   [F | X] -> [(m_prolog_to_s-prolog_predicate F) | X])
   
 (define insert_deref
-  V -> [deref V (protect ProcessN)]	 where (variable? V)
+  V -> [deref V ProcessN]	 where (variable? V)
   [X | Y] -> [(insert_deref X) | (insert_deref Y)]
   X -> X)
   
 (define insert_lazyderef
-  V -> [lazyderef V (protect ProcessN)]	 where (variable? V)
+  V -> [lazyderef V ProcessN]	 where (variable? V)
   [X | Y] -> [(insert_lazyderef X) | (insert_lazyderef Y)]
   X -> X)      
 
@@ -213,13 +155,13 @@
                     Parameters (parameters Arity) 
                     AUM_instructions (map (/. X (aum X Parameters)) Linear)
                     Code (catch-cut (nest-disjunct (map (function aum_to_shen) AUM_instructions)))
-                    ShenDef [define F | (append Parameters [(protect ProcessN) (protect Continuation)] [-> Code])]
+                    ShenDef [define F | (append Parameters [ProcessN Continuation] [-> Code])]
                     ShenDef))
                                         
 (define catch-cut
   Code -> Code     where (not (occurs? cut Code))
-  Code -> [let (protect Throwcontrol) [catchpoint]
-              [cutpoint (protect Throwcontrol) Code]])
+  Code -> [let Throwcontrol [catchpoint]
+              [cutpoint Throwcontrol Code]])
               
 (define catchpoint 
   -> (set *catch* (+ 1 (value *catch*))))                   
@@ -233,10 +175,10 @@
   [Case | Cases] -> (lisp-or Case (nest-disjunct Cases)))  
   
 (define lisp-or
-  P Q -> [let (protect Case) P
-              [if [= (protect Case) false]
+  P Q -> [let Case P
+              [if [= Case false]
                   Q
-                  (protect Case)]])
+                  Case]])
   
 (define prolog-aritycheck
   _ [H] -> (- (length H) 1)
@@ -273,9 +215,9 @@
           (mu_reduction MuApplication +)))
 
 (define continuation_call
-  Terms Body -> (let VTerms [(protect ProcessN) | (extract_vars Terms)]
+  Terms Body -> (let VTerms [ProcessN | (extract_vars Terms)]
                      VBody (extract_vars Body)
-                     Free (remove (protect Throwcontrol) (difference VBody VTerms))
+                     Free (remove Throwcontrol (difference VBody VTerms))
                      (cc_help Free Body)))                
                  
 (define remove
@@ -303,13 +245,13 @@
    [[mu V Body] FP] Mode 
     -> (subst FP V (mu_reduction Body Mode))     where (ephemeral_variable? V FP)
    [[mu V Body] FP] Mode -> [let V be FP in (mu_reduction Body Mode)] where (variable? V)
-   [[mu C Body] FP] - -> (let Z (gensym (protect V)) 
+   [[mu C Body] FP] - -> (let Z (gensym V) 
                                 [let Z be [the result of dereferencing FP]
                                    in [if [Z is identical to C] 
                                        then (mu_reduction Body -) 
                                        else  
-			               failed!]])	where (prolog_constant? C)    
-   [[mu C Body] FP] + -> (let Z (gensym (protect V)) 
+			               (fail)]])	where (prolog_constant? C)    
+   [[mu C Body] FP] + -> (let Z (gensym V) 
                                 [let Z be [the result of dereferencing FP]
                                    in [if [Z is identical to C] 
                                        then (mu_reduction Body +) 
@@ -318,21 +260,21 @@
 										then
                                         [bind Z to C in (mu_reduction Body +)]
                                         else 
-                                        failed!]]])		where (prolog_constant? C)
+                                        (fail)]]])		where (prolog_constant? C)
    [[mu [X | Y] Body] FP] -
-    -> (let Z (gensym (protect V))
+    -> (let Z (gensym V)
 		    [let Z be [the result of dereferencing FP]
      			   in [if [Z is a non-empty list]
                        then 
-         	  (mu_reduction [[mu X [[mu Y Body] [the tail of Z]]] [the head of Z]] -)
+         			   (mu_reduction [[mu X [[mu Y Body] [the tail of Z]]] [the head of Z]] -)
                        else 
-                       failed!]])
+                       (fail)]])
    [[mu [X | Y] Body] FP] +
-    -> (let Z (gensym (protect V))
+    -> (let Z (gensym V)
 			[let Z be [the result of dereferencing FP]
      		       in [if [Z is a non-empty list]
-                       then
-      		(mu_reduction [[mu X [[mu Y Body] [the tail of Z]]] [the head of Z]] +)
+                       then 
+         			   (mu_reduction [[mu X [[mu Y Body] [the tail of Z]]] [the head of Z]] +)
                        else  
                        [if [Z is a variable]
 					     then 
@@ -340,7 +282,7 @@
                           and then [bind Z to (rcons_form (remove_modes [X | Y])) 
 						  in (mu_reduction Body +)]]
                           else 
-                          failed!]]])
+                          (fail)]]])
   X _ -> X)
 
 (define rcons_form
@@ -363,32 +305,29 @@
 (define aum_to_shen
    [let Z* be AUM1 in AUM2]
     -> [let Z* (aum_to_shen AUM1) (aum_to_shen AUM2)]
-   [the result of dereferencing Z] -> [lazyderef (aum_to_shen Z) (protect ProcessN)]
+   [the result of dereferencing Z] -> [lazyderef (aum_to_shen Z) ProcessN]
    [if AUM1 then AUM2 else AUM3]
     -> [if (aum_to_shen AUM1) (aum_to_shen AUM2) (aum_to_shen AUM3)]
    [Z is a variable] -> [pvar? Z]
    [Z is a non-empty list] -> [cons? Z]
    [rename the variables in [] and then AUM] -> (aum_to_shen AUM)
    [rename the variables in [X | Y] and then AUM] 
-   -> [let X [newpv (protect ProcessN)] 
-           (aum_to_shen [rename the variables in Y and then AUM])]
-   [bind Z to X in AUM] -> [do [bindv Z (chwild X) (protect ProcessN)]
-                               [let (protect Result) (aum_to_shen AUM)
-                                    [do [unbindv Z (protect ProcessN)]
-                                        (protect Result)]]]
+   -> [let X [newpv ProcessN] (aum_to_shen [rename the variables in Y and then AUM])]
+   [bind Z to X in AUM] -> [do [bindv Z (chwild X) ProcessN]
+                               [let Result (aum_to_shen AUM)
+                                    [do [unbindv Z ProcessN]
+                                        Result]]]
    [Z is identical to X] -> [= X Z]   
-   failed! -> false   
+   Fail -> false  where (= Fail (fail)) 
    [the head of X] -> [hd X]
    [the tail of X] -> [tl X]
-   [pop the stack] -> [do [incinfs] [thaw (protect Continuation)]]
+   [pop the stack] -> [do [incinfs] [thaw Continuation]]
    [call the continuation Body] 
-   -> [do [incinfs] (call_the_continuation (chwild Body) 
-                                           (protect ProcessN)
-                                           (protect Continuation))]
+   -> [do [incinfs] (call_the_continuation (chwild Body) ProcessN Continuation)]
    X -> X)  
  
 (define chwild
-   X -> [newpv (protect ProcessN)]   where (= X _)
+   X -> [newpv ProcessN]   where (= X _)
    [X | Y] -> (map (function chwild) [X | Y])
    X -> X)     
    
@@ -593,4 +532,3 @@
                                (fillvector (vector 10) 1 10 -null-))
             Counter (address-> (value *varcounter*) N 1)
             N))
-)
